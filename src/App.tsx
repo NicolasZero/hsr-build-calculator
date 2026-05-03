@@ -7,8 +7,8 @@ function App() {
 
   return (
     <>
-      <header className='flex justify-between items-center'>
-        <h1 className='text-3xl font-bold text-center px-3 text-primary dark:text-fuchsia-700'>Aplicación para calcular builds en HSR</h1>
+      <header className='flex justify-between items-center bg-muted p-4'>
+        <h1 className='text-3xl font-bold text-center px-3 text-primary dark:text-primary-foreground'>Build Calculator</h1>
         <ModeToggle />
       </header>
 

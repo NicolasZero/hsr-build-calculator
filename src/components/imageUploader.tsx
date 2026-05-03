@@ -5,14 +5,14 @@ import { XIcon, ImageIcon } from "@phosphor-icons/react";
 // import { cn } from '@/lib/utils';
 
 interface ImageUploaderProps {
-    id: string;
+    name: string;
     label?: string;
     className?: string;
 }
 
 export function ImageUploader(
     {
-        id,
+        name,
         label = "Haz clic para subir",
         className,
     }: ImageUploaderProps
@@ -53,7 +53,7 @@ export function ImageUploader(
                         <p className="text-sm text-muted-foreground">{label}</p>
                     </div>
                     <Input
-                        id={id}
+                        name={name}
                         type="file"
                         accept="image/*"
                         className="hidden"

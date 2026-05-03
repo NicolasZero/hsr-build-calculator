@@ -1,50 +1,91 @@
-import { ImageUploader } from '@/components/imageUploader'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
 import { useState } from 'react'
 
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
+
+
+import CharacterSelector from '@/components/characterSelector'
+import { type Characters, charactersDefault } from '@/const/charactersTemplate'
+import BuffsSelector from '@/components/table/buffsSelector'
+
+import { type BuffData } from "@/components/table/columns"
+
+
 export default function TeamBuilder() {
-    const [stat, setStat] = useState('ATQ')
-    const handleSelect = (value: string) => {
-        setStat(value)
+    // Guardar el personaje seleccionado por el usuario
+    const [characterSelected, setCharacterSelected] = useState<string>('character1')
+    // Guardar los datos de los personajes del team
+    const [characters, setCharacters] = useState<Characters>(charactersDefault)
+
+    const [data, setData] = useState<BuffData[]>([])
+
+    // Función para eliminar
+    const handleDelete = (id: string) => {
+        if (confirm("¿Estás seguro de que deseas eliminar este registro?")) {
+            setData((prev) => prev.filter((item) => item.id !== id))
+        }
     }
+
+    // logica para guardar los personajes en localStorage
+    // useEffect(() => {
+    //     localStorage.setItem('teamCharacters', JSON.stringify(characters));
+    // }, [characters]);
+
+    //     const limpiarDatos = () => {
+    //     localStorage.removeItem('stats_personajes');
+    //     window.location.reload(); // Recargar para volver al estado inicial
+    //   };
+
+    // Guarda los cambios realizados en los inputs en el estado characters
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement> | { target: { name: string, value: string } }, characterId: string = '') => {
+        const { name, value } = e.target;
+        const id = characterId || characterSelected;
+
+        setCharacters((prev: Characters) => ({
+            ...prev,
+            [id]: {
+                ...prev[id],
+                [name]: value,
+            },
+        }));
+    };
+
     return (
-        <form method='POST' className='flex flex-col gap-4 p-4'>
+        <form onSubmit={(e) => e.preventDefault()} className='flex flex-col gap-5 p-4 md:py-8 md:px-6'>
             <fieldset className='flex items-center gap-4'>
-                <label htmlFor="teamName" className='text-2xl font-bold text-center'>Team</label>
+                <label htmlFor="teamName" className='text-nowrap'>Nombre del Team:</label>
                 <Input id="teamName" type="text" placeholder="Nombre del team" />
             </fieldset>
 
-            <fieldset className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>
-                <div>
-                    <label htmlFor="selectedCharacter">Personaje principal</label>
-                    <ImageUploader id="selectedCharacter" />
-                    <Input id="nameSelectedCharacter" type="text" placeholder="Nombre del personaje" className='mt-2' />
-                </div>
 
-                <div>
-                    <label htmlFor="character2">Personaje 2</label>
-                    <ImageUploader id="character2" />
-                    <Input id="nameCharacter2" type="text" placeholder="Nombre del personaje" className='mt-2' />
+            <fieldset className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>
+                <div className='col-span-full'>
+                    <h2 className='font-semibold text-lg text-primary dark:text-fuchsia-600'>Agrega los personajes de tu team</h2>
+                    <p className='text-sm text-muted-foreground'>No es necesario cargar una imagen o de añadir todos los miembros del team</p>
                 </div>
-                <div>
-                    <label htmlFor="character3">Personaje 3</label>
-                    <ImageUploader id="character3" />
-                    <Input id="nameCharacter3" type="text" placeholder="Nombre del personaje" className='mt-2' />
-                </div>
-                <div>
-                    <label htmlFor="character4">Personaje 4</label>
-                    <ImageUploader id="character4" />
-                    <Input id="nameCharacter4" type="text" placeholder="Nombre del personaje" className='mt-2' />
-                </div>
+                {
+                    Object.entries(characters).map(([key, character]: any, i) => (
+                        <CharacterSelector
+                            key={key}
+                            characterKey={key}
+                            character={character}
+                            number={i + 1}
+                            isSelected={characterSelected === key}
+                            onSelect={setCharacterSelected}
+                            onChange={handleChange}
+                        />
+                    ))
+                }
             </fieldset>
 
-            <h2 className=''>Stats del personaje principal</h2>
-            <div className='grid grid-cols-3 gap-4'>
+            <fieldset className='grid grid-cols-3 gap-4'>
+                <div className='col-span-full'>
+                    <h2 className='font-semibold text-lg text-primary dark:text-fuchsia-600'>Stats de "<span className='text-secondary-foreground'>{characters[characterSelected]?.name || 'Sin especificar'}</span>"</h2>
+                </div>
                 {/* row 1 */}
-                <Input id="statBase" type="number" placeholder={`${stat} base`} min={0} />
-                <Input id="statTotal" type="number" placeholder={`${stat} total`} min={0} />
-                <Select value={stat} onValueChange={handleSelect}>
+                <Input name="statBase" value={characters[characterSelected]?.statBase} type="number" placeholder={`${characters[characterSelected]?.offensiveStat || 'ATQ o HP'} base`} min={0} onChange={(e) => handleChange(e)} />
+                <Input name="statTotal" value={characters[characterSelected]?.statTotal} type="number" placeholder={`${characters[characterSelected]?.offensiveStat || 'ATQ o HP'} total`} min={0} onChange={(e) => handleChange(e)} />
+                <Select value={characters[characterSelected]?.offensiveStat} onValueChange={(value) => { handleChange({ target: { name: 'offensiveStat', value } }) }}>
                     <SelectTrigger className='w-full'>
                         <SelectValue placeholder="ATQ o HP" />
                     </SelectTrigger>
@@ -54,13 +95,17 @@ export default function TeamBuilder() {
                     </SelectContent>
                 </Select>
                 {/* row 2 */}
-                <Input id="VEL_base" type="number" placeholder="VEL base" min={0} />
-                <Input id="VEL_total" type="number" placeholder="VEL total" min={0} />
-                <Input id="nivel" type="number" placeholder="Nivel" min={0} max={90} />
+                <Input name="velBase" value={characters[characterSelected]?.velBase} type="number" placeholder="VEL base" min={0} onChange={(e) => handleChange(e)} />
+                <Input name="velTotal" value={characters[characterSelected]?.velTotal} type="number" placeholder="VEL total" min={0} onChange={(e) => handleChange(e)} />
+                <Input name="nivel" value={characters[characterSelected]?.nivel} type="number" placeholder="Nivel" min={0} max={90} onChange={(e) => handleChange(e)} />
                 {/* row 3 */}
-                <p className='text-center col-span-3 text-muted-foreground'>Nota: Otras stats seran ingresadas en un futuro</p>
+                <p className='text-center col-span-3 text-muted-foreground'>Nota: Otras stats seran agregadas en un futuro</p>
 
-            </div>
+            </fieldset>
+
+            <fieldset>
+                <BuffsSelector data={data} setData={setData} onDelete={handleDelete} />
+            </fieldset>
         </form>
     )
 }
