@@ -13,31 +13,35 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import type { BuffData } from "@/schema/buffData"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
-    onDelete?: (id: string) => void // Nueva prop
+    onDelete?: (id: string) => void
+    onEdit?: (buff: BuffData) => void
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data,
     onDelete,
+    onEdit
 }: DataTableProps<TData, TValue>) {
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
         meta: {
-            removeRow: (id: string) => onDelete?.(id), // La exponemos vía meta
+            removeRow: (id: string) => onDelete?.(id),
+            editRow: (buff: BuffData) => onEdit?.(buff)
         },
     })
 
     return (
-        <div className="rounded-md border">
+        <div className="border overflow-x-auto">
             <Table>
-                <TableHeader>
+                <TableHeader className="bg-muted">
                     {table.getHeaderGroups().map((headerGroup) => (
                         <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map((header) => (

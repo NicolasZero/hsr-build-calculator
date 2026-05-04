@@ -1,20 +1,4 @@
-export interface CharacterTemplate {
-    name: string;
-    img: string;
-    statBase: string;
-    statTotal: string;
-    velBase: string;
-    velTotal: string;
-    nivel: string;
-    offensiveStat: '' | 'ATQ' | 'HP';
-}
-
-export interface Characters {
-    character1: CharacterTemplate;
-    character2: CharacterTemplate;
-    character3: CharacterTemplate;
-    character4: CharacterTemplate;
-}
+import type { Characters } from "@/schema/character"
 
 export const charactersDefault: Characters = {
     character1: {

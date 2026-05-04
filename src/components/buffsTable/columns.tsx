@@ -1,21 +1,8 @@
 import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { TrashIcon, PenIcon, } from "@phosphor-icons/react"
+import type { BuffData } from "@/schema/buffData"
 
-
-// import { DotsThreeOutlineIcon } from "@phosphor-icons/react"
-
-// 1. Define el tipo de dato
-export type BuffData = {
-    id: string
-    valor: string
-    buff: string
-    origen: string
-    personaje: string
-    status: "Activo" | "Inactivo"
-}
-
-// 2. Define las columnas
 export const columns: ColumnDef<BuffData>[] = [
     { accessorKey: "valor", header: "Valor" },
     { accessorKey: "buff", header: "Buff" },
@@ -32,7 +19,9 @@ export const columns: ColumnDef<BuffData>[] = [
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => console.log("Editar:", buff)}
+                        onClick={() => {
+                            ((table.options.meta as any)?.editRow(buff))
+                        }}
                     >
                         <PenIcon />
                         Editar
@@ -41,7 +30,6 @@ export const columns: ColumnDef<BuffData>[] = [
                         variant="destructive"
                         size="sm"
                         onClick={() => {
-                            // Llamamos a la función definida en el meta
                             (table.options.meta as any)?.removeRow(buff.id)
                         }}
                     >
