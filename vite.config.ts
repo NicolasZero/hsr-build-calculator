@@ -1,7 +1,7 @@
 import path from "path"
-import { defineConfig, type PluginOption } from 'vite'
+import { defineConfig } from 'vite'
 import react, { reactCompilerPreset } from '@vitejs/plugin-react'
-import { visualizer } from 'rollup-plugin-visualizer'
+// import { visualizer } from 'rollup-plugin-visualizer'
 import tailwindcss from '@tailwindcss/vite'
 import babel from '@rolldown/plugin-babel'
 
@@ -11,7 +11,7 @@ export default defineConfig({
     react(),
     babel({ presets: [reactCompilerPreset()] }),
     tailwindcss(),
-    visualizer({ filename: 'report.html' }) as PluginOption,
+    // visualizer({ filename: 'report.html' }) as PluginOption,
   ],
   resolve: {
     alias: {

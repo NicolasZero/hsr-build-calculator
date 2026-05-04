@@ -1,4 +1,4 @@
-import './App.css'
+// import './App.css'
 import uhEtoBleh from '@/assets/uh_eto_bleh.png'
 import { ModeToggle } from '@/components/mode-toggle'
 import TeamBuilder from '@/components/teamBuilder'
