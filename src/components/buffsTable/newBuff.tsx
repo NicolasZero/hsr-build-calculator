@@ -4,8 +4,8 @@ import { Input } from "@/components/ui/input";
 import { PlusIcon } from "@phosphor-icons/react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { buffType } from "@/const/buffType";
-import { useContext, useState } from 'react'
-import { TeamContext } from '@/contexts/teamContext'
+import { useState } from 'react'
+import { useTeam } from '@/contexts/teamContext'
 import { Switch } from "@/components/ui/switch"
 
 interface props {
@@ -16,7 +16,7 @@ interface props {
 }
 
 export default function Modal({ addBuff, openModal, setOpenModal, error }: props) {
-    const { team } = useContext(TeamContext)
+    const { team } = useTeam()
     const [status, setStatus] = useState(true)
 
     return (

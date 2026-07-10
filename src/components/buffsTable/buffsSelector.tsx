@@ -1,26 +1,26 @@
 import { columns } from "./columns"
 import { DataTable } from "./data-table"
 import NewBuffModal from "./newBuff"
+import { useState } from "react"
 import { cn } from "@/lib/utils"
-import { useState, useContext } from "react"
 import ConfirmModal from "@/components/buffsTable/deleteBuff"
 import EditModal from "@/components/buffsTable/editBuff"
 import type { BuffData } from "@/schema/buffData"
-import { TeamContext } from '@/contexts/teamContext'
+import { useTeam } from '@/contexts/teamContext'
 
 interface props {
     className?: string
 }
 
 export default function BuffsSelector({ className }: props) {
-    const { buffs, setBuffs } = useContext(TeamContext)
+    const { buffs, setBuffs } = useTeam()
     const [openConfirmModal, setConfirmModal] = useState(false)
     const [id, setId] = useState("")
     const [error, setError] = useState("")
     const [openModal, setOpenModal] = useState(false)
 
     const [openEditModal, setOpenEditModal] = useState(false)
-    const [buffToEdit, setBuffToEdit] = useState<BuffData | null>(null)
+    const [buffToEdit, setBuffToEdit] = useState<BuffData | undefined>(undefined)
 
     const handleModal = (id: string) => {
         setConfirmModal(true)

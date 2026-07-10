@@ -2,19 +2,23 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { TrashIcon, PenIcon, } from "@phosphor-icons/react"
 import type { BuffData } from "@/schema/buffData"
-import { TeamContext } from "@/contexts/teamContext"
-import { useContext } from "react"
+import { PersonajeCell } from "./PersonajeCell"
+
+declare module "@tanstack/react-table" {
+    interface TableMeta<TData> {
+        removeRow: (id: string) => void
+        editRow: (buff: TData) => void
+    }
+}
 
 export const columns: ColumnDef<BuffData>[] = [
     { accessorKey: "valor", header: "Valor" },
     { accessorKey: "buff", header: "Buff" },
     { accessorKey: "origen", header: "Origen del Buff" },
     {
-        accessorKey: "personaje", header: "Personaje", cell: ({ row }) => {
-            const buff = row.original
-            const { team } = useContext(TeamContext)
-            return team[buff.personaje]?.name
-        }
+        accessorKey: "personaje",
+        header: "Personaje",
+        cell: ({ row }) => <PersonajeCell buff={row.original} />
     },
     { accessorKey: "status", header: "Status" },
     {
@@ -27,9 +31,7 @@ export const columns: ColumnDef<BuffData>[] = [
                     <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => {
-                            ((table.options.meta as any)?.editRow(buff))
-                        }}
+                        onClick={() => (table.options.meta?.editRow(buff))}
                     >
                         <PenIcon />
                         Editar
@@ -37,9 +39,7 @@ export const columns: ColumnDef<BuffData>[] = [
                     <Button
                         variant="destructive"
                         size="sm"
-                        onClick={() => {
-                            (table.options.meta as any)?.removeRow(buff.id)
-                        }}
+                        onClick={() => (table.options.meta?.removeRow(buff.id))}
                     >
                         <TrashIcon />
                         Eliminar

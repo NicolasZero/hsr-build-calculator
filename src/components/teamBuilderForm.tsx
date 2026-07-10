@@ -1,15 +1,21 @@
-import { useContext } from 'react'
 import { Input } from '@/components/ui/input'
+import Loader from '@/components/loader'
 // import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
 import CharacterSelector from '@/components/characterSelector'
-import BuffsSelector from '@/components/buffsTable/buffsSelector'
-import { TeamContext } from '@/contexts/teamContext'
-import TotalStats from './totalStats'
+// import BuffsSelector from '@/components/buffsTable/buffsSelector'
+import { useTeam } from '@/contexts/teamContext'
+// import TotalStats from './totalStats'
 import BaseStats from './BaseStats'
+
+// Dinamic import for better performance
+import React, { lazy, Suspense } from 'react'
+
+const TotalStats = lazy(() => import('./totalStats'))
+const BuffsSelector = lazy(() => import('./buffsTable/buffsSelector'))
 
 export default function TeamBuilder() {
 
-    const { team, editCharacter, selectedCharacter, setSelectedCharacter } = useContext(TeamContext)
+    const { team, editCharacter, selectedCharacter, setSelectedCharacter } = useTeam()
     // logica para guardar los personajes en localStorage
     // useEffect(() => {
     //     localStorage.setItem('teamCharacters', JSON.stringify(characters));
@@ -60,13 +66,17 @@ export default function TeamBuilder() {
             </fieldset>
 
             <fieldset>
-                <BuffsSelector />
+                <Suspense fallback={<Loader />}>
+                    <BuffsSelector />
+                </Suspense>
                 {/* <p className='text-center mt-3 text-muted-foreground'>Nota: Los buffs negativos seran implementados en un futuro</p> */}
             </fieldset>
 
             <fieldset>
                 <h2 className='font-semibold text-lg text-primary dark:text-fuchsia-600'>Stats totales de: <span className='text-secondary-foreground'>{team[selectedCharacter]?.name || 'Sin especificar'}</span></h2>
-                <TotalStats />
+                <Suspense fallback={<Loader />}>
+                    <TotalStats />
+                </Suspense>
             </fieldset>
         </form>
     )

@@ -1,4 +1,4 @@
-import { createContext, useState, type Dispatch, type SetStateAction } from "react";
+import { createContext, useContext, useState, type Dispatch, type SetStateAction } from "react";
 import type { Characters } from "@/schema/character";
 import type { BuffData } from "@/schema/buffData";
 import { charactersDefault } from '@/const/charactersTemplate'
@@ -18,6 +18,14 @@ interface context {
 }
 
 export const TeamContext = createContext<context | null>(null)
+
+export function useTeam() {
+    const contextValue = useContext(TeamContext)
+    if (!contextValue) {
+        throw new Error("useTeam must be used within a TeamProvider")
+    }
+    return contextValue
+}
 
 export function TeamProvider({ children }: props) {
     const [team, setTeam] = useState<Characters>(charactersDefault)

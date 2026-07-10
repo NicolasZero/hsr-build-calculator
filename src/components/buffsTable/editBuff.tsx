@@ -5,8 +5,11 @@ import { Input } from "@/components/ui/input";
 import { PenIcon } from "@phosphor-icons/react";
 import type { BuffData } from "@/schema/buffData";
 import { buffType } from "@/const/buffType";
-import { useContext, useState, useEffect } from 'react'
-import { TeamContext } from '@/contexts/teamContext'
+import {
+    useState
+    // , useEffect
+} from 'react'
+import { useTeam } from '@/contexts/teamContext'
 import { Switch } from "@/components/ui/switch";
 
 interface props {
@@ -17,13 +20,13 @@ interface props {
 }
 
 export default function Modal({ editBuff, openModal, setOpenModal, buffToEdit }: props) {
-    const { team } = useContext(TeamContext)
+    const { team } = useTeam()
     const [status, setStatus] = useState(buffToEdit?.status === "Activo" ? true : false)
 
-    useEffect(() => {
-        // setStatus(buffToEdit?.status === "Activo" ? true : false)
-        console.log(buffToEdit);
-    }, [buffToEdit])
+    // useEffect(() => {
+    //     // setStatus(buffToEdit?.status === "Activo" ? true : false)
+    //     console.log(buffToEdit);
+    // }, [buffToEdit])
 
     return (
         <Dialog open={openModal}>

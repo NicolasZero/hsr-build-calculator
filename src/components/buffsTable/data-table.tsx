@@ -34,7 +34,7 @@ export function DataTable<TData, TValue>({
         getCoreRowModel: getCoreRowModel(),
         meta: {
             removeRow: (id: string) => onDelete?.(id),
-            editRow: (buff: BuffData) => onEdit?.(buff)
+            editRow: (buff: TData) => onEdit?.(buff as BuffData)
         },
     })
 

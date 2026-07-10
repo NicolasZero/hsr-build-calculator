@@ -2,7 +2,7 @@
 
 Herramienta para decidir que artefactos o soportes usar en un personaje de Honkai: Star Rail.
 
-## Funcionalidades del programa
+## Funcionalidades del programa planeadas
 
 ### 1.- Calcular estadisticas del personaje
 
@@ -22,8 +22,8 @@ Transforma las estadisticas planas a porcentajes y viceversa.
 
 ## Futuras funcionalidades
 
-- Calculadora de probabilidad de golpe crítico y daño crítico.
-- Calculadora de probabilidad de críticos y críticos basado en la prob. crítico y daño crítico.
+- Calculadora de ruptura y ultraruptura
+- Recomendaciones de artefactos y soportes
 
 ## Desarrollado con:
 - Vite

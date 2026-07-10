@@ -1,20 +1,21 @@
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
-import { ChartContainer, type ChartConfig } from "@/components/ui/chart"
+
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 
 const chartData = [
-    { buff: "ATQ", valor: 186 },
-    { buff: "VEL", valor: 200 },
-    { buff: "D.CRIT", valor: 237 },
-    { buff: "P.CRIT", valor: 73 },
-    { buff: "DAÑO", valor: 209 },
-    { buff: "RED DEF", valor: 214 },
-    { buff: "VUL", valor: 214 },
-    { buff: "PEN RES", valor: 214 }
+    { buff: "ATQ", valor: 0 },
+    { buff: "VEL", valor: 0 },
+    { buff: "D.CRIT", valor: 50 },
+    { buff: "P.CRIT", valor: 5 },
+    { buff: "DAÑO", valor: 0 },
+    { buff: "RED DEF", valor: 0 },
+    { buff: "VUL", valor: 0 },
+    { buff: "PEN RES", valor: 0 }
 ]
 
 const chartConfig = {
     valor: {
-        label: "Ataque",
+        label: "Bono %",
         color: "#2563eb",
     }
 } satisfies ChartConfig
@@ -31,6 +32,7 @@ function StatsChart({ data = chartData }) {
                     axisLine={false}
                 // tickFormatter={(value) => value.slice(0, 5)}
                 />
+                <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                 <Bar dataKey="valor" fill="var(--color-valor)" radius={4} />
                 {/* <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} /> */}
             </BarChart>

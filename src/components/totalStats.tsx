@@ -1,11 +1,10 @@
-import { useContext } from "react"
-import { TeamContext } from "@/contexts/teamContext"
+import { useTeam } from "@/contexts/teamContext"
 
 import StatsChart from "./statsChart"
 
 export default function TotalStats() {
 
-    const { team, selectedCharacter, buffs } = useContext(TeamContext)
+    const { team, selectedCharacter, buffs } = useTeam()
 
     if (!selectedCharacter) return null
 
@@ -53,10 +52,10 @@ export default function TotalStats() {
     ]
 
     return (<>
-        {statTotal && velTotal && velBase && statBase ?
+        {(statBase && statTotal) || (velBase && velTotal) ?
             <div className='p-4 flex items-center justify-start gap-5'>
-                <span className="text-sm">{offensiveStat}: {statTotal} = ({statBasePorcentaje}%)</span>
-                <span className="text-sm">VEL: {velTotal} = ({velBasePorcentaje}%)</span>
+                {statBase && <span className="text-sm">{offensiveStat}: {statTotal} = ({statBasePorcentaje}%)</span>}
+                {velBase && <span className="text-sm">VEL: {velTotal} = ({velBasePorcentaje}%)</span>}
             </div>
             : null
         }

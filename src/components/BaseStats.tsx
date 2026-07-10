@@ -1,12 +1,11 @@
-import { useContext } from "react"
-import { TeamContext } from "@/contexts/teamContext"
+import { useTeam } from "@/contexts/teamContext"
 import { Input } from "./ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 
 
-export default function BaseStats({ handleChange }) {
+export default function BaseStats({ handleChange }: { handleChange: (e: React.ChangeEvent<HTMLInputElement> | { target: { name: 'offensiveStat', value: string } }) => void }) {
 
-    const { team, selectedCharacter } = useContext(TeamContext)
+    const { team, selectedCharacter } = useTeam()
 
     return (
         <fieldset className='grid grid-cols-3 gap-4'>
