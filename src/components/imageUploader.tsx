@@ -2,7 +2,7 @@ import { useState, type ChangeEvent } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { XIcon, ImageIcon } from "@phosphor-icons/react";
-// import { cn } from '@/lib/utils';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from './ui/dialog';
 
 interface ImageUploaderProps {
     name: string;
@@ -41,12 +41,13 @@ export function ImageUploader(
         setSelectedImage(null);
     };
 
+    const [openModal, setOpenModal] = useState(false)
     return (
+
         <figure className={className}>
             {!selectedImage ? (
-                // <figure className="flex items-center justify-center w-full">
                 <label
-                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted transition-colors"
+                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed  cursor-pointer bg-muted/50 hover:bg-muted transition-colors"
                 >
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                         <ImageIcon className="w-8 h-8 mb-2 text-muted-foreground" />
@@ -60,20 +61,31 @@ export function ImageUploader(
                         onChange={handleImageChange}
                     />
                 </label>
-                // </figure>
             ) : (
                 // preview de la imagen
                 <div className="relative mt-2">
+                    <Dialog open={openModal}>
+                        <DialogContent onInteractOutside={() => setOpenModal(false)} showCloseButton={false}>
+                            <DialogTitle className='hidden'>Preview</DialogTitle>
+                            <DialogDescription className='hidden'>Preview</DialogDescription>
+                            <img
+                                src={selectedImage}
+                                alt="Preview"
+                                className="w-full h-full"
+                            />
+                        </DialogContent>
+                    </Dialog>
 
                     <img
                         src={selectedImage}
                         alt="Preview"
-                        className="w-full h-48 object-cover rounded-md border"
+                        className="w-full h-48 object-cover border"
+                        onClick={() => setOpenModal(true)}
                     />
                     <Button
                         variant="outline"
                         size="icon"
-                        className="absolute -top-2 -right-2 h-7 w-7 rounded-full border-muted-foreground text-muted-foreground hover:text-muted-foreground"
+                        className="absolute -top-2 -right-2 h-7 w-7 border-muted-foreground text-muted-foreground hover:text-muted-foreground"
                         onClick={removeImage}
                     >
                         <XIcon className="h-5 w-5" />

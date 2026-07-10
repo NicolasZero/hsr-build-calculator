@@ -6,8 +6,8 @@ export const buffType = [
     "D.CRIT",
     "P.CRIT",
     "DAÑO",
-    // "VUL",
+    "VUL",
     "PEN RES",
     // "RED RES",
-    // "RED DEF",
+    "RED DEF",
 ] as const

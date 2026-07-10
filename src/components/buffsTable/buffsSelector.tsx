@@ -1,22 +1,23 @@
 import { columns } from "./columns"
 import { DataTable } from "./data-table"
-import Modal from "./newBuff"
+import NewBuffModal from "./newBuff"
 import { cn } from "@/lib/utils"
-import { useState } from "react"
+import { useState, useContext } from "react"
 import ConfirmModal from "@/components/buffsTable/deleteBuff"
 import EditModal from "@/components/buffsTable/editBuff"
 import type { BuffData } from "@/schema/buffData"
+import { TeamContext } from '@/contexts/teamContext'
 
 interface props {
-    data: BuffData[]
-    setData: React.Dispatch<React.SetStateAction<BuffData[]>>
-    onDelete: (id: string) => void
     className?: string
 }
 
-export default function BuffsSelector({ data, setData, onDelete, className }: props) {
+export default function BuffsSelector({ className }: props) {
+    const { buffs, setBuffs } = useContext(TeamContext)
     const [openConfirmModal, setConfirmModal] = useState(false)
     const [id, setId] = useState("")
+    const [error, setError] = useState("")
+    const [openModal, setOpenModal] = useState(false)
 
     const [openEditModal, setOpenEditModal] = useState(false)
     const [buffToEdit, setBuffToEdit] = useState<BuffData | null>(null)
@@ -26,13 +27,16 @@ export default function BuffsSelector({ data, setData, onDelete, className }: pr
         setId(id)
     }
 
-
     const handleEditModal = (buff: BuffData) => {
         setOpenEditModal(true)
         setBuffToEdit(buff)
     }
 
-    const editBuff = (e: React.FormEvent<HTMLFormElement>) => {
+    const deleteBuff = (id: string) => {
+        setBuffs(buffs.filter((buff) => buff.id !== id))
+    }
+
+    const editBuff = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
         const updatedBuff: BuffData = {
@@ -41,12 +45,12 @@ export default function BuffsSelector({ data, setData, onDelete, className }: pr
             buff: formData.get("buff") as string,
             origen: formData.get("origen") as string,
             personaje: formData.get("personaje") as string,
-            status: "Activo",
+            status: formData.get("status") ? "Activo" : "Inactivo",
         }
-        setData(data.map((buff) => buff.id === buffToEdit?.id ? updatedBuff : buff))
+        setBuffs(buffs.map((buff) => buff.id === buffToEdit?.id ? updatedBuff : buff))
     }
 
-    const addBuff = (e: React.FormEvent<HTMLFormElement>) => {
+    const addBuff = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
 
@@ -56,24 +60,35 @@ export default function BuffsSelector({ data, setData, onDelete, className }: pr
             buff: formData.get("buff") as string,
             origen: formData.get("origen") as string,
             personaje: formData.get("personaje") as string,
-            status: "Activo",
+            status: formData.get("status") ? "Activo" : "Inactivo",
         }
 
-        setData([...data, newEntry])
+        if (newEntry.personaje === '') {
+            setError("Debes seleccionar un personaje")
+            return
+        }
+
+        if (buffs.some(buff => buff.valor === newEntry.valor && buff.buff === newEntry.buff && buff.origen === newEntry.origen && buff.personaje === newEntry.personaje)) {
+            setError("El buff ya existe")
+            return
+        }
+
+        setBuffs([...buffs, newEntry])
+        setError("")
     }
 
     return (
         <div className={cn("w-[90vw] md:w-full mx-auto", className)}>
-            <div className="flex justify-between items-center mb-4">
-                <h1 className="text-xl font-semibold text-primary dark:text-fuchsia-600">Agregar Buffs</h1>
-                <Modal addBuff={addBuff} />
+            <div className="flex justify-between flex-col md:flex-row md:items-center mb-4 gap-2">
+                <h1 className="text-xl font-semibold text-primary dark:text-fuchsia-600">Agrega los buffs del team</h1>
+                <NewBuffModal addBuff={addBuff} error={error} openModal={openModal} setOpenModal={setOpenModal} />
             </div>
 
-            <ConfirmModal openModal={openConfirmModal} setOpenModal={setConfirmModal} onSubmit={() => onDelete(id)} />
+            <ConfirmModal openModal={openConfirmModal} setOpenModal={setConfirmModal} onSubmit={() => deleteBuff(id)} />
 
             <EditModal openModal={openEditModal} setOpenModal={setOpenEditModal} buffToEdit={buffToEdit} editBuff={editBuff} />
 
-            <DataTable columns={columns} data={data} onDelete={handleModal} onEdit={handleEditModal} />
+            <DataTable columns={columns} data={buffs} onDelete={handleModal} onEdit={handleEditModal} />
         </div>
     )
 }

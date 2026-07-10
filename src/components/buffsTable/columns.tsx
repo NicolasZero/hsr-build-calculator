@@ -2,12 +2,20 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { TrashIcon, PenIcon, } from "@phosphor-icons/react"
 import type { BuffData } from "@/schema/buffData"
+import { TeamContext } from "@/contexts/teamContext"
+import { useContext } from "react"
 
 export const columns: ColumnDef<BuffData>[] = [
     { accessorKey: "valor", header: "Valor" },
     { accessorKey: "buff", header: "Buff" },
     { accessorKey: "origen", header: "Origen del Buff" },
-    { accessorKey: "personaje", header: "Personaje" },
+    {
+        accessorKey: "personaje", header: "Personaje", cell: ({ row }) => {
+            const buff = row.original
+            const { team } = useContext(TeamContext)
+            return team[buff.personaje]?.name
+        }
+    },
     { accessorKey: "status", header: "Status" },
     {
         id: "acciones",
