@@ -59,13 +59,9 @@ export default function TotalStats() {
             </div>
             : null
         }
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-
-            {/* <div className=""> */}
-            <ul className='flex flex-col gap-4 bg-muted/50 rounded-lg p-4'>
-                <span className="text-lg font-semibold">Buffs</span>
-                {/* {offensiveStat === 'ATQ' && <li>ATQ: {statBasePorcentaje}% + {atqBuff}% = {total.stat}%</li>} */}
-                {/* {offensiveStat === 'HP' && <li>HP: {statBasePorcentaje}% + {hpBuff}% = {total.stat}%</li>} */}
+        <div className='flex flex-col md:flex-row gap-4'>
+            <ul className='flex flex-col justify-around gap-4 bg-muted/50 rounded-lg p-4 md:w-fit text-nowrap'>
+                <span className="text-lg text-primary dark:text-fuchsia-600 font-semibold">Buffs</span>
                 <li title={offensiveStat === 'ATQ' ? 'Ataque' : 'Vida'}>{offensiveStat}: {statBasePorcentaje}% + {offensiveBuff}% = {total.stat}%</li>
                 <li title="Velocidad">VEL: {velBasePorcentaje}% + {velBuff}% = {total.vel}%</li>
                 <li title="Daño Critico">D.CRIT: 50% + {dmgCritBuff}% = {total.dmgCrit}%</li>
@@ -75,11 +71,10 @@ export default function TotalStats() {
                 <li title="Reducción de Defensa">RED DEF: 0% + 0% = 0%</li>
                 <li title="Aumento de Vulnerabilidad">VUL: 0% + 0% = 0%</li>
             </ul>
-            {/* </div> */}
 
-            {/* <div className=""> */}
-            <StatsChart data={data} />
-            {/* </div> */}
+            <div className="max-w-[90vw] md:w-full border rounded-md">
+                <StatsChart data={data} />
+            </div>
         </div >
     </>
 
