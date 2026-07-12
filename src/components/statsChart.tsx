@@ -22,21 +22,23 @@ const chartConfig = {
 
 function StatsChart({ data = chartData }) {
     return (
-        <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-            <BarChart accessibilityLayer data={data}>
-                <CartesianGrid vertical={false} />
-                <XAxis
-                    dataKey="buff"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                // tickFormatter={(value) => value.slice(0, 5)}
-                />
-                <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                <Bar dataKey="valor" fill="var(--color-valor)" radius={4} />
-                {/* <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} /> */}
-            </BarChart>
-        </ChartContainer>
+        <div className='overflow-auto'>
+            <ChartContainer config={chartConfig} className="min-h-[300px] min-w-[500px] w-full">
+                <BarChart accessibilityLayer data={data}>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                        dataKey="buff"
+                        tickLine={false}
+                        tickMargin={10}
+                        axisLine={false}
+                    // tickFormatter={(value) => value.slice(0, 5)}
+                    />
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                    <Bar dataKey="valor" fill="var(--color-valor)" radius={4} />
+                    {/* <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} /> */}
+                </BarChart>
+            </ChartContainer>
+        </div>
     )
 }
 

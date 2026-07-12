@@ -14,15 +14,15 @@ export default function BaseStats({ handleChange }: { handleChange: (e: React.Ch
             </div>
             {/* row 1 */}
             <label className="text-sm">
-                <span>ATQ o HP base</span>
+                <span>ATQ/HP base</span>
                 <Input className='[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none' name="statBase" value={team[selectedCharacter]?.statBase} type="number" placeholder={`${team[selectedCharacter]?.offensiveStat || 'ATQ o HP'} base`} min={0} onChange={(e) => handleChange(e)} />
             </label>
             <label className="text-sm">
-                <span>ATQ o HP total</span>
+                <span>ATQ/HP total</span>
                 <Input className='[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none' name="statTotal" value={team[selectedCharacter]?.statTotal} type="number" placeholder={`${team[selectedCharacter]?.offensiveStat || 'ATQ o HP'} total`} min={0} onChange={(e) => handleChange(e)} />
             </label>
             <label className="text-sm">
-                <span>Stat Principal</span>
+                <span>Stat</span>
                 <Select value={team[selectedCharacter]?.offensiveStat} onValueChange={(value) => { handleChange({ target: { name: 'offensiveStat', value } }) }}>
                     <SelectTrigger className='w-full'>
                         <SelectValue placeholder="ATQ o HP" />

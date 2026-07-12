@@ -59,10 +59,10 @@ export default function TotalStats() {
             </div>
             : null
         }
-        <div className='flex gap-4'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 
             {/* <div className=""> */}
-            <ul className='flex flex-col justify-between bg-muted/50 rounded-lg p-4'>
+            <ul className='flex flex-col gap-4 bg-muted/50 rounded-lg p-4'>
                 <span className="text-lg font-semibold">Buffs</span>
                 {/* {offensiveStat === 'ATQ' && <li>ATQ: {statBasePorcentaje}% + {atqBuff}% = {total.stat}%</li>} */}
                 {/* {offensiveStat === 'HP' && <li>HP: {statBasePorcentaje}% + {hpBuff}% = {total.stat}%</li>} */}
@@ -77,9 +77,9 @@ export default function TotalStats() {
             </ul>
             {/* </div> */}
 
-            <div className="flex-1">
-                <StatsChart data={data} />
-            </div>
+            {/* <div className=""> */}
+            <StatsChart data={data} />
+            {/* </div> */}
         </div >
     </>
 

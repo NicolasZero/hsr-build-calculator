@@ -1,10 +1,7 @@
 import { Input } from '@/components/ui/input'
 import Loader from '@/components/loader'
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select'
 import CharacterSelector from '@/components/characterSelector'
-// import BuffsSelector from '@/components/buffsTable/buffsSelector'
 import { useTeam } from '@/contexts/teamContext'
-// import TotalStats from './totalStats'
 import BaseStats from './BaseStats'
 
 // Dinamic import for better performance
