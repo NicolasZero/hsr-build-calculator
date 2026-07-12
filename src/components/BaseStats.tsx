@@ -8,7 +8,7 @@ export default function BaseStats({ handleChange }: { handleChange: (e: React.Ch
     const { team, selectedCharacter } = useTeam()
 
     return (
-        <fieldset className='grid grid-cols-3 gap-4'>
+        <fieldset className='grid grid-cols-2 md:grid-cols-3 gap-4'>
             <div className='col-span-full'>
                 <h2 className='font-semibold text-lg text-primary dark:text-fuchsia-600'>Stats de: <span className='text-secondary-foreground'>{team[selectedCharacter]?.name || 'Sin especificar'}</span></h2>
             </div>

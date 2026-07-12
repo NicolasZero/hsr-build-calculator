@@ -31,7 +31,7 @@ export default function TeamBuilder() {
 
     return (
         <form onSubmit={(e) => e.preventDefault()} className='flex flex-col gap-5 p-4 md:py-8 md:px-6'>
-            <fieldset className='flex items-center gap-4'>
+            <fieldset className='flex flex-col md:flex-row md:items-center gap-4'>
                 <label htmlFor="teamName" className='md:text-nowrap'>Nombre del Team:</label>
                 <Input id="teamName" type="text" placeholder="Nombre del team" />
             </fieldset>
