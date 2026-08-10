@@ -148,3 +148,20 @@
     @apply font-mono;
   }
 }
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px oklch(82.639% 0.09845 322.381) inset !important;
+  /* -webkit-text-fill-color: var(--foreground) !important; */
+}
+
+/* --- Dark mode fix for chrome autofill --- */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px oklch(0.542 0.034 322.5) inset !important;
+  /* -webkit-text-fill-color: var(--foreground) !important; */
+}
