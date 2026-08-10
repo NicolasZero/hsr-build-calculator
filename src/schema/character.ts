@@ -1,15 +1,10 @@
 export interface Character {
-    id: string
     name: string;
-    img: string;
-    statBase: string;
-    statTotal: string;
-    velBase: string;
-    velTotal: string;
-    nivel: string;
-    offensiveStat: '' | 'ATQ' | 'HP';
-}
-
-export interface Characters {
-    [key: string]: Character;
+    atq: string;
+    lvl: string;
+    hp: string;
+    vel: string;
+    def: string;
+    offensiveStat: '' | 'ATQ' | 'HP' | 'DEF';
+    image: Blob | null;
 }

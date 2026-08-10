@@ -1,8 +1,14 @@
 export type BuffData = {
     id: string
     valor: string
-    buff: string
-    origen: string
-    personaje: string
-    status: "Activo" | "Inactivo"
+    buff: BuffType
+    origen: Origen
+    objetivo: Target
+    status: boolean
 }
+
+export type BuffType = "ATQ" | "HP" | "VEL" | "DEF" | "D.CRIT" | "P.CRIT" | "DAÑO" | "VUL" | "PEN RES" | "RED RES" | "RED DEF"
+
+export type Origen = "Básico" | "Habilidad" | "Talento" | "Definitiva" | "Rastro" | "Eidolon" | "Técnica" | "Cono de Luz" | "Set"
+
+export type Target = "Todos los aliados" | "Este personaje" | "Primero del equipo"

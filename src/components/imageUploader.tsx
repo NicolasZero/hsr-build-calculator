@@ -8,6 +8,7 @@ interface ImageUploaderProps {
     name: string;
     label?: string;
     className?: string;
+    onChange: (target: { name: string, value: string | number | boolean | File | Blob | null }) => void;
 }
 
 export function ImageUploader(
@@ -15,6 +16,7 @@ export function ImageUploader(
         name,
         label = "Haz clic para subir",
         className,
+        onChange,
     }: ImageUploaderProps
 ) {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -29,16 +31,26 @@ export function ImageUploader(
                 return;
             }
 
-            const reader = new FileReader();
-            reader.onload = () => {
-                setSelectedImage(reader.result as string);
+            const previewReader = new FileReader();
+            previewReader.onload = () => {
+                setSelectedImage(previewReader.result as string);
             };
-            reader.readAsDataURL(file);
+            previewReader.readAsDataURL(file);
+
+            const arrayBufferReader = new FileReader()
+            arrayBufferReader.onload = () => {
+                const blob = new Blob([arrayBufferReader.result], { type: file.type });
+                onChange({ name: 'image', value: blob });
+            }
+
+            arrayBufferReader.readAsArrayBuffer(file);
+
         }
     };
 
     const removeImage = () => {
         setSelectedImage(null);
+        onChange({ name: 'image', value: null });
     };
 
     const [openModal, setOpenModal] = useState(false)
@@ -84,6 +96,7 @@ export function ImageUploader(
                     />
                     <Button
                         variant="outline"
+                        type='button'
                         size="icon"
                         className="absolute -top-2 -right-2 h-7 w-7 border-muted-foreground text-muted-foreground hover:text-muted-foreground"
                         onClick={removeImage}

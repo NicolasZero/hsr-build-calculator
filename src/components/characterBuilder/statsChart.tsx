@@ -23,7 +23,7 @@ const chartConfig = {
 function StatsChart({ data = chartData }) {
     return (
         <div className='overflow-auto'>
-            <ChartContainer config={chartConfig} className="min-h-[300px] min-w-[500px] w-full">
+            <ChartContainer config={chartConfig} className="min-h-75 min-w-125 w-full">
                 <BarChart accessibilityLayer data={data}>
                     <CartesianGrid vertical={false} />
                     <XAxis

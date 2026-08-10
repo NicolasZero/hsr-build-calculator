@@ -1,18 +1,22 @@
-import { createContext, useContext, useState, type Dispatch, type SetStateAction } from "react";
-import type { Characters } from "@/schema/character";
+import { createContext, useContext, useState, type Dispatch, type SetStateAction, useEffect } from "react";
+import type { Character } from "@/schema/character";
 import type { BuffData } from "@/schema/buffData";
-import { charactersDefault } from '@/const/charactersTemplate'
+import { initDB, guardarDatos } from '@/lib/indexedDB'
+// import { charactersDefault } from '@/const/charactersTemplate'
+import { characterDefault } from '@/const/charactersTemplate'
+
 
 interface props {
     children: React.ReactNode
 }
 
 interface context {
-    team: Characters
-    setTeam: Dispatch<SetStateAction<Characters>>
-    selectedCharacter: string
-    editCharacter: (target: { name: string, value: string | number | boolean, characterId: string }) => void
-    setSelectedCharacter: (character: string) => void
+    character: Character
+    setCharacter: Dispatch<SetStateAction<Character>>
+    // selectedCharacter: string
+    editCharacter: (target: { name: string, value: string | number | boolean | File | Blob | null }) => void
+    // setSelectedCharacter: (character: string) => void
+    saveCharacter: (character: Character) => void
     buffs: BuffData[]
     setBuffs: Dispatch<SetStateAction<BuffData[]>>
 }
@@ -28,20 +32,26 @@ export function useTeam() {
 }
 
 export function TeamProvider({ children }: props) {
-    const [team, setTeam] = useState<Characters>(charactersDefault)
-    const [selectedCharacter, setSelectedCharacter] = useState<string>('character1')
+    const [character, setCharacter] = useState<Character>(characterDefault)
+    // const [selectedCharacter, setSelectedCharacter] = useState<string>('character1')
     const [buffs, setBuffs] = useState<BuffData[]>([])
 
-    const editCharacter = (target: { name: string, value: string | number | boolean, characterId: string }) => {
-        const { name, value, characterId } = target;
+    useEffect(() => {
+        // initDB()
+    }, [])
 
-        setTeam((prev: Characters) => ({
+    const editCharacter = (target: { name: string, value: string | number | boolean }) => {
+        const { name, value } = target;
+
+        // console.log("name: " + name + ", value: " + value)
+        setCharacter((prev: Character) => ({
             ...prev,
-            [characterId]: {
-                ...prev[characterId],
-                [name]: value,
-            },
+            [name]: value,
         }));
+    }
+
+    const saveCharacter = async (character: Character) => {
+        await guardarDatos(character, "characters")
     }
 
     // const removeCharacter = (character: Character) => {
@@ -59,7 +69,8 @@ export function TeamProvider({ children }: props) {
 
 
     return (
-        <TeamContext.Provider value={{ team, setTeam, editCharacter, selectedCharacter, setSelectedCharacter, buffs, setBuffs }}>
+        // <TeamContext.Provider value={{ team, setTeam, editCharacter, selectedCharacter, setSelectedCharacter, buffs, setBuffs }}>
+        <TeamContext.Provider value={{ character, setCharacter, editCharacter, saveCharacter, buffs, setBuffs }}>
             {children}
         </TeamContext.Provider>
     )
