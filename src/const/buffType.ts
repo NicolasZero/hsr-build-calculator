@@ -1,8 +1,8 @@
 export const buffType = [
-    "ATQ Plano",
-    "HP Plano",
-    "VEL Plana",
-    "DEF Plana",
+    "ATQ",
+    "HP",
+    "VEL",
+    "DEF",
     "ATQ %",
     "HP %",
     "VEL %",
@@ -12,7 +12,6 @@ export const buffType = [
     "DAÑO",
     "VUL",
     "PEN RES",
-    // "RED RES",
     "RED DEF",
 ] as const
 
@@ -32,4 +31,6 @@ export const buffTarget = [
     "Todos los aliados",
     "Este personaje",
     "Primero del equipo",
+    "Personajes de la misma vía",
+    "Todos excepto este personaje"
 ] as const

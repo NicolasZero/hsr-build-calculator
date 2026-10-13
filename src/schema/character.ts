@@ -1,10 +1,11 @@
 export interface Character {
+    id?: number;
     name: string;
-    atq: string;
-    lvl: string;
-    hp: string;
-    vel: string;
-    def: string;
+    atq: number | string;
+    lvl: number | string;
+    hp: number | string;
+    vel: number | string;
+    def: number | string;
     offensiveStat: '' | 'ATQ' | 'HP' | 'DEF';
     image: Blob | null;
 }

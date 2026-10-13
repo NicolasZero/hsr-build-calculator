@@ -2,20 +2,44 @@ import { Input } from "../ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { Button } from "../ui/button"
 import { subStats, relics, mainStatsByType, valueByMainStat } from "@/const/relicStats"
-import type { subStatsType, mainStatsType, mainStat, subStat, pieceName } from "@/schema/relicData"
-import { useState } from "react"
+import type { SubStatsType, MainStatsType, MainStat, SubStat, PieceName, RelicData } from "@/schema/relicData"
+import { useEffect, useState, useRef } from "react"
 import { PlusIcon, XIcon } from "@phosphor-icons/react"
+import { useTeam } from "@/contexts/teamContext"
 
+export default function RelicSelector({ onChange }: { onChange?: (relics: RelicData) => void }) {
+    const { relics: contextRelics, setRelics: setContextRelics } = useTeam()
 
-export default function RelicSelector() {
-    const [subStat, setSubStat] = useState<subStat[]>([])
-    const [mainStats, setMainStats] = useState<mainStat[]>([])
-
-    // const [totalStat, setTotalStat] = useState<Record<string, number>>({})
+    const [subStat, setSubStat] = useState<SubStat[]>([])
+    const [mainStats, setMainStats] = useState<MainStat[]>([])
+    const [setName, setSetName] = useState<string>("")
 
     const [relicOpt, setRelicOpt] = useState<string>("")
     const [mainStatOpt, setMainStatOpt] = useState<string>("")
+    const lastEmittedRef = useRef<RelicData | null>(null)
 
+    useEffect(() => {
+        if (contextRelics && contextRelics !== lastEmittedRef.current) {
+            setSetName(contextRelics.setName || "")
+            setMainStats(contextRelics.relics || [])
+            setSubStat(contextRelics.subStats || [])
+        }
+    }, [contextRelics])
+
+    useEffect(() => {
+        const updatedRelics: RelicData = {
+            setName: setName || undefined,
+            relics: mainStats,
+            subStats: subStat,
+        }
+        lastEmittedRef.current = updatedRelics
+        setContextRelics(updatedRelics)
+        onChange?.(updatedRelics)
+    }, [mainStats, subStat, setName])
+
+    // useEffect(() => {
+    //     console.log(build)
+    // }, [build])
 
     // useEffect(() => {
     //     //Calcular los stats
@@ -36,8 +60,8 @@ export default function RelicSelector() {
     const handleAddRelic = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
-        const piece = formData.get('piece') as pieceName
-        const mainStat = formData.get('mainStat') as mainStatsType
+        const piece = formData.get('piece') as PieceName
+        const mainStat = formData.get('mainStat') as MainStatsType
         if (!piece || !mainStat) return
         setMainStats((prev) => {
             const existing = prev.find((stat) => stat.piece === piece)
@@ -59,7 +83,7 @@ export default function RelicSelector() {
     const handleAddSubStat = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
-        const stat = formData.get('stat') as subStatsType
+        const stat = formData.get('stat') as SubStatsType
         const value = formData.get('value') as string
         if (!stat || !value) return
         setSubStat((prev) => [...prev, { stat, value }])
@@ -75,7 +99,7 @@ export default function RelicSelector() {
 
             <label className="col-span-full flex flex-col md:flex-row md:items-center gap-1 md:gap-4">
                 <span className="text-sm">Nombre</span>
-                <Input placeholder="Nombre del set (Opcional)" />
+                <Input value={setName} onChange={(e) => setSetName(e.target.value)} placeholder="Nombre del set (Opcional)" />
             </label>
 
             <div>

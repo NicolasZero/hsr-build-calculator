@@ -51,7 +51,9 @@ export default function BuffsSelector({ className }: props) {
         }
 
         if (type === "edit") {
-            setBuffs(buffs.map((buff) => buffToEdit.id === buff.id ? buffData : buff))
+            if (buffToEdit) {
+                setBuffs(buffs.map((buff) => buffToEdit.id === buff.id ? buffData : buff))
+            }
             setError("")
             setOpenModal(false)
             setBuffToEdit(undefined)

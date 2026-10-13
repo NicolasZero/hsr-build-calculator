@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from 'react';
+import { useState, useEffect, type ChangeEvent } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { XIcon, ImageIcon } from "@phosphor-icons/react";
@@ -8,6 +8,7 @@ interface ImageUploaderProps {
     name: string;
     label?: string;
     className?: string;
+    image?: Blob | null;
     onChange: (target: { name: string, value: string | number | boolean | File | Blob | null }) => void;
 }
 
@@ -16,10 +17,21 @@ export function ImageUploader(
         name,
         label = "Haz clic para subir",
         className,
+        image,
         onChange,
     }: ImageUploaderProps
 ) {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (image) {
+            const url = URL.createObjectURL(image);
+            setSelectedImage(url);
+            return () => URL.revokeObjectURL(url);
+        } else {
+            setSelectedImage(null);
+        }
+    }, [image]);
 
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -39,8 +51,10 @@ export function ImageUploader(
 
             const arrayBufferReader = new FileReader()
             arrayBufferReader.onload = () => {
-                const blob = new Blob([arrayBufferReader.result], { type: file.type });
-                onChange({ name: 'image', value: blob });
+                if (arrayBufferReader.result) {
+                    const blob = new Blob([arrayBufferReader.result as ArrayBuffer], { type: file.type });
+                    onChange({ name: 'image', value: blob });
+                }
             }
 
             arrayBufferReader.readAsArrayBuffer(file);

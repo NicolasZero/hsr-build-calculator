@@ -1,42 +1,115 @@
 import { useTeam } from "@/contexts/teamContext"
-
 import StatsChart from "./statsChart"
 
 export default function TotalStats() {
+    const { character, buffs, relics } = useTeam()
 
-    const { buffs } = useTeam()
+    // Base stats
+    const atq = Number(character.atq) || 0;
+    const def = Number(character.def) || 0;
+    const vel = Number(character.vel) || 0;
+    const hp = Number(character.hp) || 0;
 
-    // const atqBase = Number(character.atq)
-    // const defBase = Number(character.def)
-    // const velBase = Number(character.vel)
-    // const hpBase = Number(character.hp)
-    // const offensiveStat = character.offensiveStat === 'ATQ' ? 'ATQ' : 'HP'
+    interface Stats {
+        atqFlat: number;
+        defFlat: number;
+        hpFlat: number;
+        velFlat: number;
+        propCrit: number;
+        dmgCrit: number;
+        atqPercent?: number;
+        defPercent?: number;
+        hpPercent?: number;
+        velPercent?: number;
+        dmg?: number;
+        redDef?: number;
+        vul?: number;
+        penRes?: number;
+    }
 
-    // const statBasePorcentaje = Math.floor(((statTotal - statBase) * 100) / statBase) || 0
-    // const velBasePorcentaje = Math.floor(((velTotal - velBase) * 100) / velBase) || 0
+    const statsMap: Partial<Record<string, keyof Stats>> = {
+        'ATQ %': 'atqPercent',
+        'DEF %': 'defPercent',
+        'HP %': 'hpPercent',
+        'VEL %': 'velPercent',
+        'ATQ': 'atqFlat',
+        'DEF': 'defFlat',
+        'HP': 'hpFlat',
+        'VEL': 'velFlat',
+        'P.CRIT': 'propCrit',
+        'D.CRIT': 'dmgCrit',
+        'DAÑO': 'dmg',
+        'RED DEF': 'redDef',
+        'VUL': 'vul',
+        'PEN RES': 'penRes'
+    };
 
-    const atqBuff = buffs.filter((buff) => buff.buff === 'ATQ' && buff.status).reduce((acc, buff) => acc + Number(buff.valor), 0)
-    const defBuff = buffs.filter((buff) => buff.buff === 'DEF' && buff.status).reduce((acc, buff) => acc + Number(buff.valor), 0)
-    const hpBuff = buffs.filter((buff) => buff.buff === 'HP' && buff.status).reduce((acc, buff) => acc + Number(buff.valor), 0)
-    const velBuff = buffs.filter((buff) => buff.buff === 'VEL' && buff.status).reduce((acc, buff) => acc + Number(buff.valor), 0)
-    const propCritBuff = buffs.filter((buff) => buff.buff === 'P.CRIT' && buff.status).reduce((acc, buff) => acc + Number(buff.valor), 0)
-    const dmgCritBuff = buffs.filter((buff) => buff.buff === 'D.CRIT' && buff.status).reduce((acc, buff) => acc + Number(buff.valor), 0)
-    const dmgBuff = buffs.filter((buff) => buff.buff === 'DAÑO' && buff.status).reduce((acc, buff) => acc + Number(buff.valor), 0)
-    const redDefBuff = buffs.filter((buff) => buff.buff === 'RED DEF' && buff.status).reduce((acc, buff) => acc + Number(buff.valor), 0)
-    const vulBuff = buffs.filter((buff) => buff.buff === 'VUL' && buff.status).reduce((acc, buff) => acc + Number(buff.valor), 0)
-    const penResBuff = buffs.filter((buff) => buff.buff === 'PEN RES' && buff.status).reduce((acc, buff) => acc + Number(buff.valor), 0)
+    // ===== Relics stats ===== //
+    const relicsStats: Stats = relics.subStats.reduce((acc, subStat) => {
+        const key = statsMap[subStat.stat];
+        if (key) {
+            acc[key] = (acc[key] || 0) + Number(subStat.value);
+        }
+        return acc;
+    }, {
+        atqPercent: 0,
+        defPercent: 0,
+        hpPercent: 0,
+        velPercent: 0,
+        atqFlat: 0,
+        defFlat: 0,
+        hpFlat: 0,
+        velFlat: 0,
+        propCrit: 0,
+        dmgCrit: 0,
+    } as Stats);
+
+    // ===== Buffs stats ===== //
+    const buffsStats: Stats = buffs.reduce((acc, buff) => {
+        if (buff.status) {
+            const key = statsMap[buff.buff];
+            if (key) {
+                acc[key] = (acc[key] || 0) + Number(buff.valor);
+            }
+        }
+        return acc;
+    }, {
+        atqPercent: 0,
+        defPercent: 0,
+        hpPercent: 0,
+        velPercent: 0,
+        atqFlat: 0,
+        defFlat: 0,
+        hpFlat: 0,
+        velFlat: 0,
+        propCrit: 0,
+        dmgCrit: 0,
+        dmg: 0,
+        redDef: 0,
+        vul: 0,
+        penRes: 0
+    });
+
+    const atqTotal = atq ? (relicsStats.atqFlat + buffsStats.atqFlat) / atq * 100 : 0
+    const defTotal = def ? (relicsStats.defFlat + buffsStats.defFlat) / def * 100 : 0
+    const velTotal = vel ? (relicsStats.velFlat + buffsStats.velFlat) / vel * 100 : 0
+    const hpTotal = hp ? (relicsStats.hpFlat + buffsStats.hpFlat) / hp * 100 : 0
+
+    console.log(relicsStats.atqFlat + buffsStats.atqFlat);
+    console.log("Atq Total: ", atqTotal);
+
 
     const total = {
-        atq: atqBuff,
-        def: defBuff,
-        vel: velBuff,
-        hp: hpBuff,
-        propCrit: 5 + propCritBuff,
-        dmgCrit: 50 + dmgCritBuff,
-        dmg: dmgBuff,
-        redDef: redDefBuff,
-        vul: vulBuff,
-        penRes: penResBuff
+        atq: atqTotal + (relicsStats.atqPercent ?? 0) + (buffsStats.atqPercent ?? 0),
+        def: defTotal + (relicsStats.defPercent ?? 0) + (buffsStats.defPercent ?? 0),
+        vel: velTotal + (buffsStats.velPercent ?? 0),
+        hp: hpTotal + (relicsStats.hpPercent ?? 0) + (buffsStats.hpPercent ?? 0),
+        propCrit: 5 + relicsStats.propCrit + buffsStats.propCrit,
+        dmgCrit: 50 + relicsStats.dmgCrit + buffsStats.dmgCrit,
+        dmg: buffsStats.dmg ?? 0,
+        redDef: buffsStats.redDef ?? 0,
+        vul: buffsStats.vul ?? 0,
+        penRes: buffsStats.penRes ?? 0,
     }
 
     const data = [
