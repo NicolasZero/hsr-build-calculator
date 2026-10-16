@@ -5,7 +5,7 @@ import type { SavedCharacterBuild } from "@/lib/indexedDB"
 interface CharacterCardProps {
     character: SavedCharacterBuild;
     isCurrent: boolean;
-    handleSelectCharacter: (id: number, name: string) => void;
+    handleSelectCharacter: (id?: number, name?: string) => void;
     setCharacterToDelete: (character: SavedCharacterBuild) => void;
     imageUrl: string | null;
     formatDate: (date: number) => string;

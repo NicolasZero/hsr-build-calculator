@@ -18,14 +18,14 @@ export default function TotalStats() {
         velFlat: number;
         propCrit: number;
         dmgCrit: number;
-        atqPercent?: number;
-        defPercent?: number;
-        hpPercent?: number;
-        velPercent?: number;
-        dmg?: number;
-        redDef?: number;
-        vul?: number;
-        penRes?: number;
+        atqPercent: number;
+        defPercent: number;
+        hpPercent: number;
+        velPercent: number;
+        dmg: number;
+        redDef: number;
+        vul: number;
+        penRes: number;
     }
 
     const initialStats = {
