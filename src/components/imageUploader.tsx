@@ -58,7 +58,6 @@ export function ImageUploader(
             }
 
             arrayBufferReader.readAsArrayBuffer(file);
-
         }
     };
 
@@ -109,10 +108,10 @@ export function ImageUploader(
                         onClick={() => setOpenModal(true)}
                     />
                     <Button
-                        variant="outline"
+                        variant="destructive"
                         type='button'
                         size="icon"
-                        className="absolute -top-2 -right-2 h-7 w-7 border-muted-foreground text-muted-foreground hover:text-muted-foreground"
+                        className="absolute -top-2 -right-2 h-7 w-7"
                         onClick={removeImage}
                     >
                         <XIcon className="h-5 w-5" />

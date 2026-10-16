@@ -1,12 +1,39 @@
 import { ModeToggle } from "@/components/mode-toggle";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router";
 import { ListIcon, XIcon } from "@phosphor-icons/react";
 import logo from "@/assets/doro_buki.webp"
 
 export default function Header() {
     const [isOpen, setIsOpen] = useState(false);
+    const [isVisible, setIsVisible] = useState(true);
+    const lastScrollY = useRef(0);
+
     const toggleMenu = () => setIsOpen(!isOpen);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+
+            // Siempre visible si estamos en la parte superior o si el menú móvil está abierto
+            if (currentScrollY <= 10) {
+                setIsVisible(true);
+            } else if (isOpen) {
+                setIsVisible(true);
+            } else if (currentScrollY < lastScrollY.current) {
+                // Scrolleando hacia arriba
+                setIsVisible(true);
+            } else if (currentScrollY > lastScrollY.current) {
+                // Scrolleando hacia abajo
+                setIsVisible(false);
+            }
+
+            lastScrollY.current = currentScrollY;
+        };
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [isOpen]);
 
     const publicLinks = [
         { name: "Personajes", path: "/" },
@@ -17,7 +44,11 @@ export default function Header() {
     ];
 
     return (
-        <header className="bg-muted p-4 relative z-50">
+        <header
+            className={`sticky top-0 bg-muted p-4 z-50 transition-transform duration-300 ${
+                isVisible ? "translate-y-0" : "-translate-y-full"
+            }`}
+        >
             <nav className="flex justify-between items-center w-full">
                 {/* Mobile Menu Button */}
                 <button

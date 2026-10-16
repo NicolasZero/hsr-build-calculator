@@ -66,30 +66,18 @@ export default function TeamBuilderPage() {
     return (
         <main className='flex flex-col gap-6 p-4 md:px-8 max-w-7xl mx-auto w-full'>
             {/* Mensajes de error o éxito */}
-            <div className='flex flex-col gap-2'>
-                {error.length > 0 && (
-                    <div className='flex flex-col gap-1 p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm'>
-                        {error.map((err, index) => (
-                            <div key={index} className='flex items-center gap-2 font-medium'>
-                                <WarningCircleIcon size={16} className='shrink-0' />
-                                <span>{err}</span>
-                            </div>
-                        ))}
-                    </div>
-                )}
 
-                {message && (
-                    <div className='flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-medium'>
-                        <div className="flex items-center gap-2">
-                            <CheckCircleIcon size={18} className='shrink-0' />
-                            <span>{message}</span>
-                        </div>
-                        <button onClick={() => setMessage('')} className="cursor-pointer p-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                            <XIcon size={18} className='shrink-0' />
-                        </button>
+            {message && (
+                <div className='flex items-center justify-between gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-medium'>
+                    <div className="flex items-center gap-2">
+                        <CheckCircleIcon size={18} className='shrink-0' />
+                        <span>{message}</span>
                     </div>
-                )}
-            </div>
+                    <button onClick={() => setMessage('')} className="cursor-pointer p-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                        <XIcon size={18} className='shrink-0' />
+                    </button>
+                </div>
+            )}
 
             {/* Barra superior de gestión y carga de personajes */}
             <section className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-muted/40 border'>
@@ -167,6 +155,17 @@ export default function TeamBuilderPage() {
                 <TotalStats />
             </section>
 
+            {error.length > 0 && (
+                <div className='flex flex-col gap-1 p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm'>
+                    {error.map((err, index) => (
+                        <div key={index} className='flex items-center gap-2 font-medium'>
+                            <WarningCircleIcon size={16} className='shrink-0' />
+                            <span>{err}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+
             {/* Botones de acción inferior */}
             <section className='flex items-center justify-end gap-3 pt-2 pb-6 flex-wrap'>
                 {characterId ? (
@@ -195,6 +194,7 @@ export default function TeamBuilderPage() {
                 ) : (
                     <Button
                         type='button'
+                        variant='default'
                         disabled={isSaving}
                         onClick={() => handleSave(false)}
                         className='flex items-center gap-2 rounded-full px-6 font-semibold shadow-md'
