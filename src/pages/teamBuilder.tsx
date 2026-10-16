@@ -84,7 +84,7 @@ export default function TeamBuilderPage() {
                             <CheckCircleIcon size={18} className='shrink-0' />
                             <span>{message}</span>
                         </div>
-                        <button onClick={() => setMessage(null)} className="cursor-pointer p-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                        <button onClick={() => setMessage('')} className="cursor-pointer p-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                             <XIcon size={18} className='shrink-0' />
                         </button>
                     </div>
