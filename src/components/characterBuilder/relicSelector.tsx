@@ -37,26 +37,6 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
         onChange?.(updatedRelics)
     }, [mainStats, subStat, setName])
 
-    // useEffect(() => {
-    //     console.log(build)
-    // }, [build])
-
-    // useEffect(() => {
-    //     //Calcular los stats
-    //     const total = subStat.reduce((acc, stat) => {
-    //         acc[stat.stat] = (acc[stat.stat] || 0) + Number(stat.value)
-    //         return acc
-    //     }, {} as Record<string, number>)
-
-    //     // console.log(total)
-    //     setTotalStat(total)
-    // }, [subStat])
-    // const { character, editCharacter } = useTeam()
-
-    // const handleSubStat = (value: string) => {
-    //     setSubStat((prev) => ({ ...prev, stat: value }))
-    // }
-
     const handleAddRelic = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
@@ -87,13 +67,12 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
         const value = formData.get('value') as string
         if (!stat || !value) return
         setSubStat((prev) => [...prev, { stat, value }])
-        // console.log(stat, value)
     }
 
     return (
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
             <header className="col-span-full">
-                <h2 className="text-xl font-semibold text-primary dark:text-fuchsia-600">Artefactos y Ornamentos</h2>
+                <h2 className="text-xl font-semibold text-primary dark:text-fuchsia-500">Artefactos y Ornamentos</h2>
                 <p className="text-sm text-muted-foreground">Agrega los stats de los artefactos</p>
             </header>
 

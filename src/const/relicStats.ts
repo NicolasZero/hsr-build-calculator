@@ -23,8 +23,8 @@ export const mainStats = [
 ] as const
 
 export const mainStatsByType = {
-    // "CABEZA": ["HP"],
-    // "MANO": ["ATQ"],
+    "CABEZA": ["HP"],
+    "MANO": ["ATQ"],
     "CUERPO": ["HP %", "ATQ %", "DEF %", "D.CRIT", "P.CRIT"],
     "BOTAS": ["VEL", "HP %", "ATQ %", "DEF %"],
     "ORBE": ["DAÑO", "HP %", "ATQ %", "DEF %"],
@@ -32,6 +32,8 @@ export const mainStatsByType = {
 } as const
 
 export const valueByMainStat = {
+    "HP": 705,
+    "ATQ": 352,
     "HP %": 43.2,
     "ATQ %": 43.2,
     "DEF %": 54,
@@ -44,8 +46,8 @@ export const valueByMainStat = {
 } as const
 
 export const relics = [
-    // "CABEZA",
-    // "MANO",
+    "CABEZA",
+    "MANO",
     "CUERPO",
     "BOTAS",
     "ORBE",

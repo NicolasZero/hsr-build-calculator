@@ -72,19 +72,13 @@ export default function BuffsSelector({ className }: props) {
     }
 
     return (
-        <section className={cn("w-[90vw] md:w-full mx-auto", className)}>
+        <section className={cn("w-full mx-auto", className)}>
             <header className="flex justify-between flex-col md:flex-row md:items-center mb-4 gap-2">
-                {/* <div> */}
-                <h1 className="text-xl font-semibold text-primary dark:text-fuchsia-600">Agrega los buffs del personaje</h1>
-                {/* <p className='text-sm text-muted-foreground'>*No agregues buffs de los supports ni de los artefactos</p> */}
-                {/* </div> */}
+                <h1 className="text-xl font-semibold text-primary dark:text-fuchsia-500">Buffs del personaje</h1>
                 <NewBuffModal onSubmit={handleBuff} error={error} openModal={openModal} setOpenModal={setOpenModal} buffToEdit={buffToEdit} setBuffToEdit={setBuffToEdit} />
             </header>
 
             <ConfirmModal openModal={openConfirmModal} setOpenModal={setConfirmModal} onSubmit={() => deleteBuff(id)} />
-
-            {/* <EditModal openModal={openEditModal} setOpenModal={setOpenEditModal} buffToEdit={buffToEdit} editBuff={editBuff} /> */}
-
             <DataTable columns={columns} data={buffs} onDelete={handleModal} onEdit={handleEditModal} />
         </section>
     )

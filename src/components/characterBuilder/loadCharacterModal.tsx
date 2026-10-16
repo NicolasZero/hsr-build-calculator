@@ -3,7 +3,7 @@ import { useTeam } from "@/contexts/teamContext"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { FolderOpen, Trash, Sparkle, Plus, Clock, MagnifyingGlass } from "@phosphor-icons/react"
+import { FolderOpenIcon, TrashIcon, SparkleIcon, PlusIcon, ClockIcon, MagnifyingGlassIcon } from "@phosphor-icons/react"
 import type { SavedCharacterBuild } from "@/lib/indexedDB"
 
 interface LoadCharacterModalProps {
@@ -62,7 +62,7 @@ export default function LoadCharacterModal({ open, onOpenChange, onLoaded }: Loa
                     <DialogHeader>
                         <div className="flex items-center justify-between pr-6">
                             <div className="flex items-center gap-2">
-                                <FolderOpen size={24} className="text-primary dark:text-fuchsia-500" />
+                                <FolderOpenIcon size={24} className="text-primary dark:text-fuchsia-500" />
                                 <DialogTitle className="text-xl font-bold">Personajes Guardados</DialogTitle>
                             </div>
                             <Button
@@ -71,19 +71,19 @@ export default function LoadCharacterModal({ open, onOpenChange, onLoaded }: Loa
                                 onClick={handleCreateNew}
                                 className="flex items-center gap-1.5 border-dashed"
                             >
-                                <Plus size={16} />
-                                Nuevo Personaje
+                                <PlusIcon size={16} />
+                                <span className="hidden sm:block">Nuevo Personaje</span>
                             </Button>
                         </div>
                         <DialogDescription>
-                            Selecciona una build guardada para cargarla en el editor o realizar modificaciones.
+                            Selecciona una build guardada para cargarla en el editor.
                         </DialogDescription>
                     </DialogHeader>
 
                     {/* Barra de búsqueda */}
                     {savedCharacters.length > 0 && (
                         <div className="relative my-2">
-                            <MagnifyingGlass
+                            <MagnifyingGlassIcon
                                 size={18}
                                 className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                             />
@@ -100,7 +100,7 @@ export default function LoadCharacterModal({ open, onOpenChange, onLoaded }: Loa
                     <div className="flex-1 overflow-y-auto space-y-3 pr-1 py-1">
                         {savedCharacters.length === 0 ? (
                             <div className="text-center py-12 px-4 border border-dashed rounded-xl my-4">
-                                <Sparkle size={40} className="mx-auto text-muted-foreground/60 mb-3" />
+                                <SparkleIcon size={40} className="mx-auto text-muted-foreground/60 mb-3" />
                                 <h3 className="font-medium text-base mb-1">No hay personajes guardados</h3>
                                 <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-4">
                                     Crea y guarda tu primera build usando el botón "Guardar Personaje" en el formulario.
@@ -123,11 +123,10 @@ export default function LoadCharacterModal({ open, onOpenChange, onLoaded }: Loa
                                 return (
                                     <div
                                         key={item.id}
-                                        className={`group relative flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 hover:border-primary/50 hover:bg-muted/40 ${
-                                            isCurrent
-                                                ? "border-primary/80 bg-primary/5 dark:bg-fuchsia-950/20"
-                                                : "border-border"
-                                        }`}
+                                        className={`group relative flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 hover:border-primary/50 hover:bg-muted/40 ${isCurrent
+                                            ? "border-primary/80 bg-primary/5 dark:bg-fuchsia-950/20"
+                                            : "border-border"
+                                            }`}
                                     >
                                         <div className="flex items-center gap-3.5 min-w-0">
                                             {/* Avatar o imagen */}
@@ -173,7 +172,7 @@ export default function LoadCharacterModal({ open, onOpenChange, onLoaded }: Loa
 
                                                 {item.updatedAt && (
                                                     <div className="flex items-center gap-1 text-[11px] text-muted-foreground/75 mt-1">
-                                                        <Clock size={12} />
+                                                        <ClockIcon size={12} />
                                                         <span>{formatDate(item.updatedAt)}</span>
                                                     </div>
                                                 )}
@@ -198,7 +197,7 @@ export default function LoadCharacterModal({ open, onOpenChange, onLoaded }: Loa
                                                 title="Eliminar registro"
                                                 onClick={() => setCharacterToDelete(item)}
                                             >
-                                                <Trash size={16} />
+                                                <TrashIcon size={16} />
                                             </Button>
                                         </div>
                                     </div>

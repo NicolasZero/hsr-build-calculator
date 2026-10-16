@@ -9,7 +9,7 @@ export default function BaseStats({ handleChange }: { handleChange: (target: { n
     return (
         <div className='w-full grid grid-cols-2 md:grid-cols-3 gap-4'>
             <div className='col-span-full'>
-                <h2 className='font-semibold text-xl text-primary dark:text-fuchsia-600'>Stats base</h2>
+                <h2 className='font-semibold text-xl text-primary dark:text-fuchsia-500'>Stats base</h2>
                 <p className="text-muted-foreground text-sm">Con o sin cono de luz equipado</p>
             </div>
 
