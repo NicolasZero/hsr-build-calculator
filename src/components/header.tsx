@@ -20,11 +20,15 @@ export default function Header() {
                 setIsVisible(true);
             } else if (isOpen) {
                 setIsVisible(true);
-            } else if (currentScrollY < lastScrollY.current) {
+            } else if (currentScrollY + 15 < lastScrollY.current) {
                 // Scrolleando hacia arriba
+                // console.log("currentScrollY", currentScrollY);
+                // console.log("lastScrollY.current", lastScrollY.current);
+                // console.log("Scrolleando hacia arriba");
                 setIsVisible(true);
             } else if (currentScrollY > lastScrollY.current) {
                 // Scrolleando hacia abajo
+                // console.log("Scrolleando hacia abajo");
                 setIsVisible(false);
             }
 
@@ -45,9 +49,8 @@ export default function Header() {
 
     return (
         <header
-            className={`sticky top-0 bg-muted p-4 z-50 transition-transform duration-300 ${
-                isVisible ? "translate-y-0" : "-translate-y-full"
-            }`}
+            className={`sticky top-0 bg-muted p-4 z-50 transition-transform duration-300 ${isVisible ? "translate-y-0" : "-translate-y-full"
+                }`}
         >
             <nav className="flex justify-between items-center w-full">
                 {/* Mobile Menu Button */}
@@ -67,7 +70,7 @@ export default function Header() {
                         <li key={link.path} className="rounded-md overflow-hidden">
                             <NavLink
                                 className={({ isActive }) =>
-                                    `px-4 py-2 block transition-colors duration-200 hover:bg-black/20 ${isActive ? "text-primary dark:text-fuchsia-500 font-bold" : ""}`
+                                    `px-4 py-2 block transition-colors duration-200 hover:bg-black/20 ${isActive ? "text-primary dark:text-cyan-500 font-bold" : ""}`
                                 }
                                 to={link.path}
                             >

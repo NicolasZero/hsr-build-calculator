@@ -3,8 +3,9 @@ import { useTeam } from "@/contexts/teamContext"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { FolderOpenIcon, TrashIcon, SparkleIcon, PlusIcon, ClockIcon, MagnifyingGlassIcon } from "@phosphor-icons/react"
+import { FolderOpenIcon, SparkleIcon, PlusIcon, MagnifyingGlassIcon } from "@phosphor-icons/react"
 import type { SavedCharacterBuild } from "@/lib/indexedDB"
+import CharacterCard from "./characterCard"
 
 interface LoadCharacterModalProps {
     open: boolean
@@ -63,8 +64,8 @@ export default function LoadCharacterModal({ open, onOpenChange, onLoaded }: Loa
                     <DialogHeader>
                         <div className="flex items-center justify-between pr-6">
                             <div className="flex items-center gap-2">
-                                <FolderOpenIcon size={24} className="text-primary dark:text-fuchsia-500" />
-                                <DialogTitle className="text-xl font-bold">Personajes Guardados</DialogTitle>
+                                <FolderOpenIcon size={24} className="text-primary dark:text-cyan-500" />
+                                <DialogTitle className="text-lg font-bold">Personajes Guardados</DialogTitle>
                             </div>
                             <Button
                                 size="sm"
@@ -73,7 +74,7 @@ export default function LoadCharacterModal({ open, onOpenChange, onLoaded }: Loa
                                 className="flex items-center gap-1.5 border-dashed"
                             >
                                 <PlusIcon size={16} />
-                                <span className="hidden sm:block">Nuevo Personaje</span>
+                                <span className="hidden sm:block">Nuevo</span>
                             </Button>
                         </div>
                         <DialogDescription>
@@ -122,86 +123,15 @@ export default function LoadCharacterModal({ open, onOpenChange, onLoaded }: Loa
                                     : null
 
                                 return (
-                                    <div
+                                    <CharacterCard
                                         key={item.id}
-                                        className={`group relative flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 hover:border-primary/50 hover:bg-muted/40 ${isCurrent
-                                            ? "border-primary/80 bg-primary/5 dark:bg-fuchsia-950/20"
-                                            : "border-border"
-                                            }`}
-                                    >
-                                        <div className="flex items-center gap-3.5 min-w-0">
-                                            {/* Avatar o imagen */}
-                                            <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex items-center justify-center shrink-0 border">
-                                                {imageUrl ? (
-                                                    <img
-                                                        src={imageUrl}
-                                                        alt={item.name}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <span className="font-bold text-lg text-muted-foreground uppercase">
-                                                        {item.name.charAt(0) || "?"}
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            {/* Detalles */}
-                                            <div className="min-w-0">
-                                                <div className="flex items-center gap-2">
-                                                    <h4 className="font-semibold text-base truncate">
-                                                        {item.name}
-                                                    </h4>
-                                                    {isCurrent && (
-                                                        <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary dark:text-fuchsia-400 font-medium shrink-0">
-                                                            Activo
-                                                        </span>
-                                                    )}
-                                                </div>
-
-                                                <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                                                    {item.character?.lvl && (
-                                                        <span>Nv. {item.character.lvl}</span>
-                                                    )}
-                                                    {item.character?.offensiveStat && (
-                                                        <span>• {item.character.offensiveStat}</span>
-                                                    )}
-                                                    {item.relics?.setName && (
-                                                        <span>• Set: {item.relics.setName}</span>
-                                                    )}
-                                                    <span>• {item.buffs?.length || 0} Buffs</span>
-                                                </div>
-
-                                                {item.updatedAt && (
-                                                    <div className="flex items-center gap-1 text-[11px] text-muted-foreground/75 mt-1">
-                                                        <ClockIcon size={12} />
-                                                        <span>{formatDate(item.updatedAt)}</span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        {/* Acciones */}
-                                        <div className="flex items-center gap-2 ml-3 shrink-0">
-                                            <Button
-                                                size="sm"
-                                                variant={isCurrent ? "secondary" : "default"}
-                                                onClick={() => handleSelectCharacter(item.id, item.name)}
-                                                className="px-3"
-                                            >
-                                                {isCurrent ? "Cargado" : "Cargar"}
-                                            </Button>
-
-                                            <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                className="text-muted-foreground hover:text-red-500 hover:bg-red-500/10 h-8 w-8"
-                                                title="Eliminar registro"
-                                                onClick={() => setCharacterToDelete(item)}
-                                            >
-                                                <TrashIcon size={16} />
-                                            </Button>
-                                        </div>
-                                    </div>
+                                        character={item}
+                                        isCurrent={isCurrent}
+                                        handleSelectCharacter={handleSelectCharacter}
+                                        setCharacterToDelete={setCharacterToDelete}
+                                        imageUrl={imageUrl}
+                                        formatDate={formatDate}
+                                    />
                                 )
                             })
                         )}

@@ -26,7 +26,7 @@ export default function Modal({ onSubmit, openModal, setOpenModal, error, buffTo
     return (
         <Dialog open={openModal}>
             <DialogTrigger asChild>
-                <Button type="button" onClick={() => setOpenModal(true)} className="hover:bg-primary/80 dark:bg-fuchsia-950 dark:hover:bg-fuchsia-800">
+                <Button type="button" onClick={() => setOpenModal(true)} >
                     <PlusIcon />Agregar Buff
                 </Button>
             </DialogTrigger>
@@ -87,15 +87,15 @@ export default function Modal({ onSubmit, openModal, setOpenModal, error, buffTo
                         </Select>
                     </label>
 
-
                     <div className={cn("flex items-center gap-2", !buffToEdit && "hidden")}>
                         <label htmlFor="status">Status:</label>
                         <Switch name="status" id="status" checked={status} onCheckedChange={setStatus} />
                         <p className={status ? 'text-green-500' : 'text-red-500'}>{status ? 'Activo' : 'Inactivo'}</p>
                     </div>
+
                     <div className="flex justify-end gap-2">
                         <Button variant="outline" type="button" onClick={() => { setOpenModal(false); setBuffToEdit(undefined) }}>Cancelar</Button>
-                        <Button className="hover:bg-primary/80 dark:bg-fuchsia-950 dark:hover:bg-fuchsia-800" type="submit">{type === "add" ? "Registrar" : "Editar"}</Button>
+                        <Button className="" type="submit">{type === "add" ? "Registrar" : "Editar"}</Button>
                     </div>
                 </form>
             </DialogContent>

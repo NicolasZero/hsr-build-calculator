@@ -1,10 +1,9 @@
-import { columns } from "./columns"
-import { DataTable } from "./data-table"
-import NewBuffModal from "./buffModal"
+import { columns } from "./buffsTable/columns"
+import { DataTable } from "./buffsTable/data-table"
+import NewBuffModal from "./buffsTable/buffModal"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import ConfirmModal from "@/components/characterBuilder/buffsTable/deleteBuff"
-// import EditModal from "@/components/buffsTable/editBuff"
 import type { BuffData, BuffType, Origen, Target } from "@/schema/buffData"
 import { useTeam } from '@/contexts/teamContext'
 
@@ -74,7 +73,7 @@ export default function BuffsSelector({ className }: props) {
     return (
         <section className={cn("w-full mx-auto", className)}>
             <header className="flex justify-between flex-col md:flex-row md:items-center mb-4 gap-2">
-                <h1 className="text-xl font-semibold text-primary dark:text-fuchsia-500">Buffs del personaje</h1>
+                <h1 className="text-xl font-semibold text-primary dark:text-cyan-500">Buffs del personaje</h1>
                 <NewBuffModal onSubmit={handleBuff} error={error} openModal={openModal} setOpenModal={setOpenModal} buffToEdit={buffToEdit} setBuffToEdit={setBuffToEdit} />
             </header>
 

@@ -9,7 +9,7 @@ const CharacterSelector = lazy(() => import('@/components/characterBuilder/image
 const BaseStats = lazy(() => import('@/components/characterBuilder/baseStats'))
 const RelicSelector = lazy(() => import('@/components/characterBuilder/relicSelector'))
 const TotalStats = lazy(() => import('@/components/characterBuilder/totalStats'))
-const BuffsSelector = lazy(() => import('@/components/characterBuilder/buffsTable/buffsSelector'))
+const BuffsSelector = lazy(() => import('@/components/characterBuilder/buffsSelector'))
 
 export default function TeamBuilderPage() {
     const [error, setError] = useState<string[]>([])
@@ -42,6 +42,10 @@ export default function TeamBuilderPage() {
         try {
             const res = await saveCharacter(asNew)
             if (res.success) {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                })
                 setMessage(
                     asNew
                         ? `¡"${character.name}" se guardó como un nuevo registro!`
@@ -65,8 +69,7 @@ export default function TeamBuilderPage() {
 
     return (
         <main className='flex flex-col gap-6 p-4 md:px-8 max-w-7xl mx-auto w-full'>
-            {/* Mensajes de error o éxito */}
-
+            {/* Mensajes de éxito */}
             {message && (
                 <div className='flex items-center justify-between gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-medium'>
                     <div className="flex items-center gap-2">
@@ -82,7 +85,7 @@ export default function TeamBuilderPage() {
             {/* Barra superior de gestión y carga de personajes */}
             <section className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-muted/40 border'>
                 <div>
-                    <h1 className='text-2xl font-bold text-primary dark:text-fuchsia-500'>
+                    <h1 className='text-2xl font-bold text-primary dark:text-cyan-500'>
                         Constructor de Personaje
                     </h1>
                     <p className='text-xs sm:text-sm text-muted-foreground'>
@@ -100,7 +103,7 @@ export default function TeamBuilderPage() {
                         <FolderOpenIcon size={18} />
                         <span>Cargar Personaje</span>
                         {savedCharacters.length > 0 && (
-                            <span className='ml-1 px-1.5 py-0.2 rounded-full text-[11px] font-semibold bg-primary/15 text-primary dark:text-fuchsia-400'>
+                            <span className='ml-1 px-1.5 py-0.2 rounded-full text-[11px] font-semibold dark:bg-cyan-500/15 bg-primary/15 text-primary dark:text-cyan-500'>
                                 {savedCharacters.length}
                             </span>
                         )}
@@ -155,6 +158,7 @@ export default function TeamBuilderPage() {
                 <TotalStats />
             </section>
 
+            {/* Mensajes de error */}
             {error.length > 0 && (
                 <div className='flex flex-col gap-1 p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm'>
                     {error.map((err, index) => (
@@ -175,7 +179,7 @@ export default function TeamBuilderPage() {
                             variant='outline'
                             disabled={isSaving}
                             onClick={() => handleSave(true)}
-                            className='flex items-center gap-2 rounded-full px-5'
+                            className='flex items-center gap-2 px-5'
                         >
                             <PlusIcon size={18} />
                             <span>Guardar como Nuevo</span>
@@ -185,7 +189,7 @@ export default function TeamBuilderPage() {
                             type='button'
                             disabled={isSaving}
                             onClick={() => handleSave(false)}
-                            className='flex items-center gap-2 rounded-full px-6 font-semibold shadow-md'
+                            className='flex items-center gap-2 px-6 font-semibold shadow-md'
                         >
                             <FloppyDiskIcon size={18} />
                             <span>{isSaving ? 'Guardando...' : 'Actualizar Personaje'}</span>
@@ -194,10 +198,9 @@ export default function TeamBuilderPage() {
                 ) : (
                     <Button
                         type='button'
-                        variant='default'
                         disabled={isSaving}
                         onClick={() => handleSave(false)}
-                        className='flex items-center gap-2 rounded-full px-6 font-semibold shadow-md'
+                        className='flex items-center gap-2 px-6 font-semibold shadow-md'
                     >
                         <FloppyDiskIcon size={18} />
                         <span>{isSaving ? 'Guardando...' : 'Guardar Personaje'}</span>

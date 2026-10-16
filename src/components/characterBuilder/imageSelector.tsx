@@ -11,7 +11,7 @@ const CharacterSelector = ({ onChange }: props) => {
 
     return (
         <div className='w-full sm:w-75'>
-            <h2 className='font-semibold text-xl text-primary dark:text-fuchsia-500'>Personaje</h2>
+            <h2 className='font-semibold text-xl text-primary dark:text-cyan-500'>Personaje</h2>
             <ImageUploader name='chara1-img' image={character.image} onChange={onChange} />
             <Input
                 type="text"

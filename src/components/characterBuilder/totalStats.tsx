@@ -1,5 +1,6 @@
 import { useTeam } from "@/contexts/teamContext"
 import StatsChart from "./statsChart"
+import { valueByMainStat } from "@/const/relicStats"
 
 export default function TotalStats() {
     const { character, buffs, relics } = useTeam()
@@ -62,6 +63,20 @@ export default function TotalStats() {
     };
 
     // ===== Relics stats ===== //
+    const relicsStatsMain: Stats = relics.relics.reduce((acc, relic) => {
+        const mainStat = relic.mainStat;
+        if (mainStat) {
+            const key = statsMap[mainStat];
+            if (key) {
+                return { ...acc, [key]: (acc[key] || 0) + valueByMainStat[mainStat] };
+            }
+        }
+        return acc;
+    }, initialStats);
+
+    // console.log(relicsStatsMain);
+
+
     const relicsStats: Stats = relics.subStats.reduce((acc, subStat) => {
         const key = statsMap[subStat.stat];
         if (key) {
@@ -81,25 +96,23 @@ export default function TotalStats() {
         return acc;
     }, initialStats);
 
-    const atqTotal = atq ? (relicsStats.atqFlat + buffsStats.atqFlat) / atq * 100 : 0
-    const defTotal = def ? (relicsStats.defFlat + buffsStats.defFlat) / def * 100 : 0
-    const velTotal = vel ? (relicsStats.velFlat + buffsStats.velFlat) / vel * 100 : 0
-    const hpTotal = hp ? (relicsStats.hpFlat + buffsStats.hpFlat) / hp * 100 : 0
+    const atqTotal = atq ? (relicsStatsMain.atqFlat + relicsStats.atqFlat + buffsStats.atqFlat) / atq * 100 : 0
+    const defTotal = def ? (relicsStatsMain.defFlat + relicsStats.defFlat + buffsStats.defFlat) / def * 100 : 0
+    const velTotal = vel ? (relicsStatsMain.velFlat + relicsStats.velFlat + buffsStats.velFlat) / vel * 100 : 0
+    const hpTotal = hp ? (relicsStatsMain.hpFlat + relicsStats.hpFlat + buffsStats.hpFlat) / hp * 100 : 0
 
-    // console.log(relicsStats.atqFlat + buffsStats.atqFlat);
-    // console.log("Atq Total: ", atqTotal);
 
     const total = {
-        atq: atqTotal + (relicsStats.atqPercent ?? 0) + (buffsStats.atqPercent ?? 0),
-        def: defTotal + (relicsStats.defPercent ?? 0) + (buffsStats.defPercent ?? 0),
-        vel: velTotal + (buffsStats.velPercent ?? 0),
-        hp: hpTotal + (relicsStats.hpPercent ?? 0) + (buffsStats.hpPercent ?? 0),
-        propCrit: 5 + relicsStats.propCrit + buffsStats.propCrit,
-        dmgCrit: 50 + relicsStats.dmgCrit + buffsStats.dmgCrit,
-        dmg: buffsStats.dmg ?? 0,
-        redDef: buffsStats.redDef ?? 0,
-        vul: buffsStats.vul ?? 0,
-        penRes: buffsStats.penRes ?? 0,
+        atq: atqTotal + relicsStatsMain.atqPercent + relicsStats.atqPercent + buffsStats.atqPercent,
+        def: defTotal + relicsStatsMain.defPercent + relicsStats.defPercent + buffsStats.defPercent,
+        vel: velTotal + relicsStatsMain.velPercent + relicsStats.velPercent + buffsStats.velPercent,
+        hp: hpTotal + relicsStatsMain.hpPercent + relicsStats.hpPercent + buffsStats.hpPercent,
+        propCrit: 5 + relicsStats.propCrit + relicsStatsMain.propCrit + buffsStats.propCrit,
+        dmgCrit: 50 + relicsStats.dmgCrit + relicsStatsMain.dmgCrit + buffsStats.dmgCrit,
+        dmg: relicsStatsMain.dmg + buffsStats.dmg,
+        redDef: relicsStatsMain.redDef + buffsStats.redDef,
+        vul: relicsStatsMain.vul + buffsStats.vul,
+        penRes: relicsStatsMain.penRes + buffsStats.penRes,
     }
 
     const data = [
@@ -115,34 +128,28 @@ export default function TotalStats() {
         { buff: "PEN RES", valor: total.penRes },
     ]
 
-    return (<>
-        {/* {(statBase && statTotal) || (velBase && velTotal) ?
-            <div className='p-4 flex items-center justify-start gap-5'>
-                {statBase && <span className="text-sm">{offensiveStat}: {statTotal} = ({statBasePorcentaje}%)</span>}
-                {velBase && <span className="text-sm">VEL: {velTotal} = ({velBasePorcentaje}%)</span>}
-            </div>
-            : null
-        } */}
-        <h2 className='font-semibold text-xl text-primary dark:text-fuchsia-500'>Stats totales</h2>
-        <section className='flex flex-col md:flex-row gap-4'>
-            <ul className='flex flex-col justify-around gap-4 bg-muted/50 rounded-lg p-4 md:w-fit text-nowrap'>
-                <span className="text-lg text-primary dark:text-fuchsia-500 font-semibold">Buffs</span>
-                <li title="ATQ">ATQ: {total.atq}%</li>
-                <li title="HP">HP: {total.hp}%</li>
-                <li title="DEF">DEF: {total.def}%</li>
-                <li title="Velocidad">VEL: {total.vel}%</li>
-                <li title="Daño Critico">D.CRIT: {total.dmgCrit}%</li>
-                <li title="Probabilidad Critica">P.CRIT: {total.propCrit}%</li>
-                <li title="Aumento de Daño">DAÑO: {total.dmg}%</li>
-                <li title="Penetración de Resistencia">PEN RES: {total.penRes}%</li>
-                <li title="Reducción o Ignorar Defensa">RED DEF: {total.redDef}%</li>
-                <li title="Aumento de Vulnerabilidad">VUL: {total.vul}%</li>
-            </ul>
+    return (
+        <>
+            <h2 className='font-semibold text-xl text-primary dark:text-cyan-500'>Stats totales</h2>
+            <section className='flex flex-col md:flex-row gap-4'>
+                <ul className='flex flex-col justify-around gap-4 bg-muted/50 rounded-lg p-4 md:w-fit text-nowrap'>
+                    {/* <span className="text-lg text-primary dark:text-cyan-500 font-semibold">Buffs</span> */}
+                    <li title="ATQ">ATQ: {total.atq.toFixed(1)}%</li>
+                    <li title="HP">HP: {total.hp.toFixed(1)}%</li>
+                    <li title="DEF">DEF: {total.def.toFixed(1)}%</li>
+                    <li title="Velocidad">VEL: {total.vel.toFixed(1)}%</li>
+                    <li title="Daño Critico">D.CRIT: {total.dmgCrit.toFixed(1)}%</li>
+                    <li title="Probabilidad Critica">P.CRIT: {total.propCrit.toFixed(1)}%</li>
+                    <li title="Aumento de Daño">DAÑO: {total.dmg}%</li>
+                    <li title="Penetración de Resistencia">PEN RES: {total.penRes}%</li>
+                    <li title="Reducción o Ignorar Defensa">RED DEF: {total.redDef}%</li>
+                    <li title="Aumento de Vulnerabilidad">VUL: {total.vul}%</li>
+                </ul>
 
-            <div className="max-w-[90vw] md:w-full border rounded-md">
-                <StatsChart data={data} />
-            </div>
-        </section >
-    </>
+                <div className="max-w-[90vw] md:w-full border rounded-md">
+                    <StatsChart data={data} />
+                </div>
+            </section >
+        </>
     )
 }

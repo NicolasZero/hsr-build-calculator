@@ -72,7 +72,7 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
     return (
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
             <header className="col-span-full">
-                <h2 className="text-xl font-semibold text-primary dark:text-fuchsia-500">Artefactos y Ornamentos</h2>
+                <h2 className="text-xl font-semibold text-primary dark:text-cyan-500">Artefactos y Ornamentos</h2>
                 <p className="text-sm text-muted-foreground">Agrega los stats de los artefactos</p>
             </header>
 
@@ -81,6 +81,7 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
                 <Input value={setName} onChange={(e) => setSetName(e.target.value)} placeholder="Nombre del set (Opcional)" />
             </label>
 
+            {/*Main stats*/}
             <div>
                 <h3 className="text-lg font-semibold">Stats Principales</h3>
                 <form onSubmit={handleAddRelic} className="flex gap-4 items-end">
@@ -100,7 +101,7 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
                     </Select>
 
                     {/* Main stat selection */}
-                    <Select name="mainStat" value={mainStatOpt} onValueChange={(v) => setMainStatOpt(v)}>
+                    <Select name="mainStat" value={mainStatOpt} onValueChange={(v) => setMainStatOpt(v)} >
                         <SelectTrigger className="w-full">
                             <SelectValue placeholder="Main Stat" />
                         </SelectTrigger>
@@ -115,7 +116,8 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
                     </Select>
                     <Button type="submit"><PlusIcon /></Button>
                 </form>
-                <div className="flex flex-col flex-wrap gap-2 py-2">
+
+                <div className="grid md:grid-cols-2 gap-4 py-4 md:px-4">
                     {mainStats.map((stat, index) => (
                         <div key={index} className="p-2 border rounded flex items-center justify-between gap-2">
                             <p className="text-sm whitespace-nowrap">{stat.piece}: {stat.mainStat} = {valueByMainStat[stat.mainStat as keyof typeof valueByMainStat]}</p>
@@ -144,9 +146,11 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
                     <Input type="number" name="value" min={0} placeholder="Valor" step="any" inputMode="decimal" />
                     <Button type="submit"><PlusIcon /></Button>
                 </form>
-                <div className="flex flex-col flex-wrap gap-2 py-2">
+
+                {/* <div className="flex flex-col flex-wrap gap-2 py-2 max-h-80 overflow-scroll-y"> */}
+                <div className="grid grid-cols-2 gap-4 mt-4 md:px-4 max-h-[calc(100vh-300px)] min-h-24 overflow-auto">
                     {subStat.map((stat, index) => (
-                        <div key={index} className="p-2 border rounded flex items-center justify-between gap-2">
+                        <div key={index} className="p-2 h-fit border rounded flex items-center justify-between gap-2">
                             <p className="text-sm whitespace-nowrap">{stat.stat}: {stat.value}</p>
                             <Button size="icon" variant="destructive" className="h-6 w-6" onClick={() => removeStat(index, "sub")}>
                                 <XIcon />
