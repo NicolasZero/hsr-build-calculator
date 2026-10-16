@@ -26,14 +26,15 @@ export default function LoadCharacterModal({ open, onOpenChange, onLoaded }: Loa
         const success = await loadCharacter(id)
         if (success) {
             onOpenChange(false)
-            onLoaded?.(name || "Personaje")
+
+            onLoaded?.(`Personaje "${name || "Personaje"}" cargado exitosamente.`)
         }
     }
 
     const handleCreateNew = () => {
         resetCharacter()
         onOpenChange(false)
-        onLoaded?.("Nuevo personaje")
+        onLoaded?.("Formulario reiniciado para un nuevo personaje.")
     }
 
     const handleDeleteConfirm = async () => {

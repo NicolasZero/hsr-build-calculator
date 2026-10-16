@@ -150,20 +150,20 @@ export default function TeamBuilderPage() {
             )} */}
 
             {/* Formulario principal */}
-            <section className='grid grid-cols-1 md:grid-cols-[300px_minmax(100px,1fr)] bg-muted/40 px-4 py-2.5 rounded-2xl border border-primary/20 gap-6'>
+            <section className='grid grid-cols-1 md:grid-cols-[300px_minmax(100px,1fr)] bg-muted/40 px-4 py-2.5 rounded-2xl border gap-6'>
                 <CharacterSelector onChange={editCharacter} />
                 <BaseStats handleChange={editCharacter} />
             </section>
 
-            <section className='bg-muted/40 px-4 py-2.5 rounded-2xl border border-primary/20'>
+            <section className='bg-muted/40 px-4 py-2.5 rounded-2xl border'>
                 <RelicSelector onChange={setRelics} />
             </section>
 
-            <section className='bg-muted/40 px-4 py-2.5 rounded-2xl border border-primary/20'>
+            <section className='bg-muted/40 px-4 py-2.5 rounded-2xl border'>
                 <BuffsSelector />
             </section>
 
-            <section className='bg-muted/40 px-4 py-2.5 rounded-2xl border border-primary/20'>
+            <section className='bg-muted/40 px-4 py-2.5 rounded-2xl border'>
                 <TotalStats />
             </section>
 
@@ -209,9 +209,9 @@ export default function TeamBuilderPage() {
             <LoadCharacterModal
                 open={openLoadModal}
                 onOpenChange={setOpenLoadModal}
-                onLoaded={(name) => {
+                onLoaded={(msg) => {
                     setError([])
-                    setMessage(`Personaje "${name}" cargado exitosamente.`)
+                    setMessage(msg)
                 }}
             />
         </main>
