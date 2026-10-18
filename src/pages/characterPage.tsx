@@ -1,8 +1,9 @@
-import { useState, lazy } from 'react'
+import { useEffect, useState, lazy } from 'react'
 import { useTeam } from '@/contexts/teamContext'
 import { validation } from '@/utils/validation'
 import { FolderOpenIcon, PlusIcon, FloppyDiskIcon, CheckCircleIcon, WarningCircleIcon, XIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
+import { Alert, AlertAction, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import LoadCharacterModal from '@/components/characterBuilder/loadCharacterModal'
 
 const CharacterSelector = lazy(() => import('@/components/characterBuilder/imageSelector'))
@@ -11,11 +12,27 @@ const RelicSelector = lazy(() => import('@/components/characterBuilder/relicSele
 const TotalStats = lazy(() => import('@/components/characterBuilder/totalStats'))
 const BuffsSelector = lazy(() => import('@/components/characterBuilder/buffsSelector'))
 
+const ALERT_DURATION = 5000
+
 export default function TeamBuilderPage() {
     const [error, setError] = useState<string[]>([])
     const [message, setMessage] = useState<string>('')
     const [openLoadModal, setOpenLoadModal] = useState<boolean>(false)
     const [isSaving, setIsSaving] = useState<boolean>(false)
+
+    useEffect(() => {
+        if (error.length === 0) return
+
+        const timeout = setTimeout(() => setError([]), ALERT_DURATION)
+        return () => clearTimeout(timeout)
+    }, [error])
+
+    useEffect(() => {
+        if (!message) return
+
+        const timeout = setTimeout(() => setMessage(''), ALERT_DURATION)
+        return () => clearTimeout(timeout)
+    }, [message])
 
     const {
         character,
@@ -38,6 +55,7 @@ export default function TeamBuilderPage() {
 
         setIsSaving(true)
         setError([])
+        setMessage('')
 
         try {
             const res = await saveCharacter(asNew)
@@ -55,6 +73,7 @@ export default function TeamBuilderPage() {
                 setError([res.error || 'Ocurrió un error al guardar el personaje'])
             }
         } catch {
+            setMessage('')
             setError(['Error inesperado al guardar el personaje'])
         } finally {
             setIsSaving(false)
@@ -69,18 +88,51 @@ export default function TeamBuilderPage() {
 
     return (
         <main className='flex flex-col gap-6 p-4 md:px-8 max-w-7xl mx-auto w-full'>
-            {/* Mensajes de éxito */}
-            {message && (
-                <div className='flex items-center justify-between gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-medium'>
-                    <div className="flex items-center gap-2">
-                        <CheckCircleIcon size={18} className='shrink-0' />
-                        <span>{message}</span>
-                    </div>
-                    <button onClick={() => setMessage('')} className="cursor-pointer p-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                        <XIcon size={18} className='shrink-0' />
-                    </button>
-                </div>
-            )}
+            <div className='pointer-events-none fixed inset-x-4 top-4 z-50 flex flex-col gap-2 sm:inset-x-auto sm:bottom-4 sm:right-4 sm:top-auto sm:w-[calc(100vw-2rem)] sm:max-w-sm'>
+                {message && (
+                    <Alert className='pointer-events-auto border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'>
+                        <CheckCircleIcon />
+                        <AlertTitle>Éxito</AlertTitle>
+                        <AlertDescription>{message}</AlertDescription>
+                        <AlertAction>
+                            <Button
+                                type='button'
+                                variant='ghost'
+                                size='icon-xs'
+                                onClick={() => setMessage('')}
+                                aria-label='Cerrar mensaje de éxito'
+                                title='Cerrar mensaje'
+                            >
+                                <XIcon />
+                            </Button>
+                        </AlertAction>
+                    </Alert>
+                )}
+
+                {error.length > 0 && (
+                    <Alert variant='destructive' className='pointer-events-auto'>
+                        <WarningCircleIcon />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>
+                            <ul className='list-disc pl-4'>
+                                {error.map((err, index) => <li key={index}>{err}</li>)}
+                            </ul>
+                        </AlertDescription>
+                        <AlertAction>
+                            <Button
+                                type='button'
+                                variant='ghost'
+                                size='icon-xs'
+                                onClick={() => setError([])}
+                                aria-label='Cerrar mensaje de error'
+                                title='Cerrar mensaje'
+                            >
+                                <XIcon />
+                            </Button>
+                        </AlertAction>
+                    </Alert>
+                )}
+            </div>
 
             {/* Barra superior de gestión y carga de personajes */}
             <section className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-muted/40 border'>
@@ -158,20 +210,8 @@ export default function TeamBuilderPage() {
                 <TotalStats />
             </section>
 
-            {/* Mensajes de error */}
-            {error.length > 0 && (
-                <div className='flex flex-col gap-1 p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm'>
-                    {error.map((err, index) => (
-                        <div key={index} className='flex items-center gap-2 font-medium'>
-                            <WarningCircleIcon size={16} className='shrink-0' />
-                            <span>{err}</span>
-                        </div>
-                    ))}
-                </div>
-            )}
-
             {/* Botones de acción inferior */}
-            <section className='flex items-center justify-end gap-3 pt-2 pb-6 flex-wrap'>
+            <section className='flex items-center justify-end gap-3 flex-wrap'>
                 {characterId ? (
                     <>
                         <Button
@@ -179,7 +219,7 @@ export default function TeamBuilderPage() {
                             variant='outline'
                             disabled={isSaving}
                             onClick={() => handleSave(true)}
-                            className='flex items-center gap-2 px-5'
+                            className='px-5'
                         >
                             <PlusIcon size={18} />
                             <span>Guardar como Nuevo</span>
@@ -189,7 +229,7 @@ export default function TeamBuilderPage() {
                             type='button'
                             disabled={isSaving}
                             onClick={() => handleSave(false)}
-                            className='flex items-center gap-2 px-6 font-semibold shadow-md'
+                            className='px-6 font-semibold shadow-md'
                         >
                             <FloppyDiskIcon size={18} />
                             <span>{isSaving ? 'Guardando...' : 'Actualizar Personaje'}</span>
@@ -200,7 +240,7 @@ export default function TeamBuilderPage() {
                         type='button'
                         disabled={isSaving}
                         onClick={() => handleSave(false)}
-                        className='flex items-center gap-2 px-6 font-semibold shadow-md'
+                        className='px-6 font-semibold shadow-md'
                     >
                         <FloppyDiskIcon size={18} />
                         <span>{isSaving ? 'Guardando...' : 'Guardar Personaje'}</span>

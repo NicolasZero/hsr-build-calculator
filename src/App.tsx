@@ -1,15 +1,16 @@
 import { Routes, Route, Navigate } from 'react-router'
 import Layout from './layout'
-// import CharacterBuilderPage from './pages/teamBuilder'
 import Loader from '@/components/loader'
 import { lazy, Suspense } from 'react'
 // import DMGCalc from './pages/dmgCalc'
 // import SpeedCalc from './pages/speedCalc'
-import TeamPage from './pages/teamPage'
+// import TeamPage from './pages/teamPage'
 import MaintenancePage from './pages/maintenance'
 import { TeamProvider } from "@/contexts/teamContext";
 
-const CharacterBuilderPage = lazy(() => import('@/pages/teamBuilder'))
+const CharacterBuilderPage = lazy(() => import('@/pages/characterPage'))
+const TeamPage = lazy(() => import('@/pages/teamPage'))
+const SavedCharactersPage = lazy(() => import('@/pages/savedCharactersPage'))
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
         <Routes>
           <Route path='/' element={<Layout />}>
             <Route index element={<CharacterBuilderPage />} />
+            <Route path='characters' element={<SavedCharactersPage />} />
             <Route path='build-calc' element={<MaintenancePage />} />
             <Route path='dmg-calc' element={<MaintenancePage />} />
             <Route path='speed-calc' element={<MaintenancePage />} />

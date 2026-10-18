@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
+import type { Character } from '@/schema/character'
 
 export default function useValidation() {
     const [error, setError] = useState('')
     const [message, setMessage] = useState('')
 
-    const validation = (character: any) => {
+    const validation = (character: Character) => {
         if (!character.image) return setError('La imagen del personaje no puede estar en blanco')
         if (character.name === "") return setError('El nombre del personaje no puede estar en blanco')
         if (character.atq === "") return setError('El ATQ del personaje no puede estar en blanco')

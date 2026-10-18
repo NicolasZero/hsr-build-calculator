@@ -1,4 +1,6 @@
-export const buffType = [
+import type { BuffType, Origen, Target } from "@/schema/buffData"
+
+export const buffType: BuffType[] = [
     "ATQ",
     "HP",
     "VEL",
@@ -15,7 +17,7 @@ export const buffType = [
     "RED DEF",
 ] as const
 
-export const buffOrigin = [
+export const buffOrigin: Origen[] = [
     "Básico",
     "Habilidad",
     "Talento",
@@ -27,7 +29,7 @@ export const buffOrigin = [
     "Set",
 ] as const
 
-export const buffTarget = [
+export const buffTarget: Target[] = [
     "Todos los aliados",
     "Este personaje",
     "Primero del equipo",

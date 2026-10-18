@@ -2,7 +2,7 @@ import { useState, useEffect, type ChangeEvent } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { XIcon, ImageIcon } from "@phosphor-icons/react";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from './ui/dialog';
+import PreviewImage from "@/components/general/previewImg"
 
 interface ImageUploaderProps {
     name: string;
@@ -21,17 +21,38 @@ export function ImageUploader(
         onChange,
     }: ImageUploaderProps
 ) {
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    // Si image viene por prop o por onChange, derivamos la URL o vista previa
+    const [previewOverride, setPreviewOverride] = useState<string | null>(null);
+
+    // Si hay un override local (de recién cargado FileReader), lo usamos; de lo contrario generamos ObjectURL si image existe
+    const [objectUrl, setObjectUrl] = useState<string | null>(null);
 
     useEffect(() => {
-        if (image) {
-            const url = URL.createObjectURL(image);
-            setSelectedImage(url);
-            return () => URL.revokeObjectURL(url);
-        } else {
-            setSelectedImage(null);
+        let active = true;
+
+        if (!image) {
+            const timer = setTimeout(() => {
+                if (active) setObjectUrl(null);
+            }, 0);
+            return () => {
+                active = false;
+                clearTimeout(timer);
+            };
         }
+
+        const url = URL.createObjectURL(image);
+        const timer = setTimeout(() => {
+            if (active) setObjectUrl(url);
+        }, 0);
+
+        return () => {
+            active = false;
+            clearTimeout(timer);
+            URL.revokeObjectURL(url);
+        };
     }, [image]);
+
+    const selectedImage = previewOverride ?? objectUrl;
 
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -45,7 +66,7 @@ export function ImageUploader(
 
             const previewReader = new FileReader();
             previewReader.onload = () => {
-                setSelectedImage(previewReader.result as string);
+                setPreviewOverride(previewReader.result as string);
             };
             previewReader.readAsDataURL(file);
 
@@ -62,7 +83,8 @@ export function ImageUploader(
     };
 
     const removeImage = () => {
-        setSelectedImage(null);
+        setPreviewOverride(null);
+        setObjectUrl(null);
         onChange({ name: 'image', value: null });
     };
 
@@ -89,17 +111,11 @@ export function ImageUploader(
             ) : (
                 // preview de la imagen
                 <div className="relative mt-2">
-                    <Dialog open={openModal}>
-                        <DialogContent onInteractOutside={() => setOpenModal(false)} showCloseButton={false}>
-                            <DialogTitle className='hidden'>Preview</DialogTitle>
-                            <DialogDescription className='hidden'>Preview</DialogDescription>
-                            <img
-                                src={selectedImage}
-                                alt="Preview"
-                                className="w-full h-full"
-                            />
-                        </DialogContent>
-                    </Dialog>
+                    <PreviewImage
+                        open={openModal}
+                        onOpenChange={setOpenModal}
+                        image={selectedImage}
+                    />
 
                     <img
                         src={selectedImage}

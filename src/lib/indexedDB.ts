@@ -12,6 +12,14 @@ export interface SavedCharacterBuild {
     updatedAt?: number;
 }
 
+export interface SavedTeam {
+    id?: number;
+    name: string;
+    characters: number[];
+    createdAt?: number;
+    updatedAt?: number;
+}
+
 const DB_NAME = 'teamBuilder'
 const DB_VERSION = 3
 
@@ -79,7 +87,7 @@ export const guardarPersonaje = async (build: SavedCharacterBuild): Promise<numb
     const tx = await getTransaction('characters', 'readwrite');
     const store = tx.objectStore('characters');
 
-    const dataToSave: any = {
+    const dataToSave: Omit<SavedCharacterBuild, 'id'> & { id?: number } = {
         name: build.name,
         character: { ...build.character },
         buffs: build.buffs,
@@ -155,11 +163,54 @@ export const eliminarPersonaje = async (id: number): Promise<void> => {
     });
 };
 
+export const guardarEquipo = async (team: SavedTeam): Promise<number> => {
+    const tx = await getTransaction('teams', 'readwrite');
+    const store = tx.objectStore('teams');
+    const dataToSave: Omit<SavedTeam, 'id'> & { id?: number } = {
+        name: team.name.trim(),
+        characters: team.characters,
+        createdAt: team.createdAt ?? Date.now(),
+        updatedAt: Date.now(),
+    };
+
+    if (typeof team.id === 'number') {
+        dataToSave.id = team.id;
+    }
+
+    return new Promise((resolve, reject) => {
+        const request = store.put(dataToSave);
+        request.onsuccess = () => resolve(request.result as number);
+        request.onerror = () => reject(request.error);
+    });
+};
+
+export const obtenerEquipos = async (): Promise<SavedTeam[]> => {
+    const tx = await getTransaction('teams', 'readonly');
+    const store = tx.objectStore('teams');
+
+    return new Promise((resolve, reject) => {
+        const request = store.getAll();
+        request.onsuccess = () => resolve((request.result as SavedTeam[]) || []);
+        request.onerror = () => reject(request.error);
+    });
+};
+
+export const eliminarEquipo = async (id: number): Promise<void> => {
+    const tx = await getTransaction('teams', 'readwrite');
+    const store = tx.objectStore('teams');
+
+    return new Promise((resolve, reject) => {
+        const request = store.delete(id);
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+    });
+};
+
 // Retrocompatibilidad
-export const guardarDatos = async <T extends Record<string, any>>(datos: T, storeName: string): Promise<any> => {
+export const guardarDatos = async <T extends Record<string, unknown>>(datos: T, storeName: string): Promise<IDBValidKey> => {
     const tx = await getTransaction(storeName, 'readwrite');
     const store = tx.objectStore(storeName);
-    const dataToSave = { ...datos };
+    const dataToSave: Record<string, unknown> = { ...datos };
     if (dataToSave.id === undefined || dataToSave.id === null) {
         delete dataToSave.id;
     }
@@ -170,7 +221,7 @@ export const guardarDatos = async <T extends Record<string, any>>(datos: T, stor
     });
 };
 
-export const obtenerDatos = async <T = any>(storeName: string): Promise<T[]> => {
+export const obtenerDatos = async <T = unknown>(storeName: string): Promise<T[]> => {
     const tx = await getTransaction(storeName, 'readonly');
     const store = tx.objectStore(storeName);
     return new Promise((resolve, reject) => {

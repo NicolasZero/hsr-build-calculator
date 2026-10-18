@@ -4,10 +4,21 @@ import { Input } from "@/components/ui/input";
 import { PlusIcon } from "@phosphor-icons/react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
 import { buffType, buffOrigin, buffTarget } from "@/const/buffType";
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Switch } from "@/components/ui/switch"
 import type { BuffData } from "@/schema/buffData";
-import { cn } from "@/lib/utils";
+
+function BuffStatusField({ initialStatus }: { initialStatus: boolean }) {
+    const [status, setStatus] = useState(initialStatus)
+
+    return (
+        <div className="flex items-center gap-2">
+            <label htmlFor="status">Status:</label>
+            <Switch name="status" id="status" checked={status} onCheckedChange={setStatus} />
+            <p className={status ? 'text-green-500' : 'text-red-500'}>{status ? 'Activo' : 'Inactivo'}</p>
+        </div>
+    )
+}
 
 interface props {
     onSubmit: (e: React.SubmitEvent<HTMLFormElement>, type: "add" | "edit") => void
@@ -20,8 +31,6 @@ interface props {
 
 export default function Modal({ onSubmit, openModal, setOpenModal, error, buffToEdit, setBuffToEdit }: props) {
     const type = buffToEdit ? "edit" : "add"
-    const [status, setStatus] = useState(true)
-    useEffect(() => { if (buffToEdit) setStatus(buffToEdit.status) }, [buffToEdit])
 
     return (
         <Dialog open={openModal}>
@@ -87,11 +96,12 @@ export default function Modal({ onSubmit, openModal, setOpenModal, error, buffTo
                         </Select>
                     </label>
 
-                    <div className={cn("flex items-center gap-2", !buffToEdit && "hidden")}>
-                        <label htmlFor="status">Status:</label>
-                        <Switch name="status" id="status" checked={status} onCheckedChange={setStatus} />
-                        <p className={status ? 'text-green-500' : 'text-red-500'}>{status ? 'Activo' : 'Inactivo'}</p>
-                    </div>
+                    {buffToEdit && (
+                        <BuffStatusField
+                            key={`${buffToEdit.id}-${buffToEdit.status}`}
+                            initialStatus={buffToEdit.status}
+                        />
+                    )}
 
                     <div className="flex justify-end gap-2">
                         <Button variant="outline" type="button" onClick={() => { setOpenModal(false); setBuffToEdit(undefined) }}>Cancelar</Button>
