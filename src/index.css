@@ -183,11 +183,11 @@ input:-webkit-autofill:active {
 
 /* El mango o parte que se arrastra */
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: var(--primary);
   border-radius: 10px;
 }
 
 /* Cambiar color al pasar el cursor por encima */
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--sidebar-primary);
 }

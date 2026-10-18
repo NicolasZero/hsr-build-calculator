@@ -2,7 +2,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router";
 import { ListIcon, XIcon } from "@phosphor-icons/react";
-import logo from "@/assets/doro_buki.webp"
+// import logo from "@/assets/doro_buki.webp"
 
 export default function Header() {
     const [isOpen, setIsOpen] = useState(false);
@@ -20,15 +20,11 @@ export default function Header() {
                 setIsVisible(true);
             } else if (isOpen) {
                 setIsVisible(true);
-            } else if (currentScrollY + 15 < lastScrollY.current) {
+            } else if (currentScrollY + 10 < lastScrollY.current) {
                 // Scrolleando hacia arriba
-                // console.log("currentScrollY", currentScrollY);
-                // console.log("lastScrollY.current", lastScrollY.current);
-                // console.log("Scrolleando hacia arriba");
                 setIsVisible(true);
             } else if (currentScrollY > lastScrollY.current) {
                 // Scrolleando hacia abajo
-                // console.log("Scrolleando hacia abajo");
                 setIsVisible(false);
             }
 
@@ -41,10 +37,10 @@ export default function Header() {
 
     const publicLinks = [
         { name: "Personajes", path: "/" },
-        // { name: "Build", path: "/build-calc" },
+        { name: "Guardados", path: "/characters" },
+        { name: "Team", path: "/teams" },
         { name: "Daño", path: "/dmg-calc" },
         { name: "Velocidad", path: "/speed-calc" },
-        // { name: "Archivos", path: "/files" },
     ];
 
     return (
@@ -62,7 +58,7 @@ export default function Header() {
                     {isOpen ? <XIcon size={24} /> : <ListIcon size={24} />}
                 </button>
 
-                <img src={logo} alt="logo" className="h-10 w-10 rounded-full mx-1" />
+                <img src="/ibuki_doro.png" alt="logo" className="h-10 w-10 rounded-full mx-1" />
 
                 {/* Desktop Menu */}
                 <ul className="hidden md:flex flex-row items-center flex-1">
@@ -91,7 +87,7 @@ export default function Header() {
                             <li key={link.path} className="px-3">
                                 <NavLink
                                     className={({ isActive }) =>
-                                        `px-6 py-4 block transition-colors duration-200 hover:bg-black/20 rounded-xl ${isActive ? "text-primary dark:text-fuchsia-500 font-bold" : ""}`
+                                        `px-6 py-4 block transition-colors duration-200 hover:bg-black/20 rounded-xl ${isActive ? "text-primary dark:text-cyan-500 font-bold" : ""}`
                                     }
                                     to={link.path}
                                     onClick={() => setIsOpen(false)}
