@@ -1,4 +1,4 @@
-import { ModeToggle } from "@/components/mode-toggle";
+import { ModeToggle } from "@/components/layers/mode-toggle";
 import { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router";
 import { ListIcon, XIcon } from "@phosphor-icons/react";
@@ -36,8 +36,8 @@ export default function Header() {
     }, [isOpen]);
 
     const publicLinks = [
-        { name: "Personajes", path: "/" },
-        { name: "Guardados", path: "/characters" },
+        { name: "Constructor", path: "/" },
+        { name: "Personajes", path: "/characters" },
         { name: "Team", path: "/teams" },
         { name: "Daño", path: "/dmg-calc" },
         { name: "Velocidad", path: "/speed-calc" },

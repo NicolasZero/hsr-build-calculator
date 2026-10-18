@@ -1,4 +1,4 @@
-import { ImageUploader } from '@/components/imageUploader'
+import { ImageUploader } from '@/components/general/imageUploader'
 import { Input } from '@/components/ui/input'
 import { useTeam } from '@/contexts/teamContext'
 

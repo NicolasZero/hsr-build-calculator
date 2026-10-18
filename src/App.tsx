@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router'
 import Layout from './layout'
-import Loader from '@/components/loader'
+import Loader from '@/components/layers/loader'
 import { lazy, Suspense } from 'react'
 // import DMGCalc from './pages/dmgCalc'
 // import SpeedCalc from './pages/speedCalc'

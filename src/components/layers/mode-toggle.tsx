@@ -1,6 +1,6 @@
 import { Moon, Sun } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
-import { useTheme } from "@/components/theme-provider"
+import { useTheme } from "@/components/layers/theme-provider"
 
 
 export function ModeToggle() {
