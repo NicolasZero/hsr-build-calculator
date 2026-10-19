@@ -1,8 +1,8 @@
 import { useEffect, useState, type FormEvent } from "react"
-import { CheckCircleIcon, FloppyDiskIcon, FolderOpenIcon, TrashIcon, WarningCircleIcon, XIcon } from "@phosphor-icons/react"
+import { FloppyDiskIcon, FolderOpenIcon, TrashIcon } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import StatusAlerts from "@/components/general/statusAlerts"
 import {
     Dialog,
     DialogContent,
@@ -12,8 +12,6 @@ import {
 } from "@/components/ui/dialog"
 import { useTeam } from "@/contexts/teamContext"
 import { eliminarEquipo, guardarEquipo, obtenerEquipos, type SavedTeam } from "@/lib/indexedDB"
-
-const ALERT_DURATION = 5000
 
 const getCharacterKey = (name: string) => name.trim().toLocaleLowerCase()
 
@@ -27,20 +25,6 @@ export default function TeamManagement() {
     const [isSaving, setIsSaving] = useState(false)
     const [error, setError] = useState("")
     const [message, setMessage] = useState("")
-
-    useEffect(() => {
-        if (!error) return
-
-        const timeout = setTimeout(() => setError(""), ALERT_DURATION)
-        return () => clearTimeout(timeout)
-    }, [error])
-
-    useEffect(() => {
-        if (!message) return
-
-        const timeout = setTimeout(() => setMessage(""), ALERT_DURATION)
-        return () => clearTimeout(timeout)
-    }, [message])
 
     const selectedCharacterIds = currentTeamCharacterIds.filter((id): id is number =>
         id !== null && savedCharacters.some((character) => character.id === id)
@@ -141,47 +125,12 @@ export default function TeamManagement() {
 
     return (
         <>
-            <div className="pointer-events-none fixed inset-x-4 top-4 z-50 flex flex-col gap-2 sm:inset-x-auto sm:bottom-4 sm:right-4 sm:top-auto sm:w-[calc(100vw-2rem)] sm:max-w-sm">
-                {message && (
-                    <Alert className="pointer-events-auto border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                        <CheckCircleIcon />
-                        <AlertTitle>Éxito</AlertTitle>
-                        <AlertDescription>{message}</AlertDescription>
-                        <AlertAction>
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon-xs"
-                                onClick={() => setMessage("")}
-                                aria-label="Cerrar mensaje de éxito"
-                                title="Cerrar mensaje"
-                            >
-                                <XIcon />
-                            </Button>
-                        </AlertAction>
-                    </Alert>
-                )}
-
-                {error && (
-                    <Alert variant="destructive" className="pointer-events-auto">
-                        <WarningCircleIcon />
-                        <AlertTitle>Error</AlertTitle>
-                        <AlertDescription>{error}</AlertDescription>
-                        <AlertAction>
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="icon-xs"
-                                onClick={() => setError("")}
-                                aria-label="Cerrar mensaje de error"
-                                title="Cerrar mensaje"
-                            >
-                                <XIcon />
-                            </Button>
-                        </AlertAction>
-                    </Alert>
-                )}
-            </div>
+            <StatusAlerts
+                error={error}
+                message={message}
+                onDismissError={() => setError("")}
+                onDismissMessage={() => setMessage("")}
+            />
 
             <div className="flex flex-wrap justify-end gap-2">
                 <Button

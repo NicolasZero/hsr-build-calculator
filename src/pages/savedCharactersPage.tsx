@@ -1,25 +1,13 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router"
-import {
-    CalendarBlankIcon,
-    EyeIcon,
-    PencilSimpleIcon,
-    TrashIcon,
-    UserCircleIcon,
-    WarningCircleIcon,
-    XIcon,
-} from "@phosphor-icons/react"
+import { MagnifyingGlassIcon, PencilSimpleIcon, UserCircleIcon } from "@phosphor-icons/react"
 import { useTeam } from "@/contexts/teamContext"
 import type { SavedCharacterBuild } from "@/lib/indexedDB"
-import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import {
-    Card,
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
+import StatusAlerts from "@/components/general/statusAlerts"
+import CharacterCard from "@/components/characters/characterCard"
+import CharacterImage from "@/components/characters/characterImage"
+import { Input } from "@/components/ui/input"
 import {
     Dialog,
     DialogContent,
@@ -28,44 +16,7 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 
-function CharacterImage({
-    image,
-    name,
-    className,
-}: {
-    image: Blob | null | undefined
-    name: string
-    className: string
-}) {
-    const [imageSource, setImageSource] = useState<{ image: Blob; url: string } | null>(null)
-
-    useEffect(() => {
-        if (!image) return
-
-        const reader = new FileReader()
-        reader.onload = () => {
-            if (typeof reader.result === "string") {
-                setImageSource({ image, url: reader.result })
-            }
-        }
-        reader.onerror = () => console.error("Error al cargar la imagen del personaje:", reader.error)
-        reader.readAsDataURL(image)
-
-        return () => {
-            if (reader.readyState === FileReader.LOADING) reader.abort()
-        }
-    }, [image])
-
-    const imageUrl = image && imageSource?.image === image ? imageSource.url : null
-
-    return imageUrl ? (
-        <img src={imageUrl} alt={name} className={className} />
-    ) : (
-        <div className={`${className} flex items-center justify-center bg-muted text-muted-foreground`}>
-            <UserCircleIcon size={56} />
-        </div>
-    )
-}
+const PAGE_SIZE = 24
 
 function formatRegistrationDate(timestamp?: number) {
     if (timestamp === undefined) return "Fecha no disponible"
@@ -81,10 +32,48 @@ function formatRegistrationDate(timestamp?: number) {
 export default function SavedCharactersPage() {
     const { savedCharacters, loadCharacter, deleteCharacter, characterId } = useTeam()
     const navigate = useNavigate()
+    const [searchTerm, setSearchTerm] = useState("")
+    const [pagination, setPagination] = useState({ searchTerm: "", visibleCount: PAGE_SIZE })
     const [characterToView, setCharacterToView] = useState<SavedCharacterBuild | null>(null)
     const [characterToDelete, setCharacterToDelete] = useState<SavedCharacterBuild | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
     const [error, setError] = useState("")
+    const loadMoreRef = useRef<HTMLDivElement>(null)
+
+    const filteredCharacters = useMemo(() => {
+        const normalizedSearch = searchTerm.trim().toLocaleLowerCase()
+        if (!normalizedSearch) return savedCharacters
+
+        return savedCharacters.filter((character) =>
+            character.name.toLocaleLowerCase().includes(normalizedSearch)
+        )
+    }, [savedCharacters, searchTerm])
+    const visibleCount = pagination.searchTerm === searchTerm ? pagination.visibleCount : PAGE_SIZE
+    const visibleCharacters = filteredCharacters.slice(0, visibleCount)
+    const hasMoreCharacters = visibleCharacters.length < filteredCharacters.length
+
+    useEffect(() => {
+        const target = loadMoreRef.current
+        if (!target || !hasMoreCharacters) return
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setPagination((current) => ({
+                        searchTerm,
+                        visibleCount: Math.min(
+                            (current.searchTerm === searchTerm ? current.visibleCount : PAGE_SIZE) + PAGE_SIZE,
+                            filteredCharacters.length
+                        ),
+                    }))
+                }
+            },
+            { rootMargin: "200px" }
+        )
+        observer.observe(target)
+
+        return () => observer.disconnect()
+    }, [filteredCharacters.length, hasMoreCharacters, searchTerm, visibleCount])
 
     const handleEdit = async (character: SavedCharacterBuild) => {
         if (character.id === undefined) return
@@ -113,6 +102,7 @@ export default function SavedCharactersPage() {
 
     return (
         <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 md:px-8">
+            <StatusAlerts error={error} onDismissError={() => setError("")} />
             <header className="rounded-2xl border bg-muted/40 p-4">
                 <h1 className="text-2xl font-bold text-primary dark:text-cyan-500">
                     Personajes registrados
@@ -121,25 +111,6 @@ export default function SavedCharactersPage() {
                     Consulta, edita o elimina tus personajes guardados.
                 </p>
             </header>
-
-            {error && (
-                <Alert variant="destructive">
-                    <WarningCircleIcon />
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                    <AlertAction>
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={() => setError("")}
-                            aria-label="Cerrar mensaje de error"
-                        >
-                            <XIcon />
-                        </Button>
-                    </AlertAction>
-                </Alert>
-            )}
 
             {savedCharacters.length === 0 ? (
                 <div className="rounded-2xl border border-dashed p-10 text-center">
@@ -153,67 +124,55 @@ export default function SavedCharactersPage() {
                     </Button>
                 </div>
             ) : (
-                <section
-                    aria-label="Personajes guardados"
-                    className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-                >
-                    {savedCharacters.map((character) => (
-                        <Card key={character.id ?? character.name}>
-                            <CharacterImage
-                                image={character.character?.image}
-                                name={character.name}
-                                className="aspect-4/3 w-full object-cover"
-                            />
-                            <CardHeader>
-                                <CardTitle className="flex items-center justify-between gap-2">
-                                    <span className="truncate">{character.name}</span>
-                                    {character.id === characterId && (
-                                        <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary dark:bg-cyan-500/15 dark:text-cyan-400">
-                                            En edición
-                                        </span>
-                                    )}
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                                    <CalendarBlankIcon size={16} />
-                                    <span>Registrado: {formatRegistrationDate(character.createdAt)}</span>
-                                </p>
-                            </CardContent>
-                            <CardFooter className="flex flex-wrap justify-end gap-2">
-                                <Button
-                                    type="button"
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => setCharacterToView(character)}
-                                >
-                                    <EyeIcon />
-                                    Ver
-                                </Button>
-                                <Button
-                                    type="button"
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => void handleEdit(character)}
-                                    disabled={character.id === undefined}
-                                >
-                                    <PencilSimpleIcon />
-                                    Editar
-                                </Button>
-                                <Button
-                                    type="button"
-                                    size="sm"
-                                    variant="destructive"
-                                    onClick={() => setCharacterToDelete(character)}
-                                    disabled={character.id === undefined}
-                                >
-                                    <TrashIcon />
-                                    Eliminar
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    ))}
-                </section>
+                <>
+                    <div className="relative">
+                        <MagnifyingGlassIcon
+                            size={18}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                        />
+                        <Input
+                            type="search"
+                            placeholder="Buscar por nombre..."
+                            aria-label="Buscar personajes por nombre"
+                            value={searchTerm}
+                            onChange={(event) => setSearchTerm(event.target.value)}
+                            className="pl-9"
+                        />
+                    </div>
+                    {filteredCharacters.length === 0 ? (
+                        <div className="rounded-2xl border border-dashed p-10 text-center">
+                            <UserCircleIcon size={44} className="mx-auto mb-3 text-muted-foreground" />
+                            <h2 className="font-semibold">No se encontraron personajes</h2>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                No hay personajes que coincidan con "{searchTerm.trim()}".
+                            </p>
+                        </div>
+                    ) : (
+                        <>
+                            <section
+                                aria-label="Personajes guardados"
+                                className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                            >
+                                {visibleCharacters.map((character) => (
+                                    <CharacterCard
+                                        key={character.id ?? character.name}
+                                        character={character}
+                                        isCurrent={character.id === characterId}
+                                        formatRegistrationDate={formatRegistrationDate}
+                                        onView={setCharacterToView}
+                                        onEdit={(selected) => void handleEdit(selected)}
+                                        onDelete={setCharacterToDelete}
+                                    />
+                                ))}
+                            </section>
+                            <div ref={loadMoreRef} className="py-2 text-center text-sm text-muted-foreground" aria-live="polite">
+                                {hasMoreCharacters
+                                    ? `Mostrando ${visibleCharacters.length} de ${filteredCharacters.length} personajes`
+                                    : `Se muestran ${filteredCharacters.length} personajes`}
+                            </div>
+                        </>
+                    )}
+                </>
             )}
 
             <Dialog

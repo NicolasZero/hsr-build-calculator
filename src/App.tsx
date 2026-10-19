@@ -8,7 +8,7 @@ import { lazy, Suspense } from 'react'
 import MaintenancePage from './pages/maintenance'
 import { TeamProvider } from "@/contexts/teamContext";
 
-const CharacterBuilderPage = lazy(() => import('@/pages/characterPage'))
+const CharacterBuilderPage = lazy(() => import('@/pages/createCharacterPage'))
 const TeamPage = lazy(() => import('@/pages/teamPage'))
 const SavedCharactersPage = lazy(() => import('@/pages/savedCharactersPage'))
 
