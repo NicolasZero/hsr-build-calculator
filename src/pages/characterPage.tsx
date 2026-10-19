@@ -173,25 +173,6 @@ export default function TeamBuilderPage() {
                 </div>
             </section>
 
-            {/* Banner de estado: Personaje cargado / editando */}
-            {/* {characterId && (
-                <div className='flex items-center justify-between px-4 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-sm'>
-                    <div className='flex items-center gap-2 text-primary dark:text-fuchsia-400 font-medium'>
-                        <span className='w-2 h-2 rounded-full bg-primary animate-pulse' />
-                        <span>
-                            Editando registro guardado: <strong>{character.name || 'Sin nombre'}</strong>
-                        </span>
-                    </div>
-                    <button
-                        type='button'
-                        onClick={handleNewCharacter}
-                        className='text-xs underline hover:text-primary transition-colors cursor-pointer text-muted-foreground'
-                    >
-                        Crear nuevo en su lugar
-                    </button>
-                </div>
-            )} */}
-
             {/* Formulario principal */}
             <section className='grid grid-cols-1 md:grid-cols-[300px_minmax(100px,1fr)] bg-muted/40 px-4 py-2.5 rounded-2xl border gap-6'>
                 <CharacterSelector onChange={editCharacter} />

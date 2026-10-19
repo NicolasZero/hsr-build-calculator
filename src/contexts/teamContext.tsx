@@ -12,6 +12,10 @@ import {
 import { characterDefault } from '@/const/charactersTemplate'
 import type { RelicData } from "@/schema/relicData";
 
+type TeamCharacterIds = Array<number | null>
+
+const TEAM_SIZE = 4
+
 export const relicDefault: RelicData = {
     setName: undefined,
     relics: [],
@@ -37,6 +41,8 @@ interface context {
     setBuffs: Dispatch<SetStateAction<BuffData[]>>
     relics: RelicData
     setRelics: Dispatch<SetStateAction<RelicData>>
+    currentTeamCharacterIds: TeamCharacterIds
+    setCurrentTeamCharacterIds: Dispatch<SetStateAction<TeamCharacterIds>>
 }
 
 export const TeamContext = createContext<context | null>(null)
@@ -64,6 +70,11 @@ export function TeamProvider({ children }: props) {
 
     // Lista de personajes guardados
     const [savedCharacters, setSavedCharacters] = useState<SavedCharacterBuild[]>([])
+
+    // IDs ordenados de los personajes del equipo actual
+    const [currentTeamCharacterIds, setCurrentTeamCharacterIds] = useState<TeamCharacterIds>(
+        () => Array<TeamCharacterIds[number]>(TEAM_SIZE).fill(null)
+    )
 
     const refreshSavedCharacters = useCallback(async () => {
         try {
@@ -172,6 +183,9 @@ export function TeamProvider({ children }: props) {
     const deleteCharacter = async (id: number): Promise<boolean> => {
         try {
             await eliminarPersonaje(id)
+            setCurrentTeamCharacterIds((currentTeam) =>
+                currentTeam.map((characterId) => characterId === id ? null : characterId)
+            )
             if (characterId === id) {
                 resetCharacter()
             }
@@ -200,6 +214,8 @@ export function TeamProvider({ children }: props) {
                 setBuffs,
                 relics,
                 setRelics,
+                currentTeamCharacterIds,
+                setCurrentTeamCharacterIds,
             }}
         >
             {children}

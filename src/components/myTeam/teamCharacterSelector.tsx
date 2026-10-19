@@ -9,27 +9,18 @@ import TeamCharacterCard from "@/components/myTeam/teamCharacterCard"
 
 const MAX_TEAM_SIZE = 4
 
-type TeamSlot = number | null
-interface TeamCharacterSelectorProps {
-    characterIds: TeamSlot[]
-    onCharacterIdsChange: (characterIds: TeamSlot[]) => void
-}
-
 const getCharacterName = (build: SavedCharacterBuild) =>
     build.character?.name?.trim() || build.name.trim()
 
 const getCharacterKey = (build: SavedCharacterBuild) =>
     getCharacterName(build).toLocaleLowerCase()
 
-export default function TeamCharacterSelector({
-    characterIds,
-    onCharacterIdsChange,
-}: TeamCharacterSelectorProps) {
-    const { savedCharacters } = useTeam()
+export default function TeamCharacterSelector() {
+    const { savedCharacters, currentTeamCharacterIds, setCurrentTeamCharacterIds } = useTeam()
     const navigate = useNavigate()
     const [activeSlot, setActiveSlot] = useState<number | null>(null)
 
-    const slots = Array.from({ length: MAX_TEAM_SIZE }, (_, index) => characterIds[index] ?? null)
+    const slots = Array.from({ length: MAX_TEAM_SIZE }, (_, index) => currentTeamCharacterIds[index] ?? null)
     const availableCharacters = savedCharacters.filter((build, index, builds) =>
         typeof build.id === "number" &&
         builds.findIndex((candidate) => getCharacterKey(candidate) === getCharacterKey(build)) === index
@@ -53,14 +44,14 @@ export default function TeamCharacterSelector({
         })
         if (alreadySelected) return
 
-        onCharacterIdsChange(
+        setCurrentTeamCharacterIds(
             slots.map((id, index) => index === activeSlot ? selectedId : id)
         )
         setActiveSlot(null)
     }
 
     const removeCharacter = (slotIndex: number) => {
-        onCharacterIdsChange(
+        setCurrentTeamCharacterIds(
             slots.map((id, index) => index === slotIndex ? null : id)
         )
     }

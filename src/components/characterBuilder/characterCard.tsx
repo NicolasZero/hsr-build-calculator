@@ -16,7 +16,7 @@ export default function CharacterCard({ character, isCurrent, handleSelectCharac
         <div
             className={`group relative flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 hover:border-primary/50 dark:hover:border-cyan-500/50 hover:bg-muted/40 
                 ${isCurrent
-                    ? "border-primary/80 bg-primary/5 dark:bg-cyan-500/5 dark:border-cyan-400/60"
+                    ? "border-primary/80 bg-primary/5 dark:bg-cyan-500/5 dark:border-cyan-500/60"
                     : "border-border"
                 }`}
         >
@@ -43,7 +43,7 @@ export default function CharacterCard({ character, isCurrent, handleSelectCharac
                             {character.name}
                         </h4>
                         {isCurrent && (
-                            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary dark:bg-cyan-500/20 dark:text-cyan-400 font-medium shrink-0">
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/20 text-primary dark:bg-cyan-500/20 dark:text-cyan-500 font-medium shrink-0">
                                 Activo
                             </span>
                         )}

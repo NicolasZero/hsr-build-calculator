@@ -5,15 +5,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useTeam } from "@/contexts/teamContext"
 import { calculateTotalStats } from "@/utils/calculateTotalStats"
 
-interface TeamCharacterStatsProps {
-    characterIds: Array<number | null>
-}
-
-export default function TeamCharacterStats({ characterIds }: TeamCharacterStatsProps) {
-    const { savedCharacters } = useTeam()
+export default function TeamCharacterStats() {
+    const { savedCharacters, currentTeamCharacterIds } = useTeam()
     const [selectedId, setSelectedId] = useState("")
 
-    const members = characterIds.flatMap((id, index) => {
+    const members = currentTeamCharacterIds.flatMap((id, index) => {
         if (id === null) return []
         const build = savedCharacters.find((character) => character.id === id)
         if (!build || build.id === undefined) return []

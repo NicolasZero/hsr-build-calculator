@@ -1,7 +1,8 @@
 import { useEffect, useState, type FormEvent } from "react"
-import { CheckCircleIcon, FloppyDiskIcon, FolderOpenIcon, TrashIcon, WarningCircleIcon } from "@phosphor-icons/react"
+import { CheckCircleIcon, FloppyDiskIcon, FolderOpenIcon, TrashIcon, WarningCircleIcon, XIcon } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import {
     Dialog,
     DialogContent,
@@ -12,15 +13,12 @@ import {
 import { useTeam } from "@/contexts/teamContext"
 import { eliminarEquipo, guardarEquipo, obtenerEquipos, type SavedTeam } from "@/lib/indexedDB"
 
-interface TeamManagementProps {
-    characterIds: Array<number | null>
-    onLoadTeam: (characterIds: Array<number | null>) => void
-}
+const ALERT_DURATION = 5000
 
 const getCharacterKey = (name: string) => name.trim().toLocaleLowerCase()
 
-export default function TeamManagement({ characterIds, onLoadTeam }: TeamManagementProps) {
-    const { savedCharacters } = useTeam()
+export default function TeamManagement() {
+    const { savedCharacters, currentTeamCharacterIds, setCurrentTeamCharacterIds } = useTeam()
     const [teams, setTeams] = useState<SavedTeam[]>([])
     const [teamName, setTeamName] = useState("")
     const [teamToDelete, setTeamToDelete] = useState<SavedTeam | null>(null)
@@ -29,7 +27,22 @@ export default function TeamManagement({ characterIds, onLoadTeam }: TeamManagem
     const [isSaving, setIsSaving] = useState(false)
     const [error, setError] = useState("")
     const [message, setMessage] = useState("")
-    const selectedCharacterIds = characterIds.filter((id): id is number =>
+
+    useEffect(() => {
+        if (!error) return
+
+        const timeout = setTimeout(() => setError(""), ALERT_DURATION)
+        return () => clearTimeout(timeout)
+    }, [error])
+
+    useEffect(() => {
+        if (!message) return
+
+        const timeout = setTimeout(() => setMessage(""), ALERT_DURATION)
+        return () => clearTimeout(timeout)
+    }, [message])
+
+    const selectedCharacterIds = currentTeamCharacterIds.filter((id): id is number =>
         id !== null && savedCharacters.some((character) => character.id === id)
     )
 
@@ -57,10 +70,12 @@ export default function TeamManagement({ characterIds, onLoadTeam }: TeamManagem
         event.preventDefault()
         const name = teamName.trim()
         if (!name) {
+            setMessage("")
             setError("Escribe un nombre para el equipo.")
             return
         }
         if (selectedCharacterIds.length === 0) {
+            setMessage("")
             setError("Selecciona al menos un personaje antes de guardar el equipo.")
             return
         }
@@ -76,6 +91,7 @@ export default function TeamManagement({ characterIds, onLoadTeam }: TeamManagem
             setMessage(`El equipo "${name}" se guardó correctamente.`)
         } catch (saveError) {
             console.error("Error al guardar el equipo:", saveError)
+            setMessage("")
             setError("No se pudo guardar el equipo. Inténtalo de nuevo.")
         } finally {
             setIsSaving(false)
@@ -98,7 +114,7 @@ export default function TeamManagement({ characterIds, onLoadTeam }: TeamManagem
             return [id]
         }).slice(0, 4)
 
-        onLoadTeam(Array.from({ length: 4 }, (_, index) => validIds[index] ?? null))
+        setCurrentTeamCharacterIds(Array.from({ length: 4 }, (_, index) => validIds[index] ?? null))
         setIsLoadOpen(false)
         setError("")
         setMessage(
@@ -118,48 +134,72 @@ export default function TeamManagement({ characterIds, onLoadTeam }: TeamManagem
             setError("")
         } catch (deleteError) {
             console.error("Error al eliminar el equipo:", deleteError)
+            setMessage("")
             setError("No se pudo eliminar el equipo. Inténtalo de nuevo.")
         }
     }
 
     return (
         <>
-            {(message || error) && (
-                <div className={`flex items-center gap-2 rounded-xl border p-3 text-sm ${
-                    error
-                        ? "border-destructive/20 bg-destructive/10 text-destructive"
-                        : "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                }`}>
-                    {error ? <WarningCircleIcon size={18} /> : <CheckCircleIcon size={18} />}
-                    <span>{error || message}</span>
-                    <button
-                        type="button"
-                        onClick={() => { setError(""); setMessage("") }}
-                        className="ml-auto"
-                        aria-label="Cerrar mensaje"
-                    >
-                        ×
-                    </button>
-                </div>
-            )}
+            <div className="pointer-events-none fixed inset-x-4 top-4 z-50 flex flex-col gap-2 sm:inset-x-auto sm:bottom-4 sm:right-4 sm:top-auto sm:w-[calc(100vw-2rem)] sm:max-w-sm">
+                {message && (
+                    <Alert className="pointer-events-auto border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                        <CheckCircleIcon />
+                        <AlertTitle>Éxito</AlertTitle>
+                        <AlertDescription>{message}</AlertDescription>
+                        <AlertAction>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon-xs"
+                                onClick={() => setMessage("")}
+                                aria-label="Cerrar mensaje de éxito"
+                                title="Cerrar mensaje"
+                            >
+                                <XIcon />
+                            </Button>
+                        </AlertAction>
+                    </Alert>
+                )}
+
+                {error && (
+                    <Alert variant="destructive" className="pointer-events-auto">
+                        <WarningCircleIcon />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>{error}</AlertDescription>
+                        <AlertAction>
+                            <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon-xs"
+                                onClick={() => setError("")}
+                                aria-label="Cerrar mensaje de error"
+                                title="Cerrar mensaje"
+                            >
+                                <XIcon />
+                            </Button>
+                        </AlertAction>
+                    </Alert>
+                )}
+            </div>
 
             <div className="flex flex-wrap justify-end gap-2">
                 <Button
                     type="button"
                     variant="outline"
-                    onClick={() => { setError(""); setIsLoadOpen(true) }}
+                    onClick={() => { setError(""); setMessage(""); setIsLoadOpen(true) }}
                 >
                     <FolderOpenIcon size={18} />
                     Cargar equipo
                     {teams.length > 0 && (
-                        <span className="ml-1 rounded-full bg-primary/10 px-1.5 text-xs text-primary">
+                        <span className="ml-1 rounded-full bg-primary/10 px-1.5 text-xs text-primary dark:bg-cyan-500/10 dark:text-cyan-500">
                             {teams.length}
                         </span>
                     )}
                 </Button>
                 <Button
                     type="button"
-                    onClick={() => { setError(""); setIsSaveOpen(true) }}
+                    onClick={() => { setError(""); setMessage(""); setIsSaveOpen(true) }}
                     disabled={selectedCharacterIds.length === 0}
                 >
                     <FloppyDiskIcon size={18} />
@@ -183,7 +223,6 @@ export default function TeamManagement({ characterIds, onLoadTeam }: TeamManagem
                             placeholder="Nombre del equipo"
                             maxLength={80}
                         />
-                        {error && <p className="text-sm text-destructive">{error}</p>}
                         <div className="flex justify-end gap-2">
                             <Button type="button" variant="outline" onClick={() => setIsSaveOpen(false)}>
                                 Cancelar
