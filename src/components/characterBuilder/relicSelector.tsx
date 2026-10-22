@@ -6,9 +6,11 @@ import type { SubStatsType, MainStatsType, MainStat, SubStat, PieceName, RelicDa
 import { useEffect, useState, useRef } from "react"
 import { PlusIcon, XIcon } from "@phosphor-icons/react"
 import { useTeam } from "@/contexts/teamContext"
+import { useTranslation } from "react-i18next"
 
 export default function RelicSelector({ onChange }: { onChange?: (relics: RelicData) => void }) {
     const { relics: contextRelics, setRelics: setContextRelics } = useTeam()
+    const { t } = useTranslation('builder');
 
     const [subStat, setSubStat] = useState<SubStat[]>([])
     const [mainStats, setMainStats] = useState<MainStat[]>([])
@@ -42,6 +44,8 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
         const formData = new FormData(e.currentTarget)
         const piece = formData.get('piece') as PieceName
         const mainStat = formData.get('mainStat') as MainStatsType
+        // console.log("piece: ", piece, "mainStat: ", mainStat);
+
         if (!piece || !mainStat) return
         setMainStats((prev) => {
             const existing = prev.find((stat) => stat.piece === piece)
@@ -72,13 +76,13 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
     return (
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
             <header className="col-span-full">
-                <h2 className="text-xl font-semibold text-primary dark:text-cyan-500">Artefactos y Ornamentos</h2>
-                <p className="text-sm text-muted-foreground">Agrega los stats de los artefactos</p>
+                <h2 className="text-xl font-semibold text-primary dark:text-cyan-500">{t('relics.title')}</h2>
+                <p className="text-sm text-muted-foreground">{t('relics.description')}</p>
             </header>
 
             <label className="col-span-full flex flex-col md:flex-row md:items-center gap-1 md:gap-4">
-                <span className="text-sm">Nombre</span>
-                <Input value={setName} onChange={(e) => setSetName(e.target.value)} placeholder="Nombre del set (Opcional)" />
+                <span className="text-sm whitespace-nowrap">{t('placeholders.name_relic')}</span>
+                <Input name="set" value={setName} onChange={(e) => setSetName(e.target.value)} placeholder="Nombre del set (Opcional)" />
             </label>
 
             {/*Main stats*/}
@@ -89,6 +93,7 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
                     <Select name="piece" value={relicOpt} onValueChange={(v) => {
                         setRelicOpt(v)
                         setMainStatOpt("")
+                        v === "CABEZA" ? setMainStatOpt("HP") : v === "MANO" ? setMainStatOpt("ATQ") : null
                     }}>
                         <SelectTrigger className="w-full">
                             <SelectValue placeholder="Pieza" />
@@ -132,7 +137,7 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
             {/*Sub Stats*/}
             <div>
                 <h3 className="text-lg font-semibold">Sub-stats</h3>
-                <form onSubmit={handleAddSubStat} className="flex gap-4 " >
+                <form onSubmit={handleAddSubStat} className="flex gap-4 mb-4" >
                     <Select name="stat">
                         <SelectTrigger className="w-full">
                             <SelectValue placeholder="Stat" />
@@ -147,8 +152,7 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
                     <Button type="submit"><PlusIcon /></Button>
                 </form>
 
-                {/* <div className="flex flex-col flex-wrap gap-2 py-2 max-h-80 overflow-scroll-y"> */}
-                <div className="grid grid-cols-2 gap-4 mt-4 md:px-4 max-h-[calc(100vh-300px)] min-h-24 overflow-auto">
+                <div className={`grid grid-cols-2 gap-4 max-h-55 md:px-4 overflow-auto`}>
                     {subStat.map((stat, index) => (
                         <div key={index} className="p-2 h-fit border rounded flex items-center justify-between gap-2">
                             <p className="text-sm whitespace-nowrap">{stat.stat}: {stat.value}</p>

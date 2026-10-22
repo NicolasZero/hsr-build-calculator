@@ -2,12 +2,14 @@ import { ModeToggle } from "@/components/layers/mode-toggle";
 import { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router";
 import { ListIcon, XIcon } from "@phosphor-icons/react";
-// import logo from "@/assets/doro_buki.webp"
+import LanguageSelector from "@/components/layers/lenguageSelector";
+import { useTranslation } from 'react-i18next';
 
 export default function Header() {
     const [isOpen, setIsOpen] = useState(false);
     const [isVisible, setIsVisible] = useState(true);
     const lastScrollY = useRef(0);
+    const { t } = useTranslation();
 
     const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -36,11 +38,11 @@ export default function Header() {
     }, [isOpen]);
 
     const publicLinks = [
-        { name: "Constructor", path: "/" },
-        { name: "Personajes", path: "/characters" },
-        { name: "Team", path: "/teams" },
-        { name: "Daño", path: "/dmg-calc" },
-        { name: "Velocidad", path: "/speed-calc" },
+        { name: t("header.builder"), path: "/" },
+        { name: t("header.characters"), path: "/characters" },
+        { name: t("header.teams"), path: "/teams" },
+        { name: t("header.dmg"), path: "/dmg-calc" },
+        { name: t("header.speed"), path: "/speed-calc" },
     ];
 
     return (
@@ -60,6 +62,7 @@ export default function Header() {
 
                 <img src="/ibuki_doro.png" alt="logo" className="h-10 w-10 rounded-full mx-1" />
 
+
                 {/* Desktop Menu */}
                 <ul className="hidden md:flex flex-row items-center flex-1">
                     {publicLinks.map((link) => (
@@ -76,6 +79,7 @@ export default function Header() {
                     ))}
                 </ul>
 
+                <LanguageSelector />
                 <ModeToggle />
             </nav>
 

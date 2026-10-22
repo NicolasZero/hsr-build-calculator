@@ -1,0 +1,53 @@
+{
+    "builder": {
+        "title": "Character Builder",
+        "description": "Configure base attributes, relics and buffs to calculate total performance."
+    },
+    "buttons": {
+        "new": "New",
+        "load": "Load Character",
+        "save": "Save Character",
+        "saveNew": "Save as New",
+        "saveLoading": "Saving...",
+        "loadLoading": "Loading...",
+        "update": "Update Character",
+        "add_buff": "Add buff"
+    },
+    "placeholders": {
+        "upload_img": "Click to upload",
+        "name_character": "Character name",
+        "select": "Select",
+        "name_relic": "Set name",
+        "character": "Character"
+    },
+    "alerts": {
+        "character_created": "¡\"{{name}}\" was saved as a new record!",
+        "character_updated": "¡\"{{name}}\" was updated successfully!",
+        "character_error": "An error occurred while saving the character",
+        "character_reset": "Form reset for a new character."
+    },
+    "base_stats": {
+        "title": "Base Stats",
+        "description": "Configure the character's base attributes.",
+        "hp": "HP",
+        "atq": "ATK",
+        "def": "DEF",
+        "spd": "SPD",
+        "crit_r": "CRIT.R",
+        "crit_d": "CRIT.D",
+        "dmg": "DMG",
+        "level": "Level"
+    },
+    "relics": {
+        "title": "Relics and Planar Ornaments",
+        "description": "Configure the character's relics and ornaments.",
+        "main_stats": "Main Stats",
+        "substats": "Sub Stats",
+        "head": "Head",
+        "hands": "Hands",
+        "body": "Body",
+        "feet": "Feet",
+        "sphere": "Sphere",
+        "rope": "Rope"
+    }
+}

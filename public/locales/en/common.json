@@ -1,0 +1,17 @@
+{
+    "header": {
+        "builder": "Builder",
+        "characters": "Characters",
+        "teams": "Teams",
+        "dmg": "Damage",
+        "speed": "Speed"
+    },
+    "footer": {
+        "created_by": "Created by"
+    },
+    "home": {
+        "title": "Build Calculator",
+        "description": "Calculate the best builds for your characters"
+    },
+    "loading": "Loading..."
+}

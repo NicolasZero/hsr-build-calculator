@@ -1,15 +1,109 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 import { CheckCircleIcon, WarningCircleIcon, XIcon } from "@phosphor-icons/react"
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 
-const ALERT_DURATION = 5000
+const DEFAULT_DURATION = 5000 // 5000 = 5 segundos
 
-interface StatusAlertsProps {
-    error?: string | string[]
-    message?: string
-    onDismissError?: () => void
-    onDismissMessage?: () => void
+export interface AlertProps {
+    error: string | string[]
+    message: string
+    onDismissError: () => void
+    onDismissMessage: () => void
+}
+
+export interface StatusAlertsProps extends AlertProps {
+    duration?: number
+}
+
+function useAutoDismiss(active: boolean, onDismiss: () => void, duration = DEFAULT_DURATION) {
+    const callbackRef = useRef(onDismiss)
+    callbackRef.current = onDismiss
+
+    useEffect(() => {
+        if (!active) return
+
+        if (duration !== 0) {
+            const timer = setTimeout(() => callbackRef.current(), duration)
+            return () => clearTimeout(timer)
+        }
+    }, [active, duration])
+}
+
+interface AlertItemProps {
+    variant?: "default" | "destructive" | "success"
+    className?: string
+    icon: ReactNode
+    title: string
+    onDismiss: () => void
+    dismissLabel: string
+    children: ReactNode
+}
+
+function AlertItem({
+    variant = "default",
+    className,
+    icon,
+    title,
+    onDismiss,
+    dismissLabel,
+    children,
+}: AlertItemProps) {
+    return (
+        <Alert variant={variant} className={`pointer-events-auto ${className ?? ""}`}>
+            {icon}
+            <AlertTitle>{title}</AlertTitle>
+            <AlertDescription>{children}</AlertDescription>
+            <AlertAction>
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-xs"
+                    onClick={onDismiss}
+                    aria-label={dismissLabel}
+                    title={dismissLabel}
+                >
+                    <XIcon />
+                </Button>
+            </AlertAction>
+        </Alert>
+    )
+}
+
+export function useStatusAlerts() {
+    const [error, setError] = useState<string | string[]>("")
+    const [message, setMessage] = useState<string>("")
+
+    const showSuccess = (msg: string) => {
+        setError("")
+        setMessage(msg)
+    }
+
+    const showError = (err: string | string[]) => {
+        setMessage("")
+        setError(err)
+    }
+
+    const clear = () => {
+        setError("")
+        setMessage("")
+    }
+
+    return {
+        error,
+        message,
+        setError,
+        setMessage,
+        showSuccess,
+        showError,
+        clear,
+        alertProps: {
+            error,
+            message,
+            onDismissError: () => setError(""),
+            onDismissMessage: () => setMessage(""),
+        },
+    }
 }
 
 export default function StatusAlerts({
@@ -17,81 +111,50 @@ export default function StatusAlerts({
     message,
     onDismissError,
     onDismissMessage,
+    duration = DEFAULT_DURATION,
 }: StatusAlertsProps) {
-    const dismissErrorRef = useRef(onDismissError)
-    const dismissMessageRef = useRef(onDismissMessage)
     const hasError = Array.isArray(error) ? error.length > 0 : Boolean(error)
 
-    useEffect(() => {
-        dismissErrorRef.current = onDismissError
-    }, [onDismissError])
-
-    useEffect(() => {
-        dismissMessageRef.current = onDismissMessage
-    }, [onDismissMessage])
-
-    useEffect(() => {
-        if (!hasError) return
-
-        const timeout = setTimeout(() => dismissErrorRef.current?.(), ALERT_DURATION)
-        return () => clearTimeout(timeout)
-    }, [hasError, error])
-
-    useEffect(() => {
-        if (!message) return
-
-        const timeout = setTimeout(() => dismissMessageRef.current?.(), ALERT_DURATION)
-        return () => clearTimeout(timeout)
-    }, [message])
+    useAutoDismiss(Boolean(message), onDismissMessage, duration)
+    useAutoDismiss(hasError, onDismissError, duration)
 
     if (!hasError && !message) return null
 
     return (
         <div className="pointer-events-none fixed inset-x-4 top-4 z-50 flex flex-col gap-2 sm:inset-x-auto sm:bottom-4 sm:right-4 sm:top-auto sm:w-[calc(100vw-2rem)] sm:max-w-sm">
             {message && (
-                <Alert className="pointer-events-auto border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                    <CheckCircleIcon />
-                    <AlertTitle>Éxito</AlertTitle>
-                    <AlertDescription>{message}</AlertDescription>
-                    <AlertAction>
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={() => dismissMessageRef.current?.()}
-                            aria-label="Cerrar mensaje de éxito"
-                            title="Cerrar mensaje"
-                        >
-                            <XIcon />
-                        </Button>
-                    </AlertAction>
-                </Alert>
+                <AlertItem
+                    variant="success"
+                    icon={<CheckCircleIcon />}
+                    title="Éxito"
+                    // className="border-emerald-950 bg-emerald-900 text-emerald-400 dark:text-emerald-400"
+                    // className="border-emerald-800 text-emerald-600"
+                    onDismiss={onDismissMessage}
+                    dismissLabel="Cerrar mensaje de éxito"
+                >
+                    {message}
+                </AlertItem>
             )}
 
             {hasError && (
-                <Alert variant="destructive" className="pointer-events-auto">
-                    <WarningCircleIcon />
-                    <AlertTitle>Error</AlertTitle>
-                    <AlertDescription>
-                        {Array.isArray(error) ? (
-                            <ul className="list-disc pl-4">
-                                {error.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}
-                            </ul>
-                        ) : error}
-                    </AlertDescription>
-                    <AlertAction>
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon-xs"
-                            onClick={() => dismissErrorRef.current?.()}
-                            aria-label="Cerrar mensaje de error"
-                            title="Cerrar mensaje"
-                        >
-                            <XIcon />
-                        </Button>
-                    </AlertAction>
-                </Alert>
+                <AlertItem
+                    variant="destructive"
+                    icon={<WarningCircleIcon />}
+                    title="Error"
+                    // className="border-red-800 text-red-600"
+                    onDismiss={onDismissError}
+                    dismissLabel="Cerrar mensaje de error"
+                >
+                    {Array.isArray(error) ? (
+                        <ul className="list-disc pl-4">
+                            {error.map((item, index) => (
+                                <li key={`${item}-${index}`}>{item}</li>
+                            ))}
+                        </ul>
+                    ) : (
+                        error
+                    )}
+                </AlertItem>
             )}
         </div>
     )

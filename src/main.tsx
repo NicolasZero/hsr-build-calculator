@@ -4,6 +4,8 @@ import './index.css'
 import App from './App.tsx'
 import { ThemeProvider } from "@/components/layers/theme-provider.tsx"
 import { BrowserRouter } from 'react-router'
+import './i18n';
+
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -12,5 +14,5 @@ createRoot(document.getElementById('root')!).render(
         <App />
       </BrowserRouter>
     </ThemeProvider>
-  </StrictMode>,
+  </StrictMode>
 )

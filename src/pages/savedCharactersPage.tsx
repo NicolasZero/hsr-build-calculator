@@ -4,7 +4,7 @@ import { MagnifyingGlassIcon, PencilSimpleIcon, UserCircleIcon } from "@phosphor
 import { useTeam } from "@/contexts/teamContext"
 import type { SavedCharacterBuild } from "@/lib/indexedDB"
 import { Button } from "@/components/ui/button"
-import StatusAlerts from "@/components/general/statusAlerts"
+import StatusAlerts, { useStatusAlerts } from "@/components/general/statusAlerts"
 import CharacterCard from "@/components/characters/characterCard"
 import CharacterImage from "@/components/characters/characterImage"
 import { Input } from "@/components/ui/input"
@@ -37,7 +37,7 @@ export default function SavedCharactersPage() {
     const [characterToView, setCharacterToView] = useState<SavedCharacterBuild | null>(null)
     const [characterToDelete, setCharacterToDelete] = useState<SavedCharacterBuild | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
-    const [error, setError] = useState("")
+    const { showError, alertProps } = useStatusAlerts()
     const loadMoreRef = useRef<HTMLDivElement>(null)
 
     const filteredCharacters = useMemo(() => {
@@ -82,7 +82,7 @@ export default function SavedCharactersPage() {
         if (loaded) {
             navigate("/")
         } else {
-            setError(`No se pudo cargar "${character.name}" para editarlo.`)
+            showError(`No se pudo cargar "${character.name}" para editarlo.`)
         }
     }
 
@@ -96,13 +96,13 @@ export default function SavedCharactersPage() {
         if (deleted) {
             setCharacterToDelete(null)
         } else {
-            setError(`No se pudo eliminar "${characterToDelete.name}". Inténtalo de nuevo.`)
+            showError(`No se pudo eliminar "${characterToDelete.name}". Inténtalo de nuevo.`)
         }
     }
 
     return (
         <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 md:px-8">
-            <StatusAlerts error={error} onDismissError={() => setError("")} />
+            <StatusAlerts {...alertProps} />
             <header className="rounded-2xl border bg-muted/40 p-4">
                 <h1 className="text-2xl font-bold text-primary dark:text-cyan-500">
                     Personajes registrados

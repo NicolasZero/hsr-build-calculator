@@ -3,20 +3,23 @@ import { useTeam } from '@/contexts/teamContext'
 import { validation } from '@/utils/validation'
 import { FolderOpenIcon, PlusIcon, FloppyDiskIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
-import StatusAlerts from '@/components/general/statusAlerts'
-import LoadCharacterModal from '@/components/characterBuilder/loadCharacterModal'
+import StatusAlerts, { useStatusAlerts } from '@/components/general/statusAlerts'
+import { useNavigate } from 'react-router'
+import { useTranslation } from 'react-i18next';
+
+// import LoadCharacterModal from '@/components/characterBuilder/loadCharacterModal'
 
 const CharacterSelector = lazy(() => import('@/components/characterBuilder/imageSelector'))
 const BaseStats = lazy(() => import('@/components/characterBuilder/baseStats'))
 const RelicSelector = lazy(() => import('@/components/characterBuilder/relicSelector'))
-const TotalStats = lazy(() => import('@/components/characterBuilder/totalStats'))
+const TotalStats = lazy(() => import('@/components/general/totalStats'))
 const BuffsSelector = lazy(() => import('@/components/characterBuilder/buffsSelector'))
 
 export default function TeamBuilderPage() {
-    const [error, setError] = useState<string[]>([])
-    const [message, setMessage] = useState<string>('')
-    const [openLoadModal, setOpenLoadModal] = useState<boolean>(false)
+    const navigate = useNavigate()
     const [isSaving, setIsSaving] = useState<boolean>(false)
+    const { showSuccess, showError, alertProps } = useStatusAlerts()
+    const { t } = useTranslation('builder');
 
     const {
         character,
@@ -28,37 +31,32 @@ export default function TeamBuilderPage() {
         resetCharacter,
     } = useTeam()
 
+
     const handleSave = async (asNew: boolean = false) => {
         const { isValid, errors } = validation(character)
 
         if (!isValid) {
-            setError(errors)
-            setMessage('')
+            showError(errors)
             return
         }
 
         setIsSaving(true)
-        setError([])
-        setMessage('')
 
         try {
             const res = await saveCharacter(asNew)
             if (res.success) {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                })
-                setMessage(
+                showSuccess(
                     asNew
-                        ? `¡"${character.name}" se guardó como un nuevo registro!`
-                        : `¡"${character.name}" se actualizó correctamente!`
+                        ? t('alerts.character_created', { name: character.name })
+                        : t('alerts.character_updated', { name: character.name })
                 )
+
             } else {
-                setError([res.error || 'Ocurrió un error al guardar el personaje'])
+                // console.log(res.error);
+                showError(t('alerts.character_error'))
             }
         } catch {
-            setMessage('')
-            setError(['Error inesperado al guardar el personaje'])
+            showError(t('alerts.character_error'))
         } finally {
             setIsSaving(false)
         }
@@ -66,27 +64,21 @@ export default function TeamBuilderPage() {
 
     const handleNewCharacter = () => {
         resetCharacter()
-        setError([])
-        setMessage('Formulario reiniciado para un nuevo personaje.')
+        showSuccess(t('alerts.character_reset'))
     }
 
     return (
         <main className='flex flex-col gap-6 p-4 md:px-8 max-w-7xl mx-auto w-full'>
-            <StatusAlerts
-                error={error}
-                message={message}
-                onDismissError={() => setError([])}
-                onDismissMessage={() => setMessage('')}
-            />
+            <StatusAlerts {...alertProps} />
 
             {/* Barra superior de gestión y carga de personajes */}
             <section className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-muted/40 border'>
                 <div>
                     <h1 className='text-2xl font-bold text-primary dark:text-cyan-500'>
-                        Constructor de Personaje
+                        {t('builder.title')}
                     </h1>
                     <p className='text-xs sm:text-sm text-muted-foreground'>
-                        Configura atributos base, artefactos y mejoras para calcular el rendimiento total.
+                        {t('builder.description')}
                     </p>
                 </div>
 
@@ -94,11 +86,11 @@ export default function TeamBuilderPage() {
                     <Button
                         type='button'
                         variant='outline'
-                        onClick={() => setOpenLoadModal(true)}
+                        onClick={() => navigate("/characters")}
                         className='flex items-center gap-2 relative shadow-xs'
                     >
                         <FolderOpenIcon size={18} />
-                        <span>Cargar Personaje</span>
+                        <span>{t('buttons.load')}</span>
                         {savedCharacters.length > 0 && (
                             <span className='ml-1 px-1.5 py-0.2 rounded-full text-[11px] font-semibold dark:bg-cyan-500/15 bg-primary/15 text-primary dark:text-cyan-500'>
                                 {savedCharacters.length}
@@ -113,7 +105,7 @@ export default function TeamBuilderPage() {
                         className='flex items-center gap-1.5 text-muted-foreground hover:text-foreground'
                     >
                         <PlusIcon size={16} />
-                        <span>Nuevo</span>
+                        <span>{t('buttons.new')}</span>
                     </Button>
                 </div>
             </section>
@@ -148,7 +140,7 @@ export default function TeamBuilderPage() {
                             className='px-5'
                         >
                             <PlusIcon size={18} />
-                            <span>Guardar como Nuevo</span>
+                            <span>{t('buttons.saveNew')}</span>
                         </Button>
 
                         <Button
@@ -158,7 +150,7 @@ export default function TeamBuilderPage() {
                             className='px-6 font-semibold shadow-md'
                         >
                             <FloppyDiskIcon size={18} />
-                            <span>{isSaving ? 'Guardando...' : 'Actualizar Personaje'}</span>
+                            <span>{isSaving ? t('buttons.saveLoading') : t('buttons.update')}</span>
                         </Button>
                     </>
                 ) : (
@@ -169,20 +161,10 @@ export default function TeamBuilderPage() {
                         className='px-6 font-semibold shadow-md'
                     >
                         <FloppyDiskIcon size={18} />
-                        <span>{isSaving ? 'Guardando...' : 'Guardar Personaje'}</span>
+                        <span>{isSaving ? t('buttons.saveLoading') : t('buttons.save')}</span>
                     </Button>
                 )}
             </section>
-
-            {/* Modal para cargar personajes de IndexedDB */}
-            <LoadCharacterModal
-                open={openLoadModal}
-                onOpenChange={setOpenLoadModal}
-                onLoaded={(msg) => {
-                    setError([])
-                    setMessage(msg)
-                }}
-            />
         </main>
     )
 }

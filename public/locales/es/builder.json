@@ -1,0 +1,53 @@
+{
+    "builder": {
+        "title": "Constructor de Personajes",
+        "description": "Configura los atributos base, artefactos y mejoras para calcular el rendimiento total."
+    },
+    "alerts": {
+        "character_created": "¡\"{{name}}\" se guardó como un nuevo registro!",
+        "character_updated": "¡\"{{name}}\" se actualizó correctamente!",
+        "character_error": "Ocurrió un error al guardar el personaje",
+        "character_reset": "Formulario reiniciado para un nuevo personaje."
+    },
+    "buttons": {
+        "new": "Nuevo",
+        "load": "Cargar Personaje",
+        "save": "Guardar Personaje",
+        "saveNew": "Guardar como Nuevo",
+        "saveLoading": "Guardando...",
+        "loadLoading": "Cargando...",
+        "update": "Actualizar Personaje",
+        "add_buff": "Agregar buff"
+    },
+    "placeholders": {
+        "upload_img": "Haz clic para subir",
+        "name_character": "Nombre del personaje",
+        "select": "Seleccione",
+        "name_relic": "Nombre del set",
+        "character": "Personaje"
+    },
+    "base_stats": {
+        "title": "Atributos Base",
+        "description": "Configura los atributos base del personaje.",
+        "hp": "HP",
+        "atq": "ATQ",
+        "def": "DEF",
+        "spd": "VEL",
+        "crit_r": "P.CRIT",
+        "crit_d": "D.CRIT",
+        "dmg": "DAÑO",
+        "level": "Nivel"
+    },
+    "relics": {
+        "title": "Artefactos y Ornamentos",
+        "description": "Configura los artefactos y ornamentos del personaje.",
+        "main_stats": "Atributos Principales",
+        "substats": "Subatributos",
+        "head": "Cabeza",
+        "hands": "Manos",
+        "body": "Cuerpo",
+        "feet": "Pies",
+        "sphere": "Esfera",
+        "rope": "Cuerda"
+    }
+}

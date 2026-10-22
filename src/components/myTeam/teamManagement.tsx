@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react"
 import { FloppyDiskIcon, FolderOpenIcon, TrashIcon } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import StatusAlerts from "@/components/general/statusAlerts"
+import StatusAlerts, { useStatusAlerts } from "@/components/general/statusAlerts"
 import {
     Dialog,
     DialogContent,
@@ -23,8 +23,7 @@ export default function TeamManagement() {
     const [isSaveOpen, setIsSaveOpen] = useState(false)
     const [isLoadOpen, setIsLoadOpen] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
-    const [error, setError] = useState("")
-    const [message, setMessage] = useState("")
+    const { showError, showSuccess, clear, alertProps } = useStatusAlerts()
 
     const selectedCharacterIds = currentTeamCharacterIds.filter((id): id is number =>
         id !== null && savedCharacters.some((character) => character.id === id)
@@ -43,7 +42,7 @@ export default function TeamManagement() {
             })
             .catch((loadError: unknown) => {
                 console.error("Error al obtener equipos guardados:", loadError)
-                if (active) setError("No se pudieron cargar los equipos guardados.")
+                if (active) showError("No se pudieron cargar los equipos guardados.")
             })
         return () => {
             active = false
@@ -54,29 +53,25 @@ export default function TeamManagement() {
         event.preventDefault()
         const name = teamName.trim()
         if (!name) {
-            setMessage("")
-            setError("Escribe un nombre para el equipo.")
+            showError("Escribe un nombre para el equipo.")
             return
         }
         if (selectedCharacterIds.length === 0) {
-            setMessage("")
-            setError("Selecciona al menos un personaje antes de guardar el equipo.")
+            showError("Selecciona al menos un personaje antes de guardar el equipo.")
             return
         }
 
         setIsSaving(true)
-        setError("")
-        setMessage("")
+        clear()
         try {
             await guardarEquipo({ name, characters: selectedCharacterIds })
             await refreshTeams()
             setTeamName("")
             setIsSaveOpen(false)
-            setMessage(`El equipo "${name}" se guardó correctamente.`)
+            showSuccess(`El equipo "${name}" se guardó correctamente.`)
         } catch (saveError) {
             console.error("Error al guardar el equipo:", saveError)
-            setMessage("")
-            setError("No se pudo guardar el equipo. Inténtalo de nuevo.")
+            showError("No se pudo guardar el equipo. Inténtalo de nuevo.")
         } finally {
             setIsSaving(false)
         }
@@ -100,8 +95,7 @@ export default function TeamManagement() {
 
         setCurrentTeamCharacterIds(Array.from({ length: 4 }, (_, index) => validIds[index] ?? null))
         setIsLoadOpen(false)
-        setError("")
-        setMessage(
+        showSuccess(
             validIds.length === team.characters.length
                 ? `El equipo "${team.name}" se cargó correctamente.`
                 : `El equipo "${team.name}" se cargó; se omitieron personajes eliminados o repetidos.`
@@ -113,30 +107,23 @@ export default function TeamManagement() {
         try {
             await eliminarEquipo(teamToDelete.id)
             setTeams((currentTeams) => currentTeams.filter((team) => team.id !== teamToDelete.id))
-            setMessage(`El equipo "${teamToDelete.name}" se eliminó correctamente.`)
+            showSuccess(`El equipo "${teamToDelete.name}" se eliminó correctamente.`)
             setTeamToDelete(null)
-            setError("")
         } catch (deleteError) {
             console.error("Error al eliminar el equipo:", deleteError)
-            setMessage("")
-            setError("No se pudo eliminar el equipo. Inténtalo de nuevo.")
+            showError("No se pudo eliminar el equipo. Inténtalo de nuevo.")
         }
     }
 
     return (
         <>
-            <StatusAlerts
-                error={error}
-                message={message}
-                onDismissError={() => setError("")}
-                onDismissMessage={() => setMessage("")}
-            />
+            <StatusAlerts {...alertProps} />
 
             <div className="flex flex-wrap justify-end gap-2">
                 <Button
                     type="button"
                     variant="outline"
-                    onClick={() => { setError(""); setMessage(""); setIsLoadOpen(true) }}
+                    onClick={() => { clear(); setIsLoadOpen(true) }}
                 >
                     <FolderOpenIcon size={18} />
                     Cargar equipo
@@ -148,7 +135,7 @@ export default function TeamManagement() {
                 </Button>
                 <Button
                     type="button"
-                    onClick={() => { setError(""); setMessage(""); setIsSaveOpen(true) }}
+                    onClick={() => { clear(); setIsSaveOpen(true) }}
                     disabled={selectedCharacterIds.length === 0}
                 >
                     <FloppyDiskIcon size={18} />

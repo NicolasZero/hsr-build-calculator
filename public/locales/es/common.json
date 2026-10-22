@@ -1,0 +1,17 @@
+{
+    "header": {
+        "builder": "Constructor",
+        "characters": "Personajes",
+        "teams": "Equipos",
+        "dmg": "Daño",
+        "speed": "Velocidad"
+    },
+    "footer": {
+        "created_by": "Creado por"
+    },
+    "home": {
+        "title": "Constructor de Personajes",
+        "description": "Calcula las mejores builds para tus personajes"
+    },
+    "loading": "Cargando..."
+}
