@@ -13,6 +13,13 @@ export default defineConfig({
     tailwindcss(),
     // visualizer({ filename: 'report.html' }) as PluginOption,
   ],
+  server: {
+    watch: {
+      ignored: [
+        '**/*.md'
+      ]
+    }
+  },
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "./src"),

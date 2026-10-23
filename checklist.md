@@ -1,0 +1,6 @@
+- [x] Agregar las bases para traducir al ingles y otros idiomas
+- [ ] implementar buff dependiente (escalable) de una stat
+- [ ] Hacer que que se calcule dinamicamente los buffos escalables
+- [ ] Limitar la cantidad maxima de substats a 24
+- [ ] Agregar las stats de exultación
+- [ ] impedir ingresar datos si no especifico las stats base del personaje (por determinar)
