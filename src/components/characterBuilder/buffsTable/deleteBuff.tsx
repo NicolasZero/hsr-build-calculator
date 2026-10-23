@@ -23,7 +23,7 @@ interface props {
 
 export default function ConfirmModal({ openModal, setOpenModal, onSubmit }: props) {
     return (
-        <Dialog open={openModal} >
+        <Dialog open={openModal} onOpenChange={setOpenModal}>
             <DialogContent showCloseButton={false}>
                 <DialogHeader>
                     <DialogTitle>Eliminar Buff</DialogTitle>
@@ -40,4 +40,3 @@ export default function ConfirmModal({ openModal, setOpenModal, onSubmit }: prop
         </Dialog>
     )
 }
-

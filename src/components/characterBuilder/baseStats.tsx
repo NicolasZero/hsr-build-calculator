@@ -13,28 +13,23 @@ export default function BaseStats({ handleChange }: { handleChange: (target: { n
                 <p className="text-muted-foreground text-sm">Con o sin cono de luz equipado</p>
             </div>
 
-            <label className="text-sm">
-                <span>ATQ Base</span>
-                <Input name="atq" value={character.atq} type="number" placeholder="ATQ" min={0} onChange={(e) => handleChange(e.target)} />
-            </label>
-
-            <label className="text-sm">
-                <span>HP Base</span>
+            <label className="text-sm">HP Base
                 <Input name="hp" value={character.hp} type="number" placeholder="HP" min={0} onChange={(e) => handleChange(e.target)} />
             </label>
 
-            <label className="text-sm">
-                <span>VEL Base</span>
-                <Input name="vel" value={character.vel} type="number" placeholder="VEL" min={0} onChange={(e) => handleChange(e.target)} />
+            <label className="text-sm">ATQ Base
+                <Input name="atq" value={character.atq} type="number" placeholder="ATQ" min={0} onChange={(e) => handleChange(e.target)} />
             </label>
 
-            <label className="text-sm">
-                <span>DEF Base</span>
+            <label className="text-sm">DEF Base
                 <Input name="def" value={character.def} type="number" placeholder="DEF" min={0} onChange={(e) => handleChange(e.target)} />
             </label>
 
-            <label className="text-sm">
-                <span>Stat Principal</span>
+            <label className="text-sm">VEL Base
+                <Input name="vel" value={character.vel} type="number" placeholder="VEL" min={0} onChange={(e) => handleChange(e.target)} />
+            </label>
+
+            <label className="text-sm">Stat Principal
                 <Select value={character.offensiveStat} onValueChange={(value) => { handleChange({ name: 'offensiveStat', value }) }}>
                     <SelectTrigger className='w-full'>
                         <SelectValue placeholder="Seleccione" />

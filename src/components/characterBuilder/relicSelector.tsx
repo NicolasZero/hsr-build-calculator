@@ -44,7 +44,6 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
         const formData = new FormData(e.currentTarget)
         const piece = formData.get('piece') as PieceName
         const mainStat = formData.get('mainStat') as MainStatsType
-        // console.log("piece: ", piece, "mainStat: ", mainStat);
 
         if (!piece || !mainStat) return
         setMainStats((prev) => {
@@ -70,6 +69,10 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
         const stat = formData.get('stat') as SubStatsType
         const value = formData.get('value') as string
         if (!stat || !value) return
+        if (subStat.length >= 4) {
+            alert("Ya tienes 4 sub-stats")
+            return
+        }
         setSubStat((prev) => [...prev, { stat, value }])
     }
 
@@ -81,14 +84,14 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
             </header>
 
             <label className="col-span-full flex flex-col md:flex-row md:items-center gap-1 md:gap-4">
-                <span className="text-sm whitespace-nowrap">{t('placeholders.name_relic')}</span>
-                <Input name="set" value={setName} onChange={(e) => setSetName(e.target.value)} placeholder="Nombre del set (Opcional)" />
+                <span className="text-sm whitespace-nowrap">{t('relics.set')}</span>
+                <Input name="set" value={setName} onChange={(e) => setSetName(e.target.value)} placeholder={t('placeholders.name_relic')} />
             </label>
 
             {/*Main stats*/}
             <div>
                 <h3 className="text-lg font-semibold">Stats Principales</h3>
-                <form onSubmit={handleAddRelic} className="flex gap-4 items-end">
+                <form onSubmit={handleAddRelic} className="flex gap-4 items-end mb-4">
                     {/* Piece selection */}
                     <Select name="piece" value={relicOpt} onValueChange={(v) => {
                         setRelicOpt(v)
@@ -122,7 +125,7 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
                     <Button type="submit"><PlusIcon /></Button>
                 </form>
 
-                <div className="grid md:grid-cols-2 gap-4 py-4 md:px-4">
+                <div className="grid md:grid-cols-2 gap-4 md:px-4">
                     {mainStats.map((stat, index) => (
                         <div key={index} className="p-2 border rounded flex items-center justify-between gap-2">
                             <p className="text-sm whitespace-nowrap">{stat.piece}: {stat.mainStat} = {valueByMainStat[stat.mainStat as keyof typeof valueByMainStat]}</p>

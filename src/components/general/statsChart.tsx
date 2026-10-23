@@ -16,7 +16,6 @@ const chartData = [
 const chartConfig = {
     valor: {
         label: "Bono %",
-        // color: "hsl(var(--chart-1))"
     }
 } satisfies ChartConfig
 
@@ -31,11 +30,9 @@ function StatsChart({ data = chartData }) {
                         tickLine={false}
                         tickMargin={10}
                         axisLine={false}
-                    // tickFormatter={(value) => value.slice(0, 5)}
                     />
                     <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                     <Bar dataKey="valor" fill="var(--color-primary)" radius={4} />
-                    {/* <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} /> */}
                 </BarChart>
             </ChartContainer>
         </div>

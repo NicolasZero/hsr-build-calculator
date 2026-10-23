@@ -15,26 +15,26 @@ import {
 } from "@/components/ui/table"
 import type { BuffData } from "@/schema/buffData"
 
-interface DataTableProps<TData, TValue> {
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[]
+interface DataTableProps {
+    columns: ColumnDef<BuffData, unknown>[]
+    data: BuffData[]
     onDelete?: (id: string) => void
     onEdit?: (buff: BuffData) => void
 }
 
-export function DataTable<TData, TValue>({
+export function DataTable({
     columns,
     data,
     onDelete,
     onEdit
-}: DataTableProps<TData, TValue>) {
+}: DataTableProps) {
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
         meta: {
             removeRow: (id: string) => onDelete?.(id),
-            editRow: (buff: TData) => onEdit?.(buff as BuffData)
+            editRow: (buff: BuffData) => onEdit?.(buff)
         },
     })
 

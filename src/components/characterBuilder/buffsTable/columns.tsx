@@ -15,7 +15,16 @@ export const columns: ColumnDef<BuffData>[] = [
     { accessorKey: "valor", header: "Valor" },
     { accessorKey: "buff", header: "Buff" },
     { accessorKey: "origen", header: "Origen" },
-    { accessorKey: "objetivo", header: "Objetivo" },
+    {
+        accessorKey: "objetivo",
+        header: "Objetivo",
+        cell: ({ row }) => {
+            const { objetivo, targetSlot } = row.original
+            return objetivo === "Personaje objetivo" && targetSlot
+                ? `${objetivo} (Posición ${targetSlot})`
+                : objetivo
+        },
+    },
     {
         accessorKey: "status", header: "Status",
         cell: ({ row }) => {
@@ -33,6 +42,8 @@ export const columns: ColumnDef<BuffData>[] = [
                     <Button
                         variant="outline"
                         size="sm"
+                        type="button"
+                        aria-label={`Editar buff ${buff.buff} (${buff.valor})`}
                         onClick={() => (table.options.meta?.editRow(buff))}
                     >
                         <PenIcon />
@@ -43,6 +54,8 @@ export const columns: ColumnDef<BuffData>[] = [
                     <Button
                         variant="destructive"
                         size="sm"
+                        type="button"
+                        aria-label={`Eliminar buff ${buff.buff} (${buff.valor})`}
                         onClick={() => (table.options.meta?.removeRow(buff.id))}
                     >
                         <TrashIcon />

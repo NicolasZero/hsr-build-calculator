@@ -1,4 +1,4 @@
-import type { BuffType, Origen, Target } from "@/schema/buffData"
+import type { BuffType, Origen, Target, StatBuffDependent } from "@/schema/buffData"
 
 export const buffType: BuffType[] = [
     "ATQ",
@@ -32,7 +32,17 @@ export const buffOrigin: Origen[] = [
 export const buffTarget: Target[] = [
     "Todos los aliados",
     "Este personaje",
-    "Primero del equipo",
-    "Personajes de la misma vía",
+    // "Primero del equipo",
+    "Personaje objetivo",
+    // "Personajes de la misma vía",
     "Todos excepto este personaje"
 ] as const
+
+export const statBuffDependiente: StatBuffDependent[] = [
+    "ATQ de este personaje",
+    "DEF de este personaje",
+    "HP de este personaje",
+    "VEL de este personaje",
+    "D.CRIT de este personaje",
+    "P.CRIT de este personaje",
+]

@@ -1,3 +1,5 @@
+import type { RelicData } from "@/schema/relicData";
+
 export const subStats = [
     "ATQ",
     "HP",
@@ -53,6 +55,12 @@ export const relics = [
     "ORBE",
     "CUERDA"
 ] as const
+
+export const relicDefault: RelicData = {
+    setName: undefined,
+    relics: [],
+    subStats: [],
+}
 
 // export type Relic = typeof relics[number]
 // export type SubStat = typeof subStats[number]

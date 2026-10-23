@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 const CharacterSelector = lazy(() => import('@/components/characterBuilder/imageSelector'))
 const BaseStats = lazy(() => import('@/components/characterBuilder/baseStats'))
 const RelicSelector = lazy(() => import('@/components/characterBuilder/relicSelector'))
-const TotalStats = lazy(() => import('@/components/general/totalStats'))
+const TotalStats = lazy(() => import('@/components/characterBuilder/characterStats'))
 const BuffsSelector = lazy(() => import('@/components/characterBuilder/buffsSelector'))
 
 export default function TeamBuilderPage() {
@@ -31,8 +31,9 @@ export default function TeamBuilderPage() {
         resetCharacter,
     } = useTeam()
 
+    type SaveType = 'update' | 'saved_new' | 'create'
 
-    const handleSave = async (asNew: boolean = false) => {
+    const handleSave = async (saveType: SaveType = 'update') => {
         const { isValid, errors } = validation(character)
 
         if (!isValid) {
@@ -43,16 +44,16 @@ export default function TeamBuilderPage() {
         setIsSaving(true)
 
         try {
-            const res = await saveCharacter(asNew)
+            const res = await saveCharacter(saveType === 'saved_new')
             if (res.success) {
                 showSuccess(
-                    asNew
-                        ? t('alerts.character_created', { name: character.name })
-                        : t('alerts.character_updated', { name: character.name })
+                    saveType === 'saved_new'
+                        ? t('alerts.character_saved_new', { name: character.name })
+                        : saveType === 'update'
+                            ? t('alerts.character_updated', { name: character.name })
+                            : t('alerts.character_saved', { name: character.name })
                 )
-
             } else {
-                // console.log(res.error);
                 showError(t('alerts.character_error'))
             }
         } catch {
@@ -136,7 +137,7 @@ export default function TeamBuilderPage() {
                             type='button'
                             variant='outline'
                             disabled={isSaving}
-                            onClick={() => handleSave(true)}
+                            onClick={() => handleSave('saved_new')}
                             className='px-5'
                         >
                             <PlusIcon size={18} />
@@ -146,7 +147,7 @@ export default function TeamBuilderPage() {
                         <Button
                             type='button'
                             disabled={isSaving}
-                            onClick={() => handleSave(false)}
+                            onClick={() => handleSave('update')}
                             className='px-6 font-semibold shadow-md'
                         >
                             <FloppyDiskIcon size={18} />
@@ -157,7 +158,7 @@ export default function TeamBuilderPage() {
                     <Button
                         type='button'
                         disabled={isSaving}
-                        onClick={() => handleSave(false)}
+                        onClick={() => handleSave('create')}
                         className='px-6 font-semibold shadow-md'
                     >
                         <FloppyDiskIcon size={18} />

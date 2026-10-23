@@ -21,33 +21,21 @@ export function ImageUploader(
         onChange,
     }: ImageUploaderProps
 ) {
-    // Si image viene por prop o por onChange, derivamos la URL o vista previa
     const [previewOverride, setPreviewOverride] = useState<string | null>(null);
-
-    // Si hay un override local (de recién cargado FileReader), lo usamos; de lo contrario generamos ObjectURL si image existe
     const [objectUrl, setObjectUrl] = useState<string | null>(null);
 
     useEffect(() => {
-        let active = true;
+        setPreviewOverride(null);
 
         if (!image) {
-            const timer = setTimeout(() => {
-                if (active) setObjectUrl(null);
-            }, 0);
-            return () => {
-                active = false;
-                clearTimeout(timer);
-            };
+            setObjectUrl(null);
+            return;
         }
 
         const url = URL.createObjectURL(image);
-        const timer = setTimeout(() => {
-            if (active) setObjectUrl(url);
-        }, 0);
+        setObjectUrl(url);
 
         return () => {
-            active = false;
-            clearTimeout(timer);
             URL.revokeObjectURL(url);
         };
     }, [image]);

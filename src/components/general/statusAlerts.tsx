@@ -121,14 +121,12 @@ export default function StatusAlerts({
     if (!hasError && !message) return null
 
     return (
-        <div className="pointer-events-none fixed inset-x-4 top-4 z-50 flex flex-col gap-2 sm:inset-x-auto sm:bottom-4 sm:right-4 sm:top-auto sm:w-[calc(100vw-2rem)] sm:max-w-sm">
+        <div className="pointer-events-none fixed inset-x-4 top-4 z-50 flex flex-col gap-2 sm:inset-x-auto sm:bottom-4 sm:right-4 sm:top-auto sm:w-[calc(100vw-2rem)] sm:max-w-lg">
             {message && (
                 <AlertItem
                     variant="success"
                     icon={<CheckCircleIcon />}
                     title="Éxito"
-                    // className="border-emerald-950 bg-emerald-900 text-emerald-400 dark:text-emerald-400"
-                    // className="border-emerald-800 text-emerald-600"
                     onDismiss={onDismissMessage}
                     dismissLabel="Cerrar mensaje de éxito"
                 >
@@ -141,7 +139,6 @@ export default function StatusAlerts({
                     variant="destructive"
                     icon={<WarningCircleIcon />}
                     title="Error"
-                    // className="border-red-800 text-red-600"
                     onDismiss={onDismissError}
                     dismissLabel="Cerrar mensaje de error"
                 >
