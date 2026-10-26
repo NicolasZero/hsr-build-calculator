@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import type { SavedCharacterBuild } from "@/lib/indexedDB"
 import { UserCircleIcon } from "@phosphor-icons/react"
-import PreviewImage from "./previewImg"
+import PreviewImage from "@/components/general/previewImg"
 
 interface Props {
     build: SavedCharacterBuild | null
@@ -13,8 +13,7 @@ export default function CharacterPortrait({ build, onClick }: Props) {
     const [imageUrl, setImageUrl] = useState<string | null>(null)
 
     useEffect(() => {
-        if (!build) return
-        const image = build.character?.image
+        const image = build?.character?.image
         if (!image) return
 
         const reader = new FileReader()

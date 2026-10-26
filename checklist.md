@@ -16,10 +16,12 @@ Por hacer
 - [x] Revisar el codigo de totalStats.tsx para ver si es necesario hacer cambios y hacerlo si es necesario
 
 - Cambios en las Stats base
-    - [] Agregar en el registro de personajes, en stats base, energía maxima (sera necesario para gil y rmc)
-    - [] Eliminar stat principal (no se usa)
+    - [x] Agregar en el registro de personajes, en stats base, energía maxima (sera necesario para gil y rmc)
+    - [x] Eliminar stat principal (no se usa)
 
-- [ ] Agregar boton de actualizar team en el creador de team
+- [x] Eliminar componentes que no se usan
+
+- [] Agregar boton de actualizar team en el creador de team
     
 - Hacer cambios esteticos
     - [] Reemplazar todas las alertas de los componentes por sonners

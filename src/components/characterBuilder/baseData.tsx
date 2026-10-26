@@ -37,7 +37,7 @@ export default function BaseStats() {
                 </div>
 
                 <label className="text-sm col-span-full">Cono de luz (opcional)
-                    <Input name="lightCone" value={character.lightCone} type="number" placeholder="Cono de luz" min={0} onChange={(e) => editCharacter(e.target)} />
+                    <Input name="lightCone" value={character.lightCone} type="text" placeholder="Cono de luz" onChange={(e) => editCharacter(e.target)} />
                 </label>
 
                 <label className="text-sm">HP Base

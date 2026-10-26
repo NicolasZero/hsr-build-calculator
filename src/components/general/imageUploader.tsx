@@ -22,26 +22,30 @@ export function ImageUploader(
         onChange,
     }: ImageUploaderProps
 ) {
-    const [previewOverride, setPreviewOverride] = useState<string | null>(null);
-    const [objectUrl, setObjectUrl] = useState<string | null>(null);
+    const [preview, setPreview] = useState<{ image: Blob; src: string } | null>(null);
 
     useEffect(() => {
-        setPreviewOverride(null);
-
         if (!image) {
-            setObjectUrl(null);
             return;
         }
 
-        const url = URL.createObjectURL(image);
-        setObjectUrl(url);
+        const reader = new FileReader();
+        reader.onload = () => {
+            if (typeof reader.result === "string") {
+                setPreview({ image, src: reader.result });
+            }
+        };
+        reader.onerror = () => {
+            toast.error("No se pudo cargar la previsualización de la imagen.");
+        };
+        reader.readAsDataURL(image);
 
         return () => {
-            URL.revokeObjectURL(url);
+            reader.abort();
         };
     }, [image]);
 
-    const selectedImage = previewOverride ?? objectUrl;
+    const selectedImage = preview && preview.image === image ? preview.src : null;
 
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -54,27 +58,11 @@ export function ImageUploader(
                 return;
             }
 
-            const previewReader = new FileReader();
-            previewReader.onload = () => {
-                setPreviewOverride(previewReader.result as string);
-            };
-            previewReader.readAsDataURL(file);
-
-            const arrayBufferReader = new FileReader()
-            arrayBufferReader.onload = () => {
-                if (arrayBufferReader.result) {
-                    const blob = new Blob([arrayBufferReader.result as ArrayBuffer], { type: file.type });
-                    onChange({ name: 'image', value: blob });
-                }
-            }
-
-            arrayBufferReader.readAsArrayBuffer(file);
+            onChange({ name: 'image', value: file });
         }
     };
 
     const removeImage = () => {
-        setPreviewOverride(null);
-        setObjectUrl(null);
         onChange({ name: 'image', value: null });
     };
 

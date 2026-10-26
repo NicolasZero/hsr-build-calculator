@@ -25,7 +25,7 @@ export const validation = (character: Character): ValidationResult => {
         first = false
     }
 
-    let numErrors: number = errors.length
+    const numErrors: number = errors.length
 
     if (numErrors > 0) {
         if (numErrors == 1) msg = "El campo " + msg + " es requerido"

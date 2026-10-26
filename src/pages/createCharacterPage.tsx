@@ -20,7 +20,6 @@ export default function TeamBuilderPage() {
     const {
         character,
         characterId,
-        setRelics,
         saveCharacter,
         savedCharacters,
         resetCharacter,
@@ -109,13 +108,9 @@ export default function TeamBuilderPage() {
 
             {/* Formulario principal */}
             <BaseData />
-            {/* <section className='grid grid-cols-1 md:grid-cols-[300px_minmax(100px,1fr)] bg-muted/40 px-4 py-2 border gap-6'>
-                <CharacterSelector />
-                <BaseStats handleChange={editCharacter} />
-            </section> */}
 
             <section className='bg-muted/40 px-4 py-2 border'>
-                <RelicSelector onChange={setRelics} />
+                <RelicSelector />
             </section>
 
             <section className='bg-muted/40 px-4 py-2 border'>

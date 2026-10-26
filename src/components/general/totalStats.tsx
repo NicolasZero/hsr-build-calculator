@@ -49,7 +49,7 @@ export default function TotalStats({ total, character, className = "" }: TotalSt
             <ul className="flex flex-col justify-around gap-3 rounded-lg bg-muted/50 p-4 text-nowrap md:w-fit">
                 {STATS_ITEMS.map((item) => {
                     const bonusVal = total[item.buff] ?? 0
-                    const hasBase = item.hasBaseKey && character && character[item.buff] !== undefined
+                    const hasBase = item.hasBaseKey === true && character !== undefined
 
                     if (hasBase) {
                         const baseVal = Number(character[item.buff!]) || 0

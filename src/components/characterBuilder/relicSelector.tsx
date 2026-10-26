@@ -2,78 +2,83 @@ import { Input } from "../ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
 import { Button } from "../ui/button"
 import { subStats, relics, mainStatsByType, valueByMainStat } from "@/const/relicStats"
-import type { SubStatsType, MainStatsType, MainStat, SubStat, PieceName, RelicData } from "@/schema/relicData"
-import { useEffect, useState, useRef } from "react"
+import type { SubStatsType, MainStatsType, PieceName } from "@/schema/relicData"
+import { useState } from "react"
 import { PlusIcon, XIcon } from "@phosphor-icons/react"
 import { useTeam } from "@/contexts/teamContext"
 import { useTranslation } from "react-i18next"
 
-export default function RelicSelector({ onChange }: { onChange?: (relics: RelicData) => void }) {
-    const { relics: contextRelics, setRelics: setContextRelics } = useTeam()
+function isPieceName(value: FormDataEntryValue | null): value is PieceName {
+    return typeof value === "string" && relics.some((piece) => piece === value)
+}
+
+function isMainStatForPiece(piece: PieceName, value: FormDataEntryValue | null): value is MainStatsType {
+    return typeof value === "string" && mainStatsByType[piece].some((stat) => stat === value)
+}
+
+function isSubStat(value: FormDataEntryValue | null): value is SubStatsType {
+    return typeof value === "string" && subStats.some((stat) => stat === value)
+}
+
+export default function RelicSelector() {
+    const { relics: relicData, setRelics } = useTeam()
     const { t } = useTranslation('builder');
 
-    const [subStat, setSubStat] = useState<SubStat[]>([])
-    const [mainStats, setMainStats] = useState<MainStat[]>([])
-    const [setName, setSetName] = useState<string>("")
-
-    const [relicOpt, setRelicOpt] = useState<string>("")
-    const [mainStatOpt, setMainStatOpt] = useState<string>("")
-    const lastEmittedRef = useRef<RelicData | null>(null)
-
-    useEffect(() => {
-        if (contextRelics && contextRelics !== lastEmittedRef.current) {
-            setSetName(contextRelics.setName || "")
-            setMainStats(contextRelics.relics || [])
-            setSubStat(contextRelics.subStats || [])
-        }
-    }, [contextRelics])
-
-    useEffect(() => {
-        const updatedRelics: RelicData = {
-            setName: setName || undefined,
-            relics: mainStats,
-            subStats: subStat,
-        }
-        lastEmittedRef.current = updatedRelics
-        setContextRelics(updatedRelics)
-        onChange?.(updatedRelics)
-    }, [mainStats, subStat, setName])
+    const [relicOpt, setRelicOpt] = useState<PieceName | "">("")
+    const [mainStatOpt, setMainStatOpt] = useState<MainStatsType | "">("")
+    const mainStats = relicData.relics
+    const subStat = relicData.subStats
 
     const handleAddRelic = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
-        const piece = formData.get('piece') as PieceName
-        const mainStat = formData.get('mainStat') as MainStatsType
+        const piece = formData.get('piece')
+        const mainStat = formData.get('mainStat')
 
-        if (!piece || !mainStat) return
-        setMainStats((prev) => {
-            const existing = prev.find((stat) => stat.piece === piece)
-            if (existing) {
-                return prev.map((stat) => stat.piece === piece ? { piece, mainStat } : stat)
-            }
-            return [...prev, { piece, mainStat }]
+        if (!isPieceName(piece) || !isMainStatForPiece(piece, mainStat)) return
+
+        setRelics((current) => {
+            const hasPiece = current.relics.some((stat) => stat.piece === piece)
+            const relics = hasPiece
+                ? current.relics.map((stat) => stat.piece === piece ? { piece, mainStat } : stat)
+                : [...current.relics, { piece, mainStat }]
+
+            return { ...current, relics }
         })
     }
 
-    const removeStat = (index: number, type: "main" | "sub") => {
-        if (type === "main") {
-            setMainStats((current) => current.filter((_, idx) => idx !== index))
-        } else {
-            setSubStat((current) => current.filter((_, idx) => idx !== index))
-        }
+    const removeMainStat = (piece: PieceName) => {
+        setRelics((current) => ({
+            ...current,
+            relics: current.relics.filter((stat) => stat.piece !== piece),
+        }))
+    }
+
+    const removeSubStat = (index: number) => {
+        setRelics((current) => ({
+            ...current,
+            subStats: current.subStats.filter((_, idx) => idx !== index),
+        }))
     }
 
     const handleAddSubStat = (e: React.SubmitEvent<HTMLFormElement>) => {
         e.preventDefault()
         const formData = new FormData(e.currentTarget)
-        const stat = formData.get('stat') as SubStatsType
-        const value = formData.get('value') as string
-        if (!stat || !value) return
+        const stat = formData.get('stat')
+        const value = formData.get('value')
+        const numericValue = Number(value)
+
+        if (!isSubStat(stat) || typeof value !== "string" || !value.trim()
+            || !Number.isFinite(numericValue) || numericValue < 0) return
         if (subStat.length >= 4) {
             alert("Ya tienes 4 sub-stats")
             return
         }
-        setSubStat((prev) => [...prev, { stat, value }])
+
+        setRelics((current) => ({
+            ...current,
+            subStats: [...current.subStats, { stat, value }],
+        }))
     }
 
     return (
@@ -85,7 +90,15 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
 
             <label className="col-span-full flex flex-col md:flex-row md:items-center gap-1 md:gap-4">
                 <span className="text-sm whitespace-nowrap">{t('relics.set')}</span>
-                <Input name="set" value={setName} onChange={(e) => setSetName(e.target.value)} placeholder={t('placeholders.name_relic')} />
+                <Input
+                    name="set"
+                    value={relicData.setName ?? ""}
+                    onChange={(e) => setRelics((current) => ({
+                        ...current,
+                        setName: e.target.value || undefined,
+                    }))}
+                    placeholder={t('placeholders.name_relic')}
+                />
             </label>
 
             {/*Main stats*/}
@@ -93,10 +106,10 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
                 <h3 className="text-lg font-semibold">Stats Principales</h3>
                 <form onSubmit={handleAddRelic} className="flex gap-4 items-end mb-4">
                     {/* Piece selection */}
-                    <Select name="piece" value={relicOpt} onValueChange={(v) => {
-                        setRelicOpt(v)
-                        setMainStatOpt("")
-                        v === "CABEZA" ? setMainStatOpt("HP") : v === "MANO" ? setMainStatOpt("ATQ") : null
+                    <Select name="piece" value={relicOpt} onValueChange={(value) => {
+                        if (!isPieceName(value)) return
+                        setRelicOpt(value)
+                        setMainStatOpt(value === "CABEZA" ? "HP" : value === "MANO" ? "ATQ" : "")
                     }}>
                         <SelectTrigger className="w-full">
                             <SelectValue placeholder="Pieza" />
@@ -109,14 +122,18 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
                     </Select>
 
                     {/* Main stat selection */}
-                    <Select name="mainStat" value={mainStatOpt} onValueChange={(v) => setMainStatOpt(v)} >
+                    <Select name="mainStat" value={mainStatOpt} onValueChange={(value) => {
+                        if (relicOpt && isMainStatForPiece(relicOpt, value)) {
+                            setMainStatOpt(value)
+                        }
+                    }}>
                         <SelectTrigger className="w-full">
                             <SelectValue placeholder="Main Stat" />
                         </SelectTrigger>
                         <SelectContent>
                             {
                                 relicOpt ?
-                                    mainStatsByType[relicOpt as keyof typeof mainStatsByType].map((stat: string) => (
+                                    mainStatsByType[relicOpt].map((stat) => (
                                         <SelectItem key={stat} value={stat}>{stat}</SelectItem>
                                     )) : null
                             }
@@ -126,10 +143,10 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
                 </form>
 
                 <div className="grid md:grid-cols-2 gap-4 md:px-4">
-                    {mainStats.map((stat, index) => (
-                        <div key={index} className="p-2 border rounded flex items-center justify-between gap-2">
-                            <p className="text-sm whitespace-nowrap">{stat.piece}: {stat.mainStat} = {valueByMainStat[stat.mainStat as keyof typeof valueByMainStat]}</p>
-                            <Button size="icon" variant="destructive" className="h-6 w-6" onClick={() => removeStat(index, "main")}>
+                    {mainStats.map((stat) => (
+                        <div key={stat.piece} className="p-2 border rounded flex items-center justify-between gap-2">
+                            <p className="text-sm whitespace-nowrap">{stat.piece}: {stat.mainStat} = {valueByMainStat[stat.mainStat]}</p>
+                            <Button size="icon" variant="destructive" className="h-6 w-6" onClick={() => removeMainStat(stat.piece)}>
                                 <XIcon />
                             </Button>
                         </div>
@@ -159,7 +176,7 @@ export default function RelicSelector({ onChange }: { onChange?: (relics: RelicD
                     {subStat.map((stat, index) => (
                         <div key={index} className="p-2 h-fit border rounded flex items-center justify-between gap-2">
                             <p className="text-sm whitespace-nowrap">{stat.stat}: {stat.value}</p>
-                            <Button size="icon" variant="destructive" className="h-6 w-6" onClick={() => removeStat(index, "sub")}>
+                            <Button size="icon" variant="destructive" className="h-6 w-6" onClick={() => removeSubStat(index)}>
                                 <XIcon />
                             </Button>
                         </div>
