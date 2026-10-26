@@ -8,26 +8,9 @@ export interface BuffData {
     emisorId?: string // Id del personaje que aplica el buff
     targetStat?: StatBuffDependent // La estadistica objetivo del buff si escala con otra estadistica
     targetSlot?: number // Posición del equipo afectada cuando el objetivo es "Personaje objetivo"
-    emisorStats?: {
-        stats: {
-            atq: number
-            hp: number
-            def: number
-            vel: number
-            dmgCrit: number
-            propCrit: number
-            dmg: number
-            redDef: number
-            vul: number
-            penRes: number
-        }
-        base: {
-            atq: number
-            def: number
-            vel: number
-            hp: number
-        }
-    }
+    hasMaxCap?: boolean // Si el buff tiene un maximo
+    capPercentage?: number // El porcentaje maximo
+    capValue?: number // El valor maximo
 }
 
 export type BuffType = "ATQ" | "HP" | "VEL" | "DEF" | "ATQ %" | "HP %" | "VEL %" | "DEF %" | "D.CRIT" | "P.CRIT" | "DAÑO" | "VUL" | "PEN RES" | "RED RES" | "RED DEF"
@@ -46,10 +29,4 @@ export type StatBuffDependent =
     "HP de este personaje" |
     "VEL de este personaje" |
     "D.CRIT de este personaje" |
-    "P.CRIT de este personaje" |
-    "ATQ del emisor" |
-    "DEF del emisor" |
-    "HP del emisor" |
-    "VEL del emisor" |
-    "D.CRIT del emisor" |
-    "P.CRIT del emisor"
+    "P.CRIT de este personaje"

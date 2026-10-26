@@ -6,7 +6,6 @@ import type { RelicData } from "@/schema/relicData"
 // Define todas las estadísticas que el sistema puede calcular.
 // Las estadísticas "Flat" son valores fijos, mientras que las que
 // terminan en "Percent" representan porcentajes.
-// Las demás representan bonificaciones específicas de combate.
 interface Stats {
     atqFlat: number
     defFlat: number
@@ -47,6 +46,21 @@ const statsMap: Partial<Record<string, keyof Stats>> = {
     "PEN RES": "penRes",
 }
 
+// Define la estructura de las estadísticas finales.
+// Todas las propiedades contienen números.
+export interface TotalStatsValues {
+    atq: number
+    hp: number
+    def: number
+    vel: number
+    dmgCrit: number
+    propCrit: number
+    dmg: number
+    redDef: number
+    vul: number
+    penRes: number
+}
+
 // Crea un objeto con todas las estadísticas inicializadas en cero.
 // Se utiliza una función para generar un objeto nuevo cada vez,
 // evitando reutilizar accidentalmente el mismo objeto entre cálculos.
@@ -67,43 +81,11 @@ const emptyStats = (): Stats => ({
     penRes: 0,
 })
 
-// Define la estructura de las estadísticas finales.
-// Todas las propiedades contienen números.
-export interface TotalStatsValues {
-    atq: number
-    hp: number
-    def: number
-    vel: number
-    dmgCrit: number
-    propCrit: number
-    dmg: number
-    redDef: number
-    vul: number
-    penRes: number
-}
+// Convierte estadisticas flat a porcentajes
+const flatAsPercent = (flat: number, baseStat: number) =>
+    baseStat ? (flat / baseStat) * 100 : 0
 
-// Define la estructura de los datos que se pueden utilizar
-// para representar las estadísticas en una gráfica.
-// "buff" es el nombre de la estadística y "valor" es su cantidad.
-export interface StatsChartData {
-    buff: string
-    valor: number
-}
-
-// Calcula las estadísticas totales de un personaje.
-//
-// Parámetros:
-// character: estadísticas base del personaje.
-// buffs: bonificaciones que se aplican al personaje.
-// relics: reliquias equipadas y sus estadísticas.
-// otherBuffs: bonificaciones adicionales opcionales.
-//
-// Devuelve:
-// total: objeto con todas las estadísticas calculadas.
-// data: lista de estadísticas preparada para una gráfica.
-// Calcula las estadísticas de la Fase 1 (Base + Reliquias + Buffs estáticos/planos)
-// Esta "foto congelada" (snapshot) se usa tanto para el cálculo directo como
-// para interpolar buffs dinámicos de otros personajes del equipo sin ciclos infinitos.
+// Fase 1: Calcula las estadísticas totales de un personaje sumando solo los buffs que NO escalan con otras estadisticas
 export function calculateFase1Stats(
     character: Character,
     buffs: BuffData[],
@@ -120,9 +102,6 @@ export function calculateFase1Stats(
         vel: Number(character.vel) || 0,
         hp: Number(character.hp) || 0,
     }
-
-    const flatAsPercent = (flat: number, baseStat: number) =>
-        baseStat ? (flat / baseStat) * 100 : 0
 
     // Calcula las estadisticas totales de los artefactos
     const relicMainStats = emptyStats()
@@ -142,12 +121,15 @@ export function calculateFase1Stats(
         }
     }
 
+    // Calcula los buffos propios
     const ownActiveBuffs = buffs.filter(
         (buff) =>
             buff.status &&
             buff.objetivo !== "Todos excepto este personaje" &&
             (buff.objetivo !== "Personaje objetivo" || buff.targetSlot === targetSlot)
     )
+
+    // Calcula los buffos de los aliados
     const otherActiveBuffs = (otherBuffs || []).filter(
         (buff) =>
             buff.status &&
@@ -155,16 +137,18 @@ export function calculateFase1Stats(
             (buff.objetivo !== "Personaje objetivo" || buff.targetSlot === targetSlot)
     )
 
-    // FASE 1: Solo sumar buffs planos/directos que NO escalan con otra stat
+    // Suma los buffs planos/directos que NO escalan con otra stat
     const fase1BuffStats = emptyStats()
     for (const buff of [...ownActiveBuffs, ...otherActiveBuffs]) {
-        if (buff.targetStat) continue // Se calcula en Fase 2
+        // Si el buff tiene una estadistica con la que escala, se calcula en la Fase 2
+        if (buff.targetStat) continue
         const key = statsMap[buff.buff]
         if (key) {
             fase1BuffStats[key] += Number(buff.valor) || 0
         }
     }
 
+    // Suma las estadisticas totales
     const fase1Stats: TotalStatsValues = {
         atq: flatAsPercent(
             relicMainStats.atqFlat + relicSubStats.atqFlat + fase1BuffStats.atqFlat,
@@ -193,17 +177,21 @@ export function calculateFase1Stats(
     return { fase1Stats, base }
 }
 
+export interface TeamSnapshot {
+    stats: TotalStatsValues
+    base: { atq: number; def: number; vel: number; hp: number }
+}
+
+// Fase 2: Calcula las estadisticas totales incluyendo los buffs que escalan con otras estadisticas y la pasiva
 export function calculateTotalStats(
     character: Character,
     buffs: BuffData[],
     relics: RelicData,
     otherBuffs?: BuffData[],
-    targetSlot?: number
-): { total: TotalStatsValues; data: StatsChartData[] } {
+    targetSlot?: number,
+    teamSnapshots?: Record<string | number, TeamSnapshot>
+): { total: TotalStatsValues } {
     const { fase1Stats, base } = calculateFase1Stats(character, buffs, relics, otherBuffs, targetSlot)
-
-    const flatAsPercent = (flat: number, baseStat: number) =>
-        baseStat ? (flat / baseStat) * 100 : 0
 
     const ownActiveBuffs = buffs.filter(
         (buff) =>
@@ -221,22 +209,22 @@ export function calculateTotalStats(
     // FASE 2: Calcular buffos escalables dinámicos usando el snapshot de Fase 1 del emisor
     // para evitar bucles infinitos de retroalimentación
     const getStatFromFase1 = (stats: TotalStatsValues, targetStat: string, baseStats: { atq: number; def: number; vel: number; hp: number }): number => {
-        if (targetStat === "ATQ de este personaje" || targetStat === "ATQ del emisor") {
+        if (targetStat === "ATQ de este personaje") {
             return baseStats.atq * (1 + stats.atq / 100)
         }
-        if (targetStat === "DEF de este personaje" || targetStat === "DEF del emisor") {
+        if (targetStat === "DEF de este personaje") {
             return baseStats.def * (1 + stats.def / 100)
         }
-        if (targetStat === "HP de este personaje" || targetStat === "HP del emisor") {
+        if (targetStat === "HP de este personaje") {
             return baseStats.hp * (1 + stats.hp / 100)
         }
-        if (targetStat === "VEL de este personaje" || targetStat === "VEL del emisor") {
+        if (targetStat === "VEL de este personaje") {
             return baseStats.vel * (1 + stats.vel / 100)
         }
-        if (targetStat === "D.CRIT de este personaje" || targetStat === "D.CRIT del emisor") {
+        if (targetStat === "D.CRIT de este personaje") {
             return stats.dmgCrit
         }
-        if (targetStat === "P.CRIT de este personaje" || targetStat === "P.CRIT del emisor") {
+        if (targetStat === "P.CRIT de este personaje") {
             return stats.propCrit
         }
         return 0
@@ -248,6 +236,7 @@ export function calculateTotalStats(
     for (const buff of ownActiveBuffs) {
         if (!buff.targetStat) continue
         const statValue = getStatFromFase1(fase1Stats, buff.targetStat, base)
+
         const transferValue = (Number(buff.valor) / 100) * statValue
         const key = statsMap[buff.buff]
         if (key) {
@@ -259,18 +248,16 @@ export function calculateTotalStats(
     for (const buff of otherActiveBuffs) {
         if (!buff.targetStat) continue
 
-        let statValue = 0
-        if (buff.emisorStats) {
-            // Emisor calculado en Fase 1 si viene provisto por el contexto de equipo
-            statValue = getStatFromFase1(
-                buff.emisorStats.stats,
-                buff.targetStat,
-                buff.emisorStats.base
-            )
-        } else {
-            // Fallback si no se proveyeron stats del emisor
-            statValue = getStatFromFase1(fase1Stats, buff.targetStat, base)
-        }
+        // Se obtienen las stats del emisor desde el mapa de snapshots del equipo usando emisorId
+        const emitterSnapshot =
+            (buff.emisorId && teamSnapshots?.[buff.emisorId]) ||
+            { stats: fase1Stats, base }
+
+        const statValue = getStatFromFase1(
+            emitterSnapshot.stats,
+            buff.targetStat,
+            emitterSnapshot.base
+        )
 
         const transferValue = (Number(buff.valor) / 100) * statValue
         const key = statsMap[buff.buff]
@@ -293,18 +280,5 @@ export function calculateTotalStats(
         penRes: fase1Stats.penRes + fase2BuffStats.penRes,
     }
 
-    const data = [
-        { buff: "ATQ", valor: total.atq },
-        { buff: "HP", valor: total.hp },
-        { buff: "DEF", valor: total.def },
-        { buff: "VEL", valor: total.vel },
-        { buff: "D.CRIT", valor: total.dmgCrit },
-        { buff: "P.CRIT", valor: total.propCrit },
-        { buff: "DAÑO", valor: total.dmg },
-        { buff: "RED DEF", valor: total.redDef },
-        { buff: "VUL", valor: total.vul },
-        { buff: "PEN RES", valor: total.penRes },
-    ]
-
-    return { total, data }
+    return { total }
 }

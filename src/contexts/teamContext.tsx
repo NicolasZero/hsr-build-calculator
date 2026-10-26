@@ -13,8 +13,7 @@ import {
 } from '@/lib/indexedDB'
 import { characterDefault } from '@/const/charactersTemplate'
 import type { RelicData } from "@/schema/relicData";
-
-import type { TotalStatsValues, StatsChartData } from "@/utils/calculateTotalStats";
+import type { TotalStatsValues, TeamSnapshot } from "@/utils/calculateTotalStats";
 import { calculateTotalStats, calculateFase1Stats } from "@/utils/calculateTotalStats";
 
 type TeamCharacterIds = Array<number | null>
@@ -28,14 +27,9 @@ export interface TeamMember {
 
 export interface TeamMemberStats {
     total: TotalStatsValues
-    data: StatsChartData[]
 }
 
-interface props {
-    children: React.ReactNode
-}
-
-interface context {
+interface TeamContextValue {
     character: Character
     characterId: number | null
     setCharacterId: Dispatch<SetStateAction<number | null>>
@@ -52,15 +46,12 @@ interface context {
     setRelics: Dispatch<SetStateAction<RelicData>>
     currentTeamCharacterIds: TeamCharacterIds
     setCurrentTeamCharacterIds: Dispatch<SetStateAction<TeamCharacterIds>>
-    team: Character[]
-    setTeam: Dispatch<SetStateAction<Character[]>>
-    teamBuffs: BuffData[]
-    setTeamBuffs: Dispatch<SetStateAction<BuffData[]>>
     teamMembers: TeamMember[]
     teamStats: Record<number, TeamMemberStats>
+    characterStats: TotalStatsValues
 }
 
-export const TeamContext = createContext<context | null>(null)
+export const TeamContext = createContext<TeamContextValue | null>(null)
 
 export function useTeam() {
     const contextValue = useContext(TeamContext)
@@ -70,23 +61,11 @@ export function useTeam() {
     return contextValue
 }
 
-export function TeamProvider({ children }: props) {
+export function TeamProvider({ children }: { children: React.ReactNode }) {
     // ID del registro guardado (null si es nuevo)
     const [characterId, setCharacterId] = useState<number | null>(null)
-
-    // Stats del personaje actual
     const [character, setCharacter] = useState<Character>(characterDefault)
-
-    // Stats de los personajes del equipo actual
-    const [team, setTeam] = useState<Character[]>(Array<Character>(TEAM_SIZE).fill(characterDefault))
-
-    // Stats de los buffs del equipo actual
-    const [teamBuffs, setTeamBuffs] = useState<BuffData[]>([]);
-
-    // Buffs
     const [buffs, setBuffs] = useState<BuffData[]>([])
-
-    // Stats de reliquias
     const [relics, setRelics] = useState<RelicData>(relicDefault)
 
     // Lista de personajes guardados
@@ -161,7 +140,7 @@ export function TeamProvider({ children }: props) {
         }
     }
 
-    // Cargar personaje por ID
+    // Cargar personaje por ID de la BD
     const loadCharacter = async (id: number): Promise<boolean> => {
         try {
             const record = await obtenerPersonajePorId(id)
@@ -172,7 +151,6 @@ export function TeamProvider({ children }: props) {
 
             setCharacterId(record.id ?? id)
 
-            // Cargar datos del personaje
             if (record.character) {
                 setCharacter({
                     ...characterDefault,
@@ -187,10 +165,7 @@ export function TeamProvider({ children }: props) {
                 })
             }
 
-            // Cargar buffs
             setBuffs(record.buffs || [])
-
-            // Cargar reliquias
             setRelics(record.relics || relicDefault)
 
             return true
@@ -200,7 +175,7 @@ export function TeamProvider({ children }: props) {
         }
     }
 
-    // Eliminar personaje por ID
+    // Eliminar personaje por ID de la BD
     const deleteCharacter = async (id: number): Promise<boolean> => {
         try {
             await eliminarPersonaje(id)
@@ -218,7 +193,12 @@ export function TeamProvider({ children }: props) {
         }
     }
 
-    // Miembros resueltos del equipo actual
+    const { characterStats } = useMemo(() => {
+        const { total } = calculateTotalStats(character, buffs, relics, undefined, 1)
+
+        return { characterStats: total }
+    }, [character, buffs, relics])
+
     const teamMembers: TeamMember[] = useMemo(() => {
         return currentTeamCharacterIds.flatMap((id, index) => {
             if (id === null) return []
@@ -238,8 +218,8 @@ export function TeamProvider({ children }: props) {
     const teamStats: Record<number, TeamMemberStats> = useMemo(() => {
         if (teamMembers.length === 0) return {}
 
-        // FASE 1: Snapshot congelado de cada integrante
-        const memberSnapshots = new Map<number, { stats: any; base: any }>()
+        // FASE 1: Snapshots congelados para cada integrante, evitando ciclos de retroalimentación
+        const teamSnapshots: Record<string | number, TeamSnapshot> = {}
         for (const member of teamMembers) {
             const snapshot = calculateFase1Stats(
                 member.build.character,
@@ -248,32 +228,31 @@ export function TeamProvider({ children }: props) {
                 undefined,
                 member.slot
             )
-            memberSnapshots.set(member.id, {
+            teamSnapshots[member.id] = {
                 stats: snapshot.fase1Stats,
                 base: snapshot.base,
-            })
+            }
         }
 
-        // FASE 2: Calcular estadísticas finales para cada integrante aplicando buffs del equipo
+        // FASE 2: Calcular estadísticas finales para cada integrante usando el mapa de snapshots
         const result: Record<number, TeamMemberStats> = {}
         for (const member of teamMembers) {
             const otherMembersBuffs = teamMembers
                 .filter((other) => other.id !== member.id)
-                .flatMap((other) => {
-                    const snapshot = memberSnapshots.get(other.id)
-                    return (other.build.buffs || []).map((buff) => ({
+                .flatMap((other) =>
+                    (other.build.buffs || []).map((buff) => ({
                         ...buff,
                         emisorId: String(other.id),
-                        emisorStats: snapshot,
                     }))
-                })
+                )
 
             result[member.id] = calculateTotalStats(
                 member.build.character,
                 member.build.buffs,
                 member.build.relics,
                 otherMembersBuffs,
-                member.slot
+                member.slot,
+                teamSnapshots
             )
         }
 
@@ -299,12 +278,9 @@ export function TeamProvider({ children }: props) {
                 setRelics,
                 currentTeamCharacterIds,
                 setCurrentTeamCharacterIds,
-                team,
-                setTeam,
-                teamBuffs,
-                setTeamBuffs,
                 teamMembers,
                 teamStats,
+                characterStats,
             }}
         >
             {children}

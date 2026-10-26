@@ -3,11 +3,10 @@ import { useNavigate } from "react-router"
 import { PlusIcon, UsersThreeIcon } from "@phosphor-icons/react"
 import { useTeam } from "@/contexts/teamContext"
 import type { SavedCharacterBuild } from "@/lib/indexedDB"
+import { TEAM_SIZE } from "@/const/team"
 import { Button } from "@/components/ui/button"
 import TeamCharacterModal from "@/components/myTeam/teamCharacterModal"
 import TeamCharacterCard from "@/components/myTeam/teamCharacterCard"
-
-const MAX_TEAM_SIZE = 4
 
 const getCharacterName = (build: SavedCharacterBuild) =>
     build.character?.name?.trim() || build.name.trim()
@@ -20,16 +19,17 @@ export default function TeamCharacterSelector() {
     const navigate = useNavigate()
     const [activeSlot, setActiveSlot] = useState<number | null>(null)
 
-    const slots = Array.from({ length: MAX_TEAM_SIZE }, (_, index) => currentTeamCharacterIds[index] ?? null)
+    const buildsById = new Map(
+        savedCharacters.flatMap((build) =>
+            typeof build.id === "number" ? [[build.id, build] as const] : []
+        )
+    )
+    const slots = Array.from({ length: TEAM_SIZE }, (_, index) => currentTeamCharacterIds[index] ?? null)
     const availableCharacters = savedCharacters.filter((build, index, builds) =>
         typeof build.id === "number" &&
         builds.findIndex((candidate) => getCharacterKey(candidate) === getCharacterKey(build)) === index
     )
-    const selectedBuilds = slots.map((id) =>
-        id === null ? undefined : savedCharacters.find((build) => build.id === id)
-    )
-    // const selectedCount = selectedBuilds.filter(Boolean).length
-
+    const selectedBuilds = slots.map((id) => id === null ? undefined : buildsById.get(id))
     const openCharacterModal = (slotIndex: number) => setActiveSlot(slotIndex)
 
     const selectCharacter = (build: SavedCharacterBuild) => {
@@ -39,7 +39,7 @@ export default function TeamCharacterSelector() {
         const selectedKey = getCharacterKey(build)
         const alreadySelected = slots.some((selectedId, index) => {
             if (index === activeSlot || selectedId === null) return false
-            const selectedBuild = savedCharacters.find((candidate) => candidate.id === selectedId)
+            const selectedBuild = buildsById.get(selectedId)
             return selectedBuild ? getCharacterKey(selectedBuild) === selectedKey : false
         })
         if (alreadySelected) return
@@ -58,7 +58,7 @@ export default function TeamCharacterSelector() {
 
     const selectedKeys = new Set(slots.flatMap((id, index) => {
         if (id === null || index === activeSlot) return []
-        const build = savedCharacters.find((candidate) => candidate.id === id)
+        const build = buildsById.get(id)
         return build ? [getCharacterKey(build)] : []
     }))
     const modalCharacters = availableCharacters.filter((build) =>

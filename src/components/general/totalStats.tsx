@@ -1,70 +1,82 @@
 import StatsChart from "@/components/general/statsChart"
-import type { TotalStatsValues, StatsChartData } from "@/utils/calculateTotalStats"
+import type { TotalStatsValues } from "@/utils/calculateTotalStats"
 import type { Character } from "@/schema/character"
+import TooltipComponent from "@/components/general/tooltips"
 
 interface StatItemConfig {
-    key: keyof TotalStatsValues
-    baseKey?: keyof Pick<Character, 'atq' | 'hp' | 'def' | 'vel'>
+    buff: keyof TotalStatsValues
     label: string
-    title: string
-    isPercentOnly?: boolean
-    decimals?: number
+    tooltip: string
+    hasBaseKey?: boolean
 }
 
 const STATS_ITEMS: StatItemConfig[] = [
-    { key: 'atq', baseKey: 'atq', label: 'ATQ', title: 'ATQ' },
-    { key: 'hp', baseKey: 'hp', label: 'HP', title: 'HP' },
-    { key: 'def', baseKey: 'def', label: 'DEF', title: 'DEF' },
-    { key: 'vel', baseKey: 'vel', label: 'VEL', title: 'Velocidad' },
-    { key: 'dmgCrit', label: 'D.CRIT', title: 'Daño Crítico', isPercentOnly: true, decimals: 1 },
-    { key: 'propCrit', label: 'P.CRIT', title: 'Probabilidad Crítica', isPercentOnly: true, decimals: 1 },
-    { key: 'dmg', label: 'DAÑO', title: 'Aumento de Daño', isPercentOnly: true },
-    { key: 'penRes', label: 'PEN RES', title: 'Penetración de Resistencia', isPercentOnly: true },
-    { key: 'redDef', label: 'RED DEF', title: 'Reducción o Ignorar Defensa', isPercentOnly: true },
-    { key: 'vul', label: 'VUL', title: 'Aumento de Vulnerabilidad', isPercentOnly: true },
+    { buff: 'hp', hasBaseKey: true, label: 'HP', tooltip: 'Vida' },
+    { buff: 'atq', hasBaseKey: true, label: 'ATQ', tooltip: 'Ataque' },
+    { buff: 'def', hasBaseKey: true, label: 'DEF', tooltip: 'Defensa' },
+    { buff: 'vel', hasBaseKey: true, label: 'VEL', tooltip: 'Velocidad' },
+    { buff: 'dmgCrit', hasBaseKey: false, label: 'D.CRIT', tooltip: 'Daño Crítico' },
+    { buff: 'propCrit', hasBaseKey: false, label: 'P.CRIT', tooltip: 'Probabilidad Crítica' },
+    { buff: 'dmg', label: 'DAÑO', tooltip: 'Aumento de Daño' },
+    { buff: 'penRes', label: 'PEN RES', tooltip: 'Penetración de Resistencia' },
+    { buff: 'redDef', label: 'RED DEF', tooltip: 'Reducción o Ignorar Defensa' },
+    { buff: 'vul', label: 'VUL', tooltip: 'Aumento de Vulnerabilidad' },
 ]
 
 export interface TotalStatsProps {
     total: TotalStatsValues
-    data: StatsChartData[]
     character?: Character | null
     className?: string
 }
 
-export default function TotalStats({ total, data, character, className = "" }: TotalStatsProps) {
+export default function TotalStats({ total, character, className = "" }: TotalStatsProps) {
+
+    const chartData = [
+        { buff: "HP", valor: total.hp },
+        { buff: "ATQ", valor: total.atq },
+        { buff: "DEF", valor: total.def },
+        { buff: "VEL", valor: total.vel },
+        { buff: "P.CRIT", valor: total.propCrit },
+        { buff: "D.CRIT", valor: total.dmgCrit },
+        { buff: "DAÑO", valor: total.dmg },
+        { buff: "RED DEF", valor: total.redDef },
+        { buff: "VUL", valor: total.vul },
+        { buff: "PEN RES", valor: total.penRes }
+    ]
+
     return (
         <section className={`flex flex-col md:flex-row gap-4 ${className}`.trim()}>
             <ul className="flex flex-col justify-around gap-3 rounded-lg bg-muted/50 p-4 text-nowrap md:w-fit">
                 {STATS_ITEMS.map((item) => {
-                    const bonusVal = total[item.key] ?? 0
-                    const hasBase = !item.isPercentOnly && item.baseKey && character && character[item.baseKey] !== undefined
+                    const bonusVal = total[item.buff] ?? 0
+                    const hasBase = item.hasBaseKey && character && character[item.buff] !== undefined
 
                     if (hasBase) {
-                        const baseVal = Number(character[item.baseKey!]) || 0
+                        const baseVal = Number(character[item.buff!]) || 0
                         const calculatedFinal = (baseVal * (1 + bonusVal / 100)).toFixed(0)
 
                         return (
-                            <li key={item.key} title={item.title}>
-                                {item.label}: {calculatedFinal}{" "}
-                                <span className="text-xs text-primary dark:text-cyan-500">
-                                    ({bonusVal.toFixed(1)}%)
-                                </span>
-                            </li>
+                            <TooltipComponent key={item.buff} content={item.tooltip}>
+                                <li>
+                                    {item.label}: {calculatedFinal}{" "}
+                                    <span className="text-xs text-primary">
+                                        ({bonusVal.toFixed(1)}%)
+                                    </span>
+                                </li>
+                            </TooltipComponent>
                         )
                     }
 
-                    const formattedVal = item.decimals !== undefined ? bonusVal.toFixed(item.decimals) : bonusVal
-
                     return (
-                        <li key={item.key} title={item.title}>
-                            {item.label}: {formattedVal}%
-                        </li>
+                        <TooltipComponent key={item.buff} content={item.tooltip}>
+                            <li>{item.label}: {bonusVal}%</li>
+                        </TooltipComponent>
                     )
                 })}
             </ul>
 
             <div className="w-full max-w-[90vw] rounded-md border md:w-full">
-                <StatsChart data={data} />
+                <StatsChart data={chartData} />
             </div>
         </section>
     )

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { useTeam } from "@/contexts/teamContext"
 import { eliminarEquipo, guardarEquipo, obtenerEquipos, type SavedTeam } from "@/lib/indexedDB"
+import { TEAM_SIZE } from "@/const/team"
 
 const getCharacterKey = (name: string) => name.trim().toLocaleLowerCase()
 
@@ -91,9 +92,9 @@ export default function TeamManagement() {
             if (usedNames.has(name)) return []
             usedNames.add(name)
             return [id]
-        }).slice(0, 4)
+        }).slice(0, TEAM_SIZE)
 
-        setCurrentTeamCharacterIds(Array.from({ length: 4 }, (_, index) => validIds[index] ?? null))
+        setCurrentTeamCharacterIds(Array.from({ length: TEAM_SIZE }, (_, index) => validIds[index] ?? null))
         setIsLoadOpen(false)
         showSuccess(
             validIds.length === team.characters.length
@@ -153,6 +154,9 @@ export default function TeamManagement() {
                     </DialogHeader>
                     <form onSubmit={handleSave} className="flex flex-col gap-4">
                         <Input
+                            name="team_name"
+                            aria-label="Nombre del equipo"
+                            autoComplete="off"
                             autoFocus
                             value={teamName}
                             onChange={(event) => setTeamName(event.target.value)}

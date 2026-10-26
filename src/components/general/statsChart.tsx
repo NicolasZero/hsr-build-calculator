@@ -3,10 +3,12 @@ import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 
 const chartData = [
+    { buff: "HP", valor: 0 },
     { buff: "ATQ", valor: 0 },
+    { buff: "DEF", valor: 0 },
     { buff: "VEL", valor: 0 },
-    { buff: "D.CRIT", valor: 50 },
     { buff: "P.CRIT", valor: 5 },
+    { buff: "D.CRIT", valor: 50 },
     { buff: "DAÑO", valor: 0 },
     { buff: "RED DEF", valor: 0 },
     { buff: "VUL", valor: 0 },

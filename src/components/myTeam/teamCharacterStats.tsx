@@ -50,7 +50,6 @@ export default function TeamCharacterStats() {
             ) : (
                 <TotalStats
                     total={stats.total}
-                    data={stats.data}
                     character={selectedMember.build?.character}
                 />
             )}
