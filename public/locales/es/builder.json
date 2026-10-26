@@ -4,13 +4,16 @@
         "description": "Configura los atributos base, artefactos y mejoras para calcular el rendimiento total."
     },
     "alerts": {
-        "character_created": "¡\"{{name}}\" se guardó como un nuevo registro!",
+        "character_saved_new": "¡\"{{name}}\" se guardó como un nuevo registro!",
+        "character_saved": "¡\"{{name}}\" se guardó correctamente!",
         "character_updated": "¡\"{{name}}\" se actualizó correctamente!",
-        "character_error": "Ocurrió un error al guardar el personaje",
-        "character_reset": "Formulario reiniciado para un nuevo personaje."
+        "character_error": "¡Ocurrió un error al guardar el personaje!",
+        "character_reset": "¡Formulario reiniciado para un nuevo personaje!",
+        "character_editing": "¡Estas editando un personaje!"
     },
     "buttons": {
         "new": "Nuevo",
+        "newCharacter": "Nuevo Personaje",
         "load": "Cargar Personaje",
         "save": "Guardar Personaje",
         "saveNew": "Guardar como Nuevo",
@@ -27,7 +30,8 @@
         "character": "Personaje"
     },
     "base_stats": {
-        "title": "Atributos Base",
+        "data_basic": "Datos básicos",
+        "stats": "Estadísticas",
         "description": "Configura los atributos base del personaje.",
         "hp": "HP",
         "atq": "ATQ",
@@ -48,6 +52,7 @@
         "body": "Cuerpo",
         "feet": "Pies",
         "sphere": "Esfera",
-        "rope": "Cuerda"
+        "rope": "Cuerda",
+        "set": "Nombre del Set (Opcional)"
     }
 }

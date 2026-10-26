@@ -7,6 +7,8 @@ export const characterDefault: Character = {
     hp: "",
     vel: "",
     def: "",
-    offensiveStat: "",
+    // offensiveStat: "",
+    lightCone: "",
+    maxEnergy: "",
     image: null,
 }

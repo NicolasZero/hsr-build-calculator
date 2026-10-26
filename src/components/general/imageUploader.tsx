@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { XIcon, ImageIcon } from "@phosphor-icons/react";
 import PreviewImage from "@/components/general/previewImg"
+import { toast } from "sonner"
 
 interface ImageUploaderProps {
     name: string;
@@ -48,7 +49,8 @@ export function ImageUploader(
         if (file) {
             // Validar que sea una imagen
             if (!file.type.startsWith('image/')) {
-                alert('Por favor, selecciona un archivo de imagen válido.');
+                // alert('Por favor, selecciona un archivo de imagen válido.');
+                toast.error("Por favor, selecciona un archivo de imagen válido.")
                 return;
             }
 
@@ -78,11 +80,10 @@ export function ImageUploader(
 
     const [openModal, setOpenModal] = useState(false)
     return (
-
         <figure className={className}>
             {!selectedImage ? (
                 <label
-                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed  cursor-pointer bg-muted/50 hover:bg-muted transition-colors"
+                    className="flex flex-col items-center justify-center w-full sm:h-48 h-36 border-2 border-dashed cursor-pointer bg-muted/50 hover:bg-muted transition-colors"
                 >
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
                         <ImageIcon className="w-8 h-8 mb-2 text-muted-foreground" />
@@ -108,7 +109,7 @@ export function ImageUploader(
                     <img
                         src={selectedImage}
                         alt="Preview"
-                        className="w-full h-48 object-cover border"
+                        className="w-full sm:h-48 h-36 object-cover border"
                         onClick={() => setOpenModal(true)}
                     />
                     <Button

@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router"
-import { MagnifyingGlassIcon, PencilSimpleIcon, UserCircleIcon } from "@phosphor-icons/react"
+import { FolderUserIcon, MagnifyingGlassIcon, PencilSimpleIcon, UserCircleIcon } from "@phosphor-icons/react"
 import { useTeam } from "@/contexts/teamContext"
 import type { SavedCharacterBuild } from "@/lib/indexedDB"
 import { Button } from "@/components/ui/button"
-import StatusAlerts, { useStatusAlerts } from "@/components/general/statusAlerts"
 import CharacterCard from "@/components/characters/characterCard"
 import CharacterImage from "@/components/characters/characterImage"
 import { Input } from "@/components/ui/input"
@@ -15,6 +14,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
+import { toast } from "sonner"
 
 const PAGE_SIZE = 24
 
@@ -37,7 +37,6 @@ export default function SavedCharactersPage() {
     const [characterToView, setCharacterToView] = useState<SavedCharacterBuild | null>(null)
     const [characterToDelete, setCharacterToDelete] = useState<SavedCharacterBuild | null>(null)
     const [isDeleting, setIsDeleting] = useState(false)
-    const { showError, alertProps } = useStatusAlerts()
     const loadMoreRef = useRef<HTMLDivElement>(null)
 
     const filteredCharacters = useMemo(() => {
@@ -82,7 +81,7 @@ export default function SavedCharactersPage() {
         if (loaded) {
             navigate("/")
         } else {
-            showError(`No se pudo cargar "${character.name}" para editarlo.`)
+            toast.error(`No se pudo cargar "${character.name}" para editarlo.`)
         }
     }
 
@@ -96,18 +95,18 @@ export default function SavedCharactersPage() {
         if (deleted) {
             setCharacterToDelete(null)
         } else {
-            showError(`No se pudo eliminar "${characterToDelete.name}". Inténtalo de nuevo.`)
+            toast.error(`No se pudo eliminar "${characterToDelete.name}". Inténtalo de nuevo.`)
         }
     }
 
     return (
         <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 p-4 md:px-8">
-            <StatusAlerts {...alertProps} />
             <header className="rounded-2xl border bg-muted/40 p-4">
-                <h1 className="text-2xl font-bold text-primary dark:text-cyan-500">
-                    Personajes registrados
-                </h1>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <div className="flex items-center gap-2 text-2xl">
+                    <FolderUserIcon className="text-primary" />
+                    <h2 className=" font-semibold">Personajes registrados</h2>
+                </div>
+                <p className="mt-1 text-md text-muted-foreground">
                     Consulta, edita o elimina tus personajes guardados.
                 </p>
             </header>
@@ -132,8 +131,10 @@ export default function SavedCharactersPage() {
                         />
                         <Input
                             type="search"
+                            name="search_character"
                             placeholder="Buscar por nombre..."
                             aria-label="Buscar personajes por nombre"
+                            autoComplete="off"
                             value={searchTerm}
                             onChange={(event) => setSearchTerm(event.target.value)}
                             className="pl-9"
@@ -204,8 +205,6 @@ export default function SavedCharactersPage() {
                                 <dd>{characterToView.character?.def || "—"}</dd>
                                 <dt className="text-muted-foreground">VEL</dt>
                                 <dd>{characterToView.character?.vel || "—"}</dd>
-                                <dt className="text-muted-foreground">Estadística ofensiva</dt>
-                                <dd>{characterToView.character?.offensiveStat || "—"}</dd>
                                 <dt className="text-muted-foreground">Set de reliquias</dt>
                                 <dd>{characterToView.relics?.setName || "—"}</dd>
                                 <dt className="text-muted-foreground">Mejoras registradas</dt>

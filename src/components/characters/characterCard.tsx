@@ -49,30 +49,39 @@ export default function CharacterCard({
                     type="button"
                     size="sm"
                     variant="outline"
+                    aria-label="Ver personaje"
                     onClick={() => onView(character)}
                 >
                     <EyeIcon />
-                    Ver
+                    <span className="max-md:hidden">
+                        Ver
+                    </span>
                 </Button>
                 <Button
                     type="button"
                     size="sm"
                     variant="outline"
                     onClick={() => onEdit(character)}
+                    aria-label="Editar personaje"
                     disabled={character.id === undefined}
                 >
                     <PencilSimpleIcon />
-                    Editar
+                    <span className="max-md:hidden">
+                        Editar
+                    </span>
                 </Button>
                 <Button
                     type="button"
                     size="sm"
                     variant="destructive"
                     onClick={() => onDelete(character)}
+                    aria-label="Eliminar personaje"
                     disabled={character.id === undefined}
                 >
                     <TrashIcon />
-                    Eliminar
+                    <span className="max-md:hidden">
+                        Eliminar
+                    </span>
                 </Button>
             </CardFooter>
         </Card>

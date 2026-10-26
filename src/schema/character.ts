@@ -6,6 +6,8 @@ export interface Character {
     hp: number | string;
     vel: number | string;
     def: number | string;
-    offensiveStat: '' | 'ATQ' | 'HP' | 'DEF';
+    // offensiveStat: '' | 'ATQ' | 'HP' | 'DEF';
+    lightCone: string;
+    maxEnergy: number | string;
     image: Blob | null;
 }

@@ -1,4 +1,4 @@
-import uhEtoBleh from '@/assets/uh_eto_bleh.png'
+import uhEtoBleh from '@/assets/uh_eto_bleh.webp'
 
 
 export default function MaintenancePage() {

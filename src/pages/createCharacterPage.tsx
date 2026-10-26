@@ -1,16 +1,13 @@
 import { useState, lazy } from 'react'
 import { useTeam } from '@/contexts/teamContext'
 import { validation } from '@/utils/validation'
-import { FolderOpenIcon, PlusIcon, FloppyDiskIcon } from '@phosphor-icons/react'
+import { FolderOpenIcon, PlusIcon, FloppyDiskIcon, PencilIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
-import StatusAlerts, { useStatusAlerts } from '@/components/general/statusAlerts'
 import { useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next';
+import { toast } from "sonner"
 
-// import LoadCharacterModal from '@/components/characterBuilder/loadCharacterModal'
-
-const CharacterSelector = lazy(() => import('@/components/characterBuilder/imageSelector'))
-const BaseStats = lazy(() => import('@/components/characterBuilder/baseStats'))
+const BaseData = lazy(() => import('@/components/characterBuilder/baseData'))
 const RelicSelector = lazy(() => import('@/components/characterBuilder/relicSelector'))
 const TotalStats = lazy(() => import('@/components/characterBuilder/characterStats'))
 const BuffsSelector = lazy(() => import('@/components/characterBuilder/buffsSelector'))
@@ -18,13 +15,11 @@ const BuffsSelector = lazy(() => import('@/components/characterBuilder/buffsSele
 export default function TeamBuilderPage() {
     const navigate = useNavigate()
     const [isSaving, setIsSaving] = useState<boolean>(false)
-    const { showSuccess, showError, alertProps } = useStatusAlerts()
     const { t } = useTranslation('builder');
 
     const {
         character,
         characterId,
-        editCharacter,
         setRelics,
         saveCharacter,
         savedCharacters,
@@ -37,7 +32,9 @@ export default function TeamBuilderPage() {
         const { isValid, errors } = validation(character)
 
         if (!isValid) {
-            showError(errors)
+            toast.error(t('alerts.character_error'), {
+                description: errors,
+            })
             return
         }
 
@@ -46,7 +43,7 @@ export default function TeamBuilderPage() {
         try {
             const res = await saveCharacter(saveType === 'saved_new')
             if (res.success) {
-                showSuccess(
+                toast.success(
                     saveType === 'saved_new'
                         ? t('alerts.character_saved_new', { name: character.name })
                         : saveType === 'update'
@@ -54,10 +51,10 @@ export default function TeamBuilderPage() {
                             : t('alerts.character_saved', { name: character.name })
                 )
             } else {
-                showError(t('alerts.character_error'))
+                toast.error(t('alerts.character_error'))
             }
         } catch {
-            showError(t('alerts.character_error'))
+            toast.error(t('alerts.character_error'))
         } finally {
             setIsSaving(false)
         }
@@ -65,23 +62,22 @@ export default function TeamBuilderPage() {
 
     const handleNewCharacter = () => {
         resetCharacter()
-        showSuccess(t('alerts.character_reset'))
+        toast.success(t('alerts.character_reset'))
     }
 
     return (
-        <main className='flex flex-col gap-6 p-4 md:px-8 max-w-7xl mx-auto w-full'>
-            <StatusAlerts {...alertProps} />
-
+        <main className='flex flex-col gap-6 mt-4 px-4 md:px-8 max-w-7xl mx-auto w-full'>
             {/* Barra superior de gestión y carga de personajes */}
-            <section className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-muted/40 border'>
-                <div>
-                    <h1 className='text-2xl font-bold text-primary dark:text-cyan-500'>
-                        {t('builder.title')}
-                    </h1>
+            <header className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-muted/40 border'>
+                <section>
+                    <div className="flex items-center gap-2 mb-1 text-2xl">
+                        <PencilIcon className="text-primary" />
+                        <h2 className=" font-semibold">{t('builder.title')}</h2>
+                    </div>
                     <p className='text-xs sm:text-sm text-muted-foreground'>
                         {t('builder.description')}
                     </p>
-                </div>
+                </section>
 
                 <div className='flex items-center gap-2.5 flex-wrap'>
                     <Button
@@ -93,7 +89,7 @@ export default function TeamBuilderPage() {
                         <FolderOpenIcon size={18} />
                         <span>{t('buttons.load')}</span>
                         {savedCharacters.length > 0 && (
-                            <span className='ml-1 px-1.5 py-0.2 rounded-full text-[11px] font-semibold dark:bg-cyan-500/15 bg-primary/15 text-primary dark:text-cyan-500'>
+                            <span className='ml-1 px-1.5 py-0.2 rounded-full text-[11px] font-semibold dark:bg-cyan-950 bg-purple-100 text-primary '>
                                 {savedCharacters.length}
                             </span>
                         )}
@@ -106,26 +102,27 @@ export default function TeamBuilderPage() {
                         className='flex items-center gap-1.5 text-muted-foreground hover:text-foreground'
                     >
                         <PlusIcon size={16} />
-                        <span>{t('buttons.new')}</span>
+                        <span>{t('buttons.newCharacter')}</span>
                     </Button>
                 </div>
-            </section>
+            </header>
 
             {/* Formulario principal */}
-            <section className='grid grid-cols-1 md:grid-cols-[300px_minmax(100px,1fr)] bg-muted/40 px-4 py-2.5 rounded-2xl border gap-6'>
-                <CharacterSelector onChange={editCharacter} />
+            <BaseData />
+            {/* <section className='grid grid-cols-1 md:grid-cols-[300px_minmax(100px,1fr)] bg-muted/40 px-4 py-2 border gap-6'>
+                <CharacterSelector />
                 <BaseStats handleChange={editCharacter} />
-            </section>
+            </section> */}
 
-            <section className='bg-muted/40 px-4 py-2.5 rounded-2xl border'>
+            <section className='bg-muted/40 px-4 py-2 border'>
                 <RelicSelector onChange={setRelics} />
             </section>
 
-            <section className='bg-muted/40 px-4 py-2.5 rounded-2xl border'>
+            <section className='bg-muted/40 px-4 py-2 border'>
                 <BuffsSelector />
             </section>
 
-            <section className='bg-muted/40 px-4 py-2.5 rounded-2xl border'>
+            <section className='bg-muted/40 px-4 py-2 border'>
                 <TotalStats />
             </section>
 

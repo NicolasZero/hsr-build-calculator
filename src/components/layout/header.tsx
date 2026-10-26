@@ -1,9 +1,10 @@
-import { ModeToggle } from "@/components/layers/mode-toggle";
+import { ModeToggle } from "@/components/layout/mode-toggle";
 import { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router";
 import { ListIcon, XIcon } from "@phosphor-icons/react";
-import LanguageSelector from "@/components/layers/lenguageSelector";
+import LanguageSelector from "@/components/layout/lenguageSelector";
 import { useTranslation } from 'react-i18next';
+import logo from '@/assets/ibuki_doro.png'
 
 export default function Header() {
     const [isOpen, setIsOpen] = useState(false);
@@ -60,7 +61,7 @@ export default function Header() {
                     {isOpen ? <XIcon size={24} /> : <ListIcon size={24} />}
                 </button>
 
-                <img src="/ibuki_doro.png" alt="logo" className="h-10 w-10 rounded-full mx-1" />
+                <img src={logo} alt="logo" className="h-10 w-10 rounded-full mx-1" />
 
 
                 {/* Desktop Menu */}

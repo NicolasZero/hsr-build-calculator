@@ -80,7 +80,10 @@ export default function TeamCharacterModal({
                             className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                         />
                         <Input
+                            name="search"
                             placeholder="Buscar por nombre..."
+                            aria-label="Buscar personajes por nombre"
+                            autoComplete="off"
                             value={searchTerm}
                             onChange={(event) => setSearchTerm(event.target.value)}
                             className="pl-9"
@@ -115,7 +118,7 @@ export default function TeamCharacterModal({
                                         {getCharacterName(character)}
                                     </span>
                                     <span className="mt-1 block text-xs text-muted-foreground">
-                                        Nv. {character.character.lvl || "—"}
+                                        HP {character.character.hp || "—"}
                                         {" · "}ATQ {character.character.atq || "—"}
                                         {" · "}VEL {character.character.vel || "—"}
                                     </span>

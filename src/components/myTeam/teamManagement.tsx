@@ -1,8 +1,7 @@
-import { useEffect, useState, type FormEvent } from "react"
+import { useEffect, useState, type SubmitEvent } from "react"
 import { FloppyDiskIcon, FolderOpenIcon, TrashIcon } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import StatusAlerts, { useStatusAlerts } from "@/components/general/statusAlerts"
 import {
     Dialog,
     DialogContent,
@@ -13,6 +12,7 @@ import {
 import { useTeam } from "@/contexts/teamContext"
 import { eliminarEquipo, guardarEquipo, obtenerEquipos, type SavedTeam } from "@/lib/indexedDB"
 import { TEAM_SIZE } from "@/const/team"
+import { toast } from "sonner"
 
 const getCharacterKey = (name: string) => name.trim().toLocaleLowerCase()
 
@@ -24,7 +24,6 @@ export default function TeamManagement() {
     const [isSaveOpen, setIsSaveOpen] = useState(false)
     const [isLoadOpen, setIsLoadOpen] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
-    const { showError, showSuccess, clear, alertProps } = useStatusAlerts()
 
     const selectedCharacterIds = currentTeamCharacterIds.filter((id): id is number =>
         id !== null && savedCharacters.some((character) => character.id === id)
@@ -36,43 +35,40 @@ export default function TeamManagement() {
     }
 
     useEffect(() => {
-        let active = true
+
         obtenerEquipos()
             .then((savedTeams) => {
-                if (active) setTeams(savedTeams)
+                setTeams(savedTeams)
             })
             .catch((loadError: unknown) => {
                 console.error("Error al obtener equipos guardados:", loadError)
-                if (active) showError("No se pudieron cargar los equipos guardados.")
+                toast.error("No se pudieron cargar los equipos guardados.")
             })
-        return () => {
-            active = false
-        }
+
     }, [])
 
-    const handleSave = async (event: FormEvent<HTMLFormElement>) => {
+    const handleSave = async (event: SubmitEvent<HTMLFormElement>) => {
         event.preventDefault()
         const name = teamName.trim()
         if (!name) {
-            showError("Escribe un nombre para el equipo.")
+            toast.error("Escribe un nombre para el equipo.")
             return
         }
         if (selectedCharacterIds.length === 0) {
-            showError("Selecciona al menos un personaje antes de guardar el equipo.")
+            toast.error("Selecciona al menos un personaje antes de guardar el equipo.")
             return
         }
 
         setIsSaving(true)
-        clear()
         try {
             await guardarEquipo({ name, characters: selectedCharacterIds })
             await refreshTeams()
             setTeamName("")
             setIsSaveOpen(false)
-            showSuccess(`El equipo "${name}" se guardó correctamente.`)
+            toast.success(`El equipo "${name}" se guardó correctamente.`)
         } catch (saveError) {
             console.error("Error al guardar el equipo:", saveError)
-            showError("No se pudo guardar el equipo. Inténtalo de nuevo.")
+            toast.error("No se pudo guardar el equipo. Inténtalo de nuevo.")
         } finally {
             setIsSaving(false)
         }
@@ -96,7 +92,7 @@ export default function TeamManagement() {
 
         setCurrentTeamCharacterIds(Array.from({ length: TEAM_SIZE }, (_, index) => validIds[index] ?? null))
         setIsLoadOpen(false)
-        showSuccess(
+        toast.success(
             validIds.length === team.characters.length
                 ? `El equipo "${team.name}" se cargó correctamente.`
                 : `El equipo "${team.name}" se cargó; se omitieron personajes eliminados o repetidos.`
@@ -108,35 +104,33 @@ export default function TeamManagement() {
         try {
             await eliminarEquipo(teamToDelete.id)
             setTeams((currentTeams) => currentTeams.filter((team) => team.id !== teamToDelete.id))
-            showSuccess(`El equipo "${teamToDelete.name}" se eliminó correctamente.`)
+            toast.success(`El equipo "${teamToDelete.name}" se eliminó correctamente.`)
             setTeamToDelete(null)
         } catch (deleteError) {
             console.error("Error al eliminar el equipo:", deleteError)
-            showError("No se pudo eliminar el equipo. Inténtalo de nuevo.")
+            toast.error("No se pudo eliminar el equipo. Inténtalo de nuevo.")
         }
     }
 
     return (
         <>
-            <StatusAlerts {...alertProps} />
-
             <div className="flex flex-wrap justify-end gap-2">
                 <Button
                     type="button"
                     variant="outline"
-                    onClick={() => { clear(); setIsLoadOpen(true) }}
+                    onClick={() => { setIsLoadOpen(true) }}
                 >
                     <FolderOpenIcon size={18} />
                     Cargar equipo
                     {teams.length > 0 && (
-                        <span className="ml-1 rounded-full bg-primary/10 px-1.5 text-xs text-primary dark:bg-cyan-500/10 dark:text-cyan-500">
+                        <span className="ml-1 rounded-full bg-primary/10 px-1.5 text-xs text-primary dark:bg-cyan-950">
                             {teams.length}
                         </span>
                     )}
                 </Button>
                 <Button
                     type="button"
-                    onClick={() => { clear(); setIsSaveOpen(true) }}
+                    onClick={() => { setIsSaveOpen(true) }}
                     disabled={selectedCharacterIds.length === 0}
                 >
                     <FloppyDiskIcon size={18} />
@@ -144,6 +138,7 @@ export default function TeamManagement() {
                 </Button>
             </div>
 
+            {/* Modal para guardar un equipo */}
             <Dialog open={isSaveOpen} onOpenChange={setIsSaveOpen}>
                 <DialogContent>
                     <DialogHeader>
@@ -175,6 +170,7 @@ export default function TeamManagement() {
                 </DialogContent>
             </Dialog>
 
+            {/* Modal para cargar un equipo */}
             <Dialog open={isLoadOpen} onOpenChange={setIsLoadOpen}>
                 <DialogContent className="max-h-[85vh] max-w-xl overflow-y-auto">
                     <DialogHeader>
@@ -218,6 +214,7 @@ export default function TeamManagement() {
                 </DialogContent>
             </Dialog>
 
+            {/* Modal para eliminar un equipo */}
             <Dialog
                 open={teamToDelete !== null}
                 onOpenChange={(open) => { if (!open) setTeamToDelete(null) }}
