@@ -14,7 +14,7 @@ const getCharacterName = (build: SavedCharacterBuild) =>
 const getCharacterKey = (build: SavedCharacterBuild) =>
     getCharacterName(build).toLocaleLowerCase()
 
-export default function TeamCharacterSelector() {
+export default function TeamCharacterSelector({ isEditingTeam }: { isEditingTeam: boolean }) {
     const { savedCharacters, currentTeamCharacterIds, setCurrentTeamCharacterIds } = useTeam()
     const navigate = useNavigate()
     const [activeSlot, setActiveSlot] = useState<number | null>(null)
@@ -98,6 +98,7 @@ export default function TeamCharacterSelector() {
                                 key={index}
                                 selectedBuild={selectedBuilds[index] ?? null}
                                 characterName={selectedBuilds[index] ? getCharacterName(selectedBuilds[index]) : ""}
+                                isEditing={isEditingTeam && selectedBuilds[index] !== undefined}
                                 id={index}
                                 openCharacterModal={openCharacterModal}
                                 removeCharacter={removeCharacter}

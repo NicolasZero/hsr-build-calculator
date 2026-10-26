@@ -1,27 +1,14 @@
 Por hacer
-- [x] Agregar las bases para traducir al ingles y otros idiomas
-
-- Añadir buffos escalables
-    - [x] Agrega en el modal de buffs un selector para elegir stat base escalable
-    - [x] Hacer que que se calcule dinamicamente los buffos escalables
-
-- [x] Limitar la cantidad maxima de substats a 24
-
-- [x] Agregar previsualizador de imagenes en la pagina de personajes
-
 - Feedback de guardado/modificacion de personajes
     - [] Agregar en la pagina de crear personajes un indicador de que esta en edición
     - [] avisar al usuario que no ha guardado los cambios
 
-- [x] Revisar el codigo de totalStats.tsx para ver si es necesario hacer cambios y hacerlo si es necesario
+- [x] Agregar boton de actualizar team en el creador de team
 
-- Cambios en las Stats base
-    - [x] Agregar en el registro de personajes, en stats base, energía maxima (sera necesario para gil y rmc)
-    - [x] Eliminar stat principal (no se usa)
+- REfactorizacion de clodeCode
+    - [] Aplicar los cambios a indexeddb.tsx
+    - [] Aplicar los cambios a teamContext.tsx
 
-- [x] Eliminar componentes que no se usan
-
-- [] Agregar boton de actualizar team en el creador de team
     
 - Hacer cambios esteticos
     - [] Reemplazar todas las alertas de los componentes por sonners
@@ -33,11 +20,15 @@ Por hacer
     - [] Agregar la exultación como buff nuevo en el modal de buffs
     - [] Hacer que los efectos de la exultación se apliquen en totalStats
 
-Al final
+----- Para el final
 - [] Limpiar el codigo (aplicando buenas practicas)
 - [] Asegurar que todo funcione correctamente
 - [] Asegurarce que en modo telefono funcione correctamente (y en todos los tamaños de pantalla)
-- [] Hacer app descargable para android y pc
+- [] Asegurase de tener buena accesibilidad
+
+App descargable:
+    - [] Hacer app descargable para android 
+    - [] Hacer app descargable para pc
 
 Determinar si hacerlos o no
 - [] impedir ingresar datos si no especifico las stats base del personaje

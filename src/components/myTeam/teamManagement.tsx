@@ -1,5 +1,5 @@
-import { useEffect, useState, type SubmitEvent } from "react"
-import { FloppyDiskIcon, FolderOpenIcon, TrashIcon } from "@phosphor-icons/react"
+import { useEffect, useState, type Dispatch, type SetStateAction, type SubmitEvent } from "react"
+import { ArrowCounterClockwiseIcon, FloppyDiskIcon, FolderOpenIcon, TrashIcon } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -16,7 +16,12 @@ import { toast } from "sonner"
 
 const getCharacterKey = (name: string) => name.trim().toLocaleLowerCase()
 
-export default function TeamManagement() {
+interface TeamManagementProps {
+    editingTeam: SavedTeam | null
+    setEditingTeam: Dispatch<SetStateAction<SavedTeam | null>>
+}
+
+export default function TeamManagement({ editingTeam, setEditingTeam }: TeamManagementProps) {
     const { savedCharacters, currentTeamCharacterIds, setCurrentTeamCharacterIds } = useTeam()
     const [teams, setTeams] = useState<SavedTeam[]>([])
     const [teamName, setTeamName] = useState("")
@@ -74,6 +79,27 @@ export default function TeamManagement() {
         }
     }
 
+    const handleUpdate = async () => {
+        if (typeof editingTeam?.id !== "number") return
+
+        setIsSaving(true)
+        try {
+            await guardarEquipo({
+                id: editingTeam.id,
+                name: editingTeam.name,
+                characters: selectedCharacterIds,
+            })
+            await refreshTeams()
+            setEditingTeam({ ...editingTeam, characters: selectedCharacterIds, updatedAt: Date.now() })
+            toast.success(`El equipo "${editingTeam.name}" se actualizó correctamente.`)
+        } catch (updateError) {
+            console.error("Error al actualizar el equipo:", updateError)
+            toast.error("No se pudo actualizar el equipo. Inténtalo de nuevo.")
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
     const handleLoad = (team: SavedTeam) => {
         const availableById = new Map(
             savedCharacters.flatMap((character) =>
@@ -91,6 +117,7 @@ export default function TeamManagement() {
         }).slice(0, TEAM_SIZE)
 
         setCurrentTeamCharacterIds(Array.from({ length: TEAM_SIZE }, (_, index) => validIds[index] ?? null))
+        setEditingTeam(team)
         setIsLoadOpen(false)
         toast.success(
             validIds.length === team.characters.length
@@ -104,12 +131,18 @@ export default function TeamManagement() {
         try {
             await eliminarEquipo(teamToDelete.id)
             setTeams((currentTeams) => currentTeams.filter((team) => team.id !== teamToDelete.id))
+            if (editingTeam?.id === teamToDelete.id) setEditingTeam(null)
             toast.success(`El equipo "${teamToDelete.name}" se eliminó correctamente.`)
             setTeamToDelete(null)
         } catch (deleteError) {
             console.error("Error al eliminar el equipo:", deleteError)
             toast.error("No se pudo eliminar el equipo. Inténtalo de nuevo.")
         }
+    }
+
+    const handleClear = () => {
+        setCurrentTeamCharacterIds(Array.from({ length: TEAM_SIZE }, () => null))
+        setEditingTeam(null)
     }
 
     return (
@@ -130,11 +163,20 @@ export default function TeamManagement() {
                 </Button>
                 <Button
                     type="button"
-                    onClick={() => { setIsSaveOpen(true) }}
-                    disabled={selectedCharacterIds.length === 0}
+                    variant="outline"
+                    onClick={handleClear}
+                    disabled={currentTeamCharacterIds.every((id) => id === null) && editingTeam === null}
+                >
+                    <ArrowCounterClockwiseIcon size={18} />
+                    Limpiar equipo
+                </Button>
+                <Button
+                    type="button"
+                    onClick={() => editingTeam ? void handleUpdate() : setIsSaveOpen(true)}
+                    disabled={isSaving || (!editingTeam && selectedCharacterIds.length === 0)}
                 >
                     <FloppyDiskIcon size={18} />
-                    Guardar equipo
+                    {editingTeam ? "Actualizar equipo" : "Guardar equipo"}
                 </Button>
             </div>
 

@@ -6,6 +6,7 @@ import CharacterPortrait from "@/components/general/characterPortrait"
 interface Props {
     selectedBuild: SavedCharacterBuild | null
     characterName: string
+    isEditing: boolean
     id: number
     openCharacterModal: (id: number) => void
     removeCharacter: (id: number) => void
@@ -14,6 +15,7 @@ interface Props {
 export default function TeamCharacterCard({
     selectedBuild,
     characterName,
+    isEditing,
     id,
     openCharacterModal,
     removeCharacter,
@@ -24,7 +26,16 @@ export default function TeamCharacterCard({
             <CharacterPortrait build={selectedBuild} onClick={() => openCharacterModal(id)} />
 
             <div className="flex-1 h-full flex flex-col justify-between">
-                <p className="mb-2 text-xl font-medium">{characterName ? `${characterName.length > 15 ? characterName.slice(0, 15) + "..." : characterName}` : "Personaje"}</p>
+                <div className="mb-2 flex items-center gap-2">
+                    <p className="truncate text-xl font-medium">
+                        {characterName ? `${characterName.length > 15 ? characterName.slice(0, 15) + "..." : characterName}` : "Personaje"}
+                    </p>
+                    {isEditing && (
+                        <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary dark:bg-cyan-500/15 dark:text-cyan-400">
+                            En edición
+                        </span>
+                    )}
+                </div>
                 {selectedBuild && (
                     <div className="flex flex-wrap items-center gap-2">
                         <p className="text-sm text-muted-foreground">
