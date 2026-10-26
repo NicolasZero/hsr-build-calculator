@@ -7,16 +7,16 @@ interface StatItemConfig {
     buff: keyof TotalStatsValues
     label: string
     tooltip: string
-    hasBaseKey?: boolean
+    hasBaseKey?: 'hp' | 'atq' | 'def' | 'vel'
 }
 
 const STATS_ITEMS: StatItemConfig[] = [
-    { buff: 'hp', hasBaseKey: true, label: 'HP', tooltip: 'Vida' },
-    { buff: 'atq', hasBaseKey: true, label: 'ATQ', tooltip: 'Ataque' },
-    { buff: 'def', hasBaseKey: true, label: 'DEF', tooltip: 'Defensa' },
-    { buff: 'vel', hasBaseKey: true, label: 'VEL', tooltip: 'Velocidad' },
-    { buff: 'dmgCrit', hasBaseKey: false, label: 'D.CRIT', tooltip: 'Daño Crítico' },
-    { buff: 'propCrit', hasBaseKey: false, label: 'P.CRIT', tooltip: 'Probabilidad Crítica' },
+    { buff: 'hp', hasBaseKey: 'hp', label: 'HP', tooltip: 'Vida' },
+    { buff: 'atq', hasBaseKey: 'atq', label: 'ATQ', tooltip: 'Ataque' },
+    { buff: 'def', hasBaseKey: 'def', label: 'DEF', tooltip: 'Defensa' },
+    { buff: 'vel', hasBaseKey: 'vel', label: 'VEL', tooltip: 'Velocidad' },
+    { buff: 'dmgCrit', label: 'D.CRIT', tooltip: 'Daño Crítico' },
+    { buff: 'propCrit', label: 'P.CRIT', tooltip: 'Probabilidad Crítica' },
     { buff: 'dmg', label: 'DAÑO', tooltip: 'Aumento de Daño' },
     { buff: 'penRes', label: 'PEN RES', tooltip: 'Penetración de Resistencia' },
     { buff: 'redDef', label: 'RED DEF', tooltip: 'Reducción o Ignorar Defensa' },
@@ -49,10 +49,9 @@ export default function TotalStats({ total, character, className = "" }: TotalSt
             <ul className="flex flex-col justify-around gap-3 rounded-lg bg-muted/50 p-4 text-nowrap md:w-fit">
                 {STATS_ITEMS.map((item) => {
                     const bonusVal = total[item.buff] ?? 0
-                    const hasBase = item.hasBaseKey === true && character !== undefined
 
-                    if (hasBase) {
-                        const baseVal = Number(character[item.buff!]) || 0
+                    if (item.hasBaseKey && character !== undefined && character) {
+                        const baseVal = Number(character[item.hasBaseKey]) || 0
                         const calculatedFinal = (baseVal * (1 + bonusVal / 100)).toFixed(0)
 
                         return (
