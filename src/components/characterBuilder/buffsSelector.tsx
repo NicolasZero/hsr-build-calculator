@@ -22,6 +22,8 @@ function isDuplicate(existing: BuffData, candidate: BuffData) {
         existing.origen === candidate.origen &&
         existing.objetivo === candidate.objetivo &&
         existing.targetStat === candidate.targetStat &&
+        existing.umbralStat === candidate.umbralStat &&
+        existing.valorMaximo === candidate.valorMaximo &&
         existing.targetSlot === candidate.targetSlot
     )
 }
@@ -81,6 +83,28 @@ export default function BuffsSelector() {
             targetStat = targetStatValue
         }
 
+        const rawUmbralStat = formData.get("umbralStat")
+        let umbralStat: number | undefined
+        if (targetStat !== undefined && rawUmbralStat !== null && rawUmbralStat !== "") {
+            const parsedUmbralStat = Number(rawUmbralStat)
+            if (typeof rawUmbralStat !== "string" || !Number.isFinite(parsedUmbralStat) || parsedUmbralStat < 0) {
+                setError("Ingresa un umbral de estadística válido (mayor o igual a 0)")
+                return
+            }
+            umbralStat = parsedUmbralStat
+        }
+
+        const rawValorMaximo = formData.get("valorMaximo")
+        let valorMaximo: number | undefined
+        if (targetStat !== undefined && rawValorMaximo !== null && rawValorMaximo !== "") {
+            const parsedValorMaximo = Number(rawValorMaximo)
+            if (typeof rawValorMaximo !== "string" || !Number.isFinite(parsedValorMaximo) || parsedValorMaximo < 0) {
+                setError("Ingresa un valor máximo numérico válido (mayor o igual a 0)")
+                return
+            }
+            valorMaximo = parsedValorMaximo
+        }
+
         const targetSlotValue = formData.get("targetSlot")
         let targetSlot: number | undefined
         if (objetivo === "Personaje objetivo") {
@@ -106,6 +130,8 @@ export default function BuffsSelector() {
             objetivo,
             status: statusValue === "true",
             ...(targetStat !== undefined ? { targetStat } : {}),
+            ...(umbralStat !== undefined ? { umbralStat } : {}),
+            ...(valorMaximo !== undefined ? { valorMaximo } : {}),
             ...(targetSlot !== undefined ? { targetSlot } : {}),
         }
 

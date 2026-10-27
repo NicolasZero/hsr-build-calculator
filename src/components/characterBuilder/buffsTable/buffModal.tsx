@@ -61,8 +61,8 @@ function BuffForm({ onSubmit, onCancel, type, error, buffToEdit }: BuffFormProps
                     </Select>
                 </label>
 
-                <div className="border border-dashed rounded-md bg-secondary p-2 md:p-4 md:col-span-2 space-y-2">
-                    <label className="flex items-center justify-between cursor-pointer">
+                <div className="border border-dashed rounded-md bg-secondary p-2 md:p-4 md:col-span-2 space-y-3">
+                    <label className="flex flex-col sm:flex-row gap-2 items-center justify-between cursor-pointer">
                         <span className="text-sm font-medium">¿El buff depende de alguna stat del personaje?</span>
                         <Switch checked={dependiente} onCheckedChange={setDependiente} />
                     </label>
@@ -84,9 +84,42 @@ function BuffForm({ onSubmit, onCancel, type, error, buffToEdit }: BuffFormProps
                                     </SelectContent>
                                 </Select>
                             </label>
+                            {/* <p className="text-xs text-primary">
+                                Ej: Con 2000 ATQ y el buff escala con "ATQ de este personaje", el valor es "10" y el Buff es "ATQ" el buff aportará 200 de ATQ.
+                            </p> */}
 
-                            <p className="text-xs mt-1 text-primary dark:text-cyan-500">
-                                Ej: Si tienes 2000 ATQ y el buff escala con "ATQ de este personaje" y el valor es "10", el buff aportará el 10% del ATQ base/congelado.
+                            <label className="text-xs flex flex-col gap-1">
+                                <span>A partir de qué valor de la stat (opcional):</span>
+                                <Input
+                                    type="number"
+                                    min="0"
+                                    step="any"
+                                    inputMode="decimal"
+                                    name="umbralStat"
+                                    placeholder="Desde 0"
+                                    defaultValue={buffToEdit?.umbralStat}
+                                />
+                            </label>
+
+                            <p className="text-xs mt-1 text-primary">
+                                El porcentaje configurado se calcula solo sobre la parte de la estadística que supere este valor.
+                            </p>
+
+                            <label className="text-xs flex flex-col gap-1">
+                                <span>Valor máximo del buff (opcional):</span>
+                                <Input
+                                    type="number"
+                                    min="0"
+                                    step="any"
+                                    inputMode="decimal"
+                                    name="valorMaximo"
+                                    placeholder="Sin límite"
+                                    defaultValue={buffToEdit?.valorMaximo}
+                                />
+                            </label>
+
+                            <p className="text-xs mt-1 text-primary">
+                                Dejar vacío para que no tenga limite
                             </p>
                         </>
                     )}

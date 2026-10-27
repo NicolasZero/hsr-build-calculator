@@ -18,6 +18,7 @@ interface Stats {
     hpPercent: number
     velPercent: number
     dmg: number
+    elation: number
     redDef: number
     vul: number
     penRes: number
@@ -41,6 +42,7 @@ const statsMap: Partial<Record<string, keyof Stats>> = {
     "P.CRIT": "propCrit",
     "D.CRIT": "dmgCrit",
     DAÑO: "dmg",
+    Exultación: "elation",
     "RED DEF": "redDef",
     VUL: "vul",
     "PEN RES": "penRes",
@@ -56,6 +58,7 @@ export interface TotalStatsValues {
     dmgCrit: number
     propCrit: number
     dmg: number
+    elation: number
     redDef: number
     vul: number
     penRes: number
@@ -76,6 +79,7 @@ const emptyStats = (): Stats => ({
     propCrit: 0,
     dmgCrit: 0,
     dmg: 0,
+    elation: 0,
     redDef: 0,
     vul: 0,
     penRes: 0,
@@ -169,6 +173,7 @@ export function calculateFase1Stats(
         propCrit: 5 + relicSubStats.propCrit + relicMainStats.propCrit + fase1BuffStats.propCrit,
         dmgCrit: 50 + relicSubStats.dmgCrit + relicMainStats.dmgCrit + fase1BuffStats.dmgCrit,
         dmg: relicMainStats.dmg + fase1BuffStats.dmg,
+        elation: fase1BuffStats.elation,
         redDef: relicMainStats.redDef + fase1BuffStats.redDef,
         vul: relicMainStats.vul + fase1BuffStats.vul,
         penRes: relicMainStats.penRes + fase1BuffStats.penRes,
@@ -208,7 +213,11 @@ export function calculateTotalStats(
 
     // FASE 2: Calcular buffos escalables dinámicos usando el snapshot de Fase 1 del emisor
     // para evitar bucles infinitos de retroalimentación
-    const getStatFromFase1 = (stats: TotalStatsValues, targetStat: string, baseStats: { atq: number; def: number; vel: number; hp: number }): number => {
+    const getStatFromFase1 = (
+        stats: TotalStatsValues,
+        targetStat: string,
+        baseStats: { atq: number; def: number; vel: number; hp: number }
+    ): number => {
         if (targetStat === "ATQ de este personaje") {
             return baseStats.atq * (1 + stats.atq / 100)
         }
@@ -227,7 +236,21 @@ export function calculateTotalStats(
         if (targetStat === "P.CRIT de este personaje") {
             return stats.propCrit
         }
+        if (targetStat === "Energía del aliado") {
+            return Number(character.maxEnergy) || 0
+        }
         return 0
+    }
+
+    // Calcula el valor real de un buff escalable
+    //buff = buff que se aplica al personaje (ej: "ATQ %" )
+    //statValue = valor de la estadistica objetivo (ej: "ATQ")
+    //umbralStat = estadistica base necesaria para que el buff se aplique (ej: si es "ATQ %" y "DEF" con umbral 1337, el buff solo se aplicara si el personaje tiene al menos 1337 de DEF)
+    //valorMaximo = tope para el valor calculado de un buff escalable
+    const calculateBuffValue = (buff: BuffData, statValue: number) => {
+        const scaledStatValue = Math.max(0, statValue - (buff.umbralStat ?? 0))
+        const value = (Number(buff.valor) / 100) * scaledStatValue
+        return buff.valorMaximo === undefined ? value : Math.min(value, buff.valorMaximo)
     }
 
     const fase2BuffStats = emptyStats()
@@ -237,7 +260,7 @@ export function calculateTotalStats(
         if (!buff.targetStat) continue
         const statValue = getStatFromFase1(fase1Stats, buff.targetStat, base)
 
-        const transferValue = (Number(buff.valor) / 100) * statValue
+        const transferValue = calculateBuffValue(buff, statValue)
         const key = statsMap[buff.buff]
         if (key) {
             fase2BuffStats[key] += transferValue
@@ -259,7 +282,7 @@ export function calculateTotalStats(
             emitterSnapshot.base
         )
 
-        const transferValue = (Number(buff.valor) / 100) * statValue
+        const transferValue = calculateBuffValue(buff, statValue)
         const key = statsMap[buff.buff]
         if (key) {
             fase2BuffStats[key] += transferValue
@@ -275,6 +298,7 @@ export function calculateTotalStats(
         propCrit: fase1Stats.propCrit + fase2BuffStats.propCrit,
         dmgCrit: fase1Stats.dmgCrit + fase2BuffStats.dmgCrit,
         dmg: fase1Stats.dmg + fase2BuffStats.dmg,
+        elation: fase1Stats.elation + fase2BuffStats.elation,
         redDef: fase1Stats.redDef + fase2BuffStats.redDef,
         vul: fase1Stats.vul + fase2BuffStats.vul,
         penRes: fase1Stats.penRes + fase2BuffStats.penRes,

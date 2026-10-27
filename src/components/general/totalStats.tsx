@@ -18,6 +18,7 @@ const STATS_ITEMS: StatItemConfig[] = [
     { buff: 'dmgCrit', label: 'D.CRIT', tooltip: 'Daño Crítico' },
     { buff: 'propCrit', label: 'P.CRIT', tooltip: 'Probabilidad Crítica' },
     { buff: 'dmg', label: 'DAÑO', tooltip: 'Aumento de Daño' },
+    { buff: 'elation', label: 'Exultación', tooltip: 'Aumento de Exultación' },
     { buff: 'penRes', label: 'PEN RES', tooltip: 'Penetración de Resistencia' },
     { buff: 'redDef', label: 'RED DEF', tooltip: 'Reducción o Ignorar Defensa' },
     { buff: 'vul', label: 'VUL', tooltip: 'Aumento de Vulnerabilidad' },
@@ -39,6 +40,7 @@ export default function TotalStats({ total, character, className = "" }: TotalSt
         { buff: "P.CRIT", valor: total.propCrit },
         { buff: "D.CRIT", valor: total.dmgCrit },
         { buff: "DAÑO", valor: total.dmg },
+        { buff: "Exultación", valor: total.elation },
         { buff: "RED DEF", valor: total.redDef },
         { buff: "VUL", valor: total.vul },
         { buff: "PEN RES", valor: total.penRes }

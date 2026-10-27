@@ -10,6 +10,7 @@ const chartData = [
     { buff: "P.CRIT", valor: 5 },
     { buff: "D.CRIT", valor: 50 },
     { buff: "DAÑO", valor: 0 },
+    { buff: "Exultación", valor: 0 },
     { buff: "RED DEF", valor: 0 },
     { buff: "VUL", valor: 0 },
     { buff: "PEN RES", valor: 0 }

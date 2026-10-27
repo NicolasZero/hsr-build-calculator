@@ -12,6 +12,7 @@ export const buffType: BuffType[] = [
     "D.CRIT",
     "P.CRIT",
     "DAÑO",
+    "Exultación",
     "VUL",
     "PEN RES",
     "RED DEF",
@@ -39,10 +40,11 @@ export const buffTarget: Target[] = [
 ] as const
 
 export const statBuffDependiente: StatBuffDependent[] = [
+    "HP de este personaje",
     "ATQ de este personaje",
     "DEF de este personaje",
-    "HP de este personaje",
     "VEL de este personaje",
     "D.CRIT de este personaje",
     "P.CRIT de este personaje",
+    "Energía del aliado",
 ]
