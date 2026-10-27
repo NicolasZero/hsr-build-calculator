@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { MagnifyingGlassIcon, SparkleIcon, UserCircleIcon } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import type { SavedCharacterBuild } from "@/lib/indexedDB"
+import { getCharacterName } from "@/lib/characterBuild"
+import { useBlobUrl } from "@/hooks/useBlobUrl"
 
 interface TeamCharacterModalProps {
     open: boolean
@@ -12,30 +14,12 @@ interface TeamCharacterModalProps {
     onSelect: (character: SavedCharacterBuild) => void
 }
 
-const getCharacterName = (build: SavedCharacterBuild) =>
-    build.character?.name?.trim() || build.name.trim()
-
 function CharacterAvatar({ character }: { character: SavedCharacterBuild }) {
-    const [imageUrl, setImageUrl] = useState<string | null>(null)
-
-    useEffect(() => {
-        const image = character.character?.image
-        if (!image) return
-
-        const reader = new FileReader()
-        reader.onload = () => {
-            if (typeof reader.result === "string") setImageUrl(reader.result)
-        }
-        reader.onerror = () => console.error("Error al cargar la imagen del personaje:", reader.error)
-        reader.readAsDataURL(image)
-        return () => {
-            if (reader.readyState === FileReader.LOADING) reader.abort()
-        }
-    }, [character.character?.image])
+    const imageUrl = useBlobUrl(character.character?.image)
 
     return (
         <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted">
-            {imageUrl && character.character?.image ? (
+            {imageUrl ? (
                 <img src={imageUrl} alt="" className="h-full w-full object-cover" />
             ) : (
                 <UserCircleIcon size={24} className="text-muted-foreground" />

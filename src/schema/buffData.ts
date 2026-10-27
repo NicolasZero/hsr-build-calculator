@@ -8,9 +8,6 @@ export interface BuffData {
     emisorId?: string // Id del personaje que aplica el buff
     targetStat?: StatBuffDependent // La estadistica objetivo del buff si escala con otra estadistica
     targetSlot?: number // Posición del equipo afectada cuando el objetivo es "Personaje objetivo"
-    hasMaxCap?: boolean // Si el buff tiene un maximo
-    capPercentage?: number // El porcentaje maximo
-    capValue?: number // El valor maximo
 }
 
 export type BuffType = "ATQ" | "HP" | "VEL" | "DEF" | "ATQ %" | "HP %" | "VEL %" | "DEF %" | "D.CRIT" | "P.CRIT" | "DAÑO" | "VUL" | "PEN RES" | "RED RES" | "RED DEF"

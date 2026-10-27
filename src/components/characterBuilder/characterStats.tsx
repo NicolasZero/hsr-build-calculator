@@ -1,9 +1,9 @@
-import { useTeam } from "@/contexts/teamContext"
+import { useCharacter } from "@/contexts/teamContext"
 import TotalStats from "@/components/general/totalStats"
 import { ChartBarIcon } from "@phosphor-icons/react"
 
 export default function CharacterStats() {
-    const { character, characterStats } = useTeam()
+    const { character, characterStats } = useCharacter()
 
     return (
         <>

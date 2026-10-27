@@ -1,17 +1,19 @@
 import { Button } from "../ui/button"
 import { TrashIcon, ClockIcon } from "@phosphor-icons/react"
 import type { SavedCharacterBuild } from "@/lib/indexedDB"
+import { useBlobUrl } from "@/hooks/useBlobUrl"
 
 interface CharacterCardProps {
     character: SavedCharacterBuild;
     isCurrent: boolean;
     handleSelectCharacter: (id?: number, name?: string) => void;
     setCharacterToDelete: (character: SavedCharacterBuild) => void;
-    imageUrl: string | null;
-    formatDate: (date: number) => string;
+    formatDate: (date?: number) => string;
 }
 
-export default function CharacterCard({ character, isCurrent, handleSelectCharacter, setCharacterToDelete, imageUrl, formatDate }: CharacterCardProps) {
+export default function CharacterCard({ character, isCurrent, handleSelectCharacter, setCharacterToDelete, formatDate }: CharacterCardProps) {
+    const imageUrl = useBlobUrl(character.character?.image)
+
     return (
         <div
             className={`group relative flex items-center justify-between p-3.5 rounded-xl border transition-all duration-200 hover:border-primary/50 dark:hover:border-cyan-500/50 hover:bg-muted/40 

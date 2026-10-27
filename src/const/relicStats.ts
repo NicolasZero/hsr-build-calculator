@@ -62,6 +62,16 @@ export const relicDefault: RelicData = {
     subStats: [],
 }
 
+/**
+ * Devuelve un objeto nuevo con arrays nuevos. `relicDefault` se comparte por
+ * referencia entre módulos, así que mutarlo contaminaría el estado global.
+ */
+export const createDefaultRelics = (): RelicData => ({
+    setName: undefined,
+    relics: [],
+    subStats: [],
+})
+
 // export type Relic = typeof relics[number]
 // export type SubStat = typeof subStats[number]
 // export type MainStat = typeof mainStats[number]

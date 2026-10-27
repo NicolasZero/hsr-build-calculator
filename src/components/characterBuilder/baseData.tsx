@@ -1,4 +1,4 @@
-import { useTeam } from "@/contexts/teamContext"
+import { useCharacter } from "@/contexts/teamContext"
 import { Input } from "@/components/ui/input"
 import { useTranslation } from 'react-i18next';
 import { ImageUploader } from '@/components/general/imageUploader';
@@ -7,7 +7,7 @@ import { ImageUploader } from '@/components/general/imageUploader';
 
 
 export default function BaseStats() {
-    const { character, editCharacter } = useTeam()
+    const { character, editCharacter } = useCharacter()
     const { t } = useTranslation('builder');
 
     return (

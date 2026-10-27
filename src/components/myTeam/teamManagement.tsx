@@ -1,5 +1,11 @@
-import { useEffect, useState, type Dispatch, type SetStateAction, type SubmitEvent } from "react"
-import { ArrowCounterClockwiseIcon, FloppyDiskIcon, FolderOpenIcon, TrashIcon } from "@phosphor-icons/react"
+import { useMemo, useState, type SubmitEvent } from "react"
+import {
+    ArrowsClockwiseIcon,
+    BroomIcon,
+    FloppyDiskIcon,
+    FolderOpenIcon,
+    TrashIcon,
+} from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -10,47 +16,34 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { useTeam } from "@/contexts/teamContext"
-import { eliminarEquipo, guardarEquipo, obtenerEquipos, type SavedTeam } from "@/lib/indexedDB"
-import { TEAM_SIZE } from "@/const/team"
+import type { StoredTeam } from "@/lib/indexedDB"
 import { toast } from "sonner"
 
-const getCharacterKey = (name: string) => name.trim().toLocaleLowerCase()
-
-interface TeamManagementProps {
-    editingTeam: SavedTeam | null
-    setEditingTeam: Dispatch<SetStateAction<SavedTeam | null>>
-}
-
-export default function TeamManagement({ editingTeam, setEditingTeam }: TeamManagementProps) {
-    const { savedCharacters, currentTeamCharacterIds, setCurrentTeamCharacterIds } = useTeam()
-    const [teams, setTeams] = useState<SavedTeam[]>([])
+export default function TeamManagement() {
+    const {
+        savedCharacters,
+        currentTeamCharacterIds,
+        teams,
+        activeTeam,
+        saveTeam,
+        deleteTeam,
+        loadTeam,
+        clearTeam,
+        isLoading,
+    } = useTeam()
     const [teamName, setTeamName] = useState("")
-    const [teamToDelete, setTeamToDelete] = useState<SavedTeam | null>(null)
+    const [teamToDelete, setTeamToDelete] = useState<StoredTeam | null>(null)
     const [isSaveOpen, setIsSaveOpen] = useState(false)
     const [isLoadOpen, setIsLoadOpen] = useState(false)
+    const [isClearOpen, setIsClearOpen] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
 
-    const selectedCharacterIds = currentTeamCharacterIds.filter((id): id is number =>
-        id !== null && savedCharacters.some((character) => character.id === id)
+    const selectedCharacterIds = useMemo(
+        () => currentTeamCharacterIds.filter((id): id is number =>
+            id !== null && savedCharacters.some((character) => character.id === id)
+        ),
+        [currentTeamCharacterIds, savedCharacters]
     )
-
-    const refreshTeams = async () => {
-        const savedTeams = await obtenerEquipos()
-        setTeams(savedTeams)
-    }
-
-    useEffect(() => {
-
-        obtenerEquipos()
-            .then((savedTeams) => {
-                setTeams(savedTeams)
-            })
-            .catch((loadError: unknown) => {
-                console.error("Error al obtener equipos guardados:", loadError)
-                toast.error("No se pudieron cargar los equipos guardados.")
-            })
-
-    }, [])
 
     const handleSave = async (event: SubmitEvent<HTMLFormElement>) => {
         event.preventDefault()
@@ -66,88 +59,79 @@ export default function TeamManagement({ editingTeam, setEditingTeam }: TeamMana
 
         setIsSaving(true)
         try {
-            await guardarEquipo({ name, characters: selectedCharacterIds })
-            await refreshTeams()
+            const result = await saveTeam(name, selectedCharacterIds)
+            if (!result.success) {
+                toast.error(result.error ?? "No se pudo guardar el equipo.")
+                return
+            }
             setTeamName("")
             setIsSaveOpen(false)
-            toast.success(`El equipo "${name}" se guardó correctamente.`)
-        } catch (saveError) {
-            console.error("Error al guardar el equipo:", saveError)
-            toast.error("No se pudo guardar el equipo. Inténtalo de nuevo.")
+            toast.success(
+                result.updated
+                    ? `El equipo "${name}" se actualizó correctamente.`
+                    : `El equipo "${name}" se guardó correctamente.`
+            )
         } finally {
             setIsSaving(false)
         }
     }
 
     const handleUpdate = async () => {
-        if (typeof editingTeam?.id !== "number") return
-
+        if (!activeTeam) return
         setIsSaving(true)
         try {
-            await guardarEquipo({
-                id: editingTeam.id,
-                name: editingTeam.name,
-                characters: selectedCharacterIds,
-            })
-            await refreshTeams()
-            setEditingTeam({ ...editingTeam, characters: selectedCharacterIds, updatedAt: Date.now() })
-            toast.success(`El equipo "${editingTeam.name}" se actualizó correctamente.`)
-        } catch (updateError) {
-            console.error("Error al actualizar el equipo:", updateError)
-            toast.error("No se pudo actualizar el equipo. Inténtalo de nuevo.")
+            const result = await saveTeam(activeTeam.name, selectedCharacterIds, activeTeam.id)
+            if (!result.success) {
+                toast.error(result.error ?? "No se pudo actualizar el equipo.")
+                return
+            }
+            toast.success(`El equipo "${activeTeam.name}" se actualizó correctamente.`)
         } finally {
             setIsSaving(false)
         }
     }
 
-    const handleLoad = (team: SavedTeam) => {
-        const availableById = new Map(
-            savedCharacters.flatMap((character) =>
-                typeof character.id === "number" ? [[character.id, character] as const] : []
-            )
-        )
-        const usedNames = new Set<string>()
-        const validIds = team.characters.flatMap((id) => {
-            const character = availableById.get(id)
-            if (!character) return []
-            const name = getCharacterKey(character.character?.name || character.name)
-            if (usedNames.has(name)) return []
-            usedNames.add(name)
-            return [id]
-        }).slice(0, TEAM_SIZE)
+    const handleClear = () => {
+        clearTeam()
+        setIsClearOpen(false)
+        toast.success("Se limpió el equipo.")
+    }
 
-        setCurrentTeamCharacterIds(Array.from({ length: TEAM_SIZE }, (_, index) => validIds[index] ?? null))
-        setEditingTeam(team)
+    const handleLoad = (team: StoredTeam) => {
+        const { loaded, omitted } = loadTeam(team)
+        if (loaded === 0) {
+            toast.error("El equipo no tiene personajes disponibles.")
+            return
+        }
         setIsLoadOpen(false)
         toast.success(
-            validIds.length === team.characters.length
+            omitted === 0
                 ? `El equipo "${team.name}" se cargó correctamente.`
-                : `El equipo "${team.name}" se cargó; se omitieron personajes eliminados o repetidos.`
+                : `El equipo "${team.name}" se cargó; se omitieron ${omitted} personaje(s) eliminado(s) o repetido(s).`
         )
     }
 
     const handleDelete = async () => {
         if (typeof teamToDelete?.id !== "number") return
-        try {
-            await eliminarEquipo(teamToDelete.id)
-            setTeams((currentTeams) => currentTeams.filter((team) => team.id !== teamToDelete.id))
-            if (editingTeam?.id === teamToDelete.id) setEditingTeam(null)
-            toast.success(`El equipo "${teamToDelete.name}" se eliminó correctamente.`)
-            setTeamToDelete(null)
-        } catch (deleteError) {
-            console.error("Error al eliminar el equipo:", deleteError)
-            toast.error("No se pudo eliminar el equipo. Inténtalo de nuevo.")
-        }
-    }
+        const team = teamToDelete
 
-    const handleClear = () => {
-        setCurrentTeamCharacterIds(Array.from({ length: TEAM_SIZE }, () => null))
-        setEditingTeam(null)
+        const deleted = await deleteTeam(team.id)
+        if (!deleted) {
+            toast.error("No se pudo eliminar el equipo. Inténtalo de nuevo.")
+            return
+        }
+        setTeamToDelete(null)
+        toast.success(`El equipo "${team.name}" se eliminó correctamente.`)
     }
 
     return (
         <>
-            <div className="flex flex-wrap justify-end gap-2">
+            <div className="flex flex-wrap items-center justify-end gap-2">
+                {activeTeam && (
+                    <span className="mr-auto text-xs text-muted-foreground sm:mr-2">
+                        Editando: <span className="font-medium text-foreground">{activeTeam.name}</span>
+                    </span>
+                )}
                 <Button
                     type="button"
                     variant="outline"
@@ -164,20 +148,31 @@ export default function TeamManagement({ editingTeam, setEditingTeam }: TeamMana
                 <Button
                     type="button"
                     variant="outline"
-                    onClick={handleClear}
-                    disabled={currentTeamCharacterIds.every((id) => id === null) && editingTeam === null}
+                    onClick={() => { setIsClearOpen(true) }}
+                    disabled={selectedCharacterIds.length === 0 && !activeTeam}
                 >
-                    <ArrowCounterClockwiseIcon size={18} />
+                    <BroomIcon size={18} />
                     Limpiar equipo
                 </Button>
-                <Button
-                    type="button"
-                    onClick={() => editingTeam ? void handleUpdate() : setIsSaveOpen(true)}
-                    disabled={isSaving || (!editingTeam && selectedCharacterIds.length === 0)}
-                >
-                    <FloppyDiskIcon size={18} />
-                    {editingTeam ? "Actualizar equipo" : "Guardar equipo"}
-                </Button>
+                {activeTeam ? (
+                    <Button
+                        type="button"
+                        onClick={handleUpdate}
+                        disabled={selectedCharacterIds.length === 0 || isSaving}
+                    >
+                        <ArrowsClockwiseIcon size={18} />
+                        {isSaving ? "Actualizando..." : "Actualizar equipo"}
+                    </Button>
+                ) : (
+                    <Button
+                        type="button"
+                        onClick={() => { setIsSaveOpen(true) }}
+                        disabled={selectedCharacterIds.length === 0}
+                    >
+                        <FloppyDiskIcon size={18} />
+                        Guardar equipo
+                    </Button>
+                )}
             </div>
 
             {/* Modal para guardar un equipo */}
@@ -221,7 +216,11 @@ export default function TeamManagement({ editingTeam, setEditingTeam }: TeamMana
                             Carga un equipo para reemplazar la selección actual o elimina un equipo guardado.
                         </DialogDescription>
                     </DialogHeader>
-                    {teams.length === 0 ? (
+                    {isLoading ? (
+                        <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+                            Cargando equipos...
+                        </p>
+                    ) : teams.length === 0 ? (
                         <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
                             Todavía no hay equipos guardados.
                         </p>
@@ -253,6 +252,27 @@ export default function TeamManagement({ editingTeam, setEditingTeam }: TeamMana
                             ))}
                         </div>
                     )}
+                </DialogContent>
+            </Dialog>
+
+            {/* Modal para limpiar el equipo actual */}
+            <Dialog open={isClearOpen} onOpenChange={setIsClearOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>¿Limpiar el equipo?</DialogTitle>
+                        <DialogDescription>
+                            Se quitarán todos los personajes seleccionados. Los equipos guardados no se
+                            modifican.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-end gap-2">
+                        <Button type="button" variant="outline" onClick={() => setIsClearOpen(false)}>
+                            Cancelar
+                        </Button>
+                        <Button type="button" variant="destructive" onClick={handleClear}>
+                            Limpiar
+                        </Button>
+                    </div>
                 </DialogContent>
             </Dialog>
 

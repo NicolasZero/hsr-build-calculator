@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router"
 import { FolderUserIcon, MagnifyingGlassIcon, PencilSimpleIcon, UserCircleIcon } from "@phosphor-icons/react"
-import { useTeam } from "@/contexts/teamContext"
+import { useCharacter, useTeam } from "@/contexts/teamContext"
 import type { SavedCharacterBuild } from "@/lib/indexedDB"
+import { formatDateTime } from "@/lib/characterBuild"
 import { Button } from "@/components/ui/button"
 import CharacterCard from "@/components/characters/characterCard"
 import CharacterImage from "@/components/characters/characterImage"
@@ -18,19 +19,9 @@ import { toast } from "sonner"
 
 const PAGE_SIZE = 24
 
-function formatRegistrationDate(timestamp?: number) {
-    if (timestamp === undefined) return "Fecha no disponible"
-    return new Date(timestamp).toLocaleString("es-ES", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    })
-}
-
 export default function SavedCharactersPage() {
-    const { savedCharacters, loadCharacter, deleteCharacter, characterId } = useTeam()
+    const { savedCharacters } = useTeam()
+    const { loadCharacter, deleteCharacter, characterId, isLoading, error } = useCharacter()
     const navigate = useNavigate()
     const [searchTerm, setSearchTerm] = useState("")
     const [pagination, setPagination] = useState({ searchTerm: "", visibleCount: PAGE_SIZE })
@@ -111,7 +102,16 @@ export default function SavedCharactersPage() {
                 </p>
             </header>
 
-            {savedCharacters.length === 0 ? (
+            {error ? (
+                <div className="rounded-2xl border border-destructive/50 bg-destructive/5 p-6 text-center">
+                    <p className="font-medium text-destructive">No se pudieron cargar los personajes</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{error}</p>
+                </div>
+            ) : isLoading ? (
+                <div className="rounded-2xl border border-dashed p-10 text-center">
+                    <p className="text-sm text-muted-foreground">Cargando personajes guardados...</p>
+                </div>
+            ) : savedCharacters.length === 0 ? (
                 <div className="rounded-2xl border border-dashed p-10 text-center">
                     <UserCircleIcon size={44} className="mx-auto mb-3 text-muted-foreground" />
                     <h2 className="font-semibold">Todavía no hay personajes guardados</h2>
@@ -159,7 +159,7 @@ export default function SavedCharactersPage() {
                                         key={character.id ?? character.name}
                                         character={character}
                                         isCurrent={character.id === characterId}
-                                        formatRegistrationDate={formatRegistrationDate}
+                                        formatRegistrationDate={formatDateTime}
                                         onView={setCharacterToView}
                                         onEdit={(selected) => void handleEdit(selected)}
                                         onDelete={setCharacterToDelete}
@@ -186,7 +186,7 @@ export default function SavedCharactersPage() {
                             <DialogHeader>
                                 <DialogTitle>{characterToView.name}</DialogTitle>
                                 <DialogDescription>
-                                    Registrado: {formatRegistrationDate(characterToView.createdAt)}
+                                    Registrado: {formatDateTime(characterToView.createdAt)}
                                 </DialogDescription>
                             </DialogHeader>
                             <CharacterImage

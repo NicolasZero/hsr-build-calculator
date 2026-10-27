@@ -1,35 +1,33 @@
 import { useState } from "react"
 import { useNavigate } from "react-router"
 import { PlusIcon, UsersThreeIcon } from "@phosphor-icons/react"
-import { useTeam } from "@/contexts/teamContext"
+import { useCharacter, useTeam } from "@/contexts/teamContext"
 import type { SavedCharacterBuild } from "@/lib/indexedDB"
+import { getCharacterKey, getCharacterName } from "@/lib/characterBuild"
 import { TEAM_SIZE } from "@/const/team"
 import { Button } from "@/components/ui/button"
 import TeamCharacterModal from "@/components/myTeam/teamCharacterModal"
 import TeamCharacterCard from "@/components/myTeam/teamCharacterCard"
 
-const getCharacterName = (build: SavedCharacterBuild) =>
-    build.character?.name?.trim() || build.name.trim()
-
-const getCharacterKey = (build: SavedCharacterBuild) =>
-    getCharacterName(build).toLocaleLowerCase()
-
-export default function TeamCharacterSelector({ isEditingTeam }: { isEditingTeam: boolean }) {
-    const { savedCharacters, currentTeamCharacterIds, setCurrentTeamCharacterIds } = useTeam()
+export default function TeamCharacterSelector() {
+    const {
+        savedCharacters,
+        currentTeamCharacterIds,
+        buildsById,
+        setTeamSlot,
+        removeTeamSlot,
+        error,
+    } = useTeam()
+    const { characterId } = useCharacter()
     const navigate = useNavigate()
     const [activeSlot, setActiveSlot] = useState<number | null>(null)
 
-    const buildsById = new Map(
-        savedCharacters.flatMap((build) =>
-            typeof build.id === "number" ? [[build.id, build] as const] : []
-        )
-    )
     const slots = Array.from({ length: TEAM_SIZE }, (_, index) => currentTeamCharacterIds[index] ?? null)
     const availableCharacters = savedCharacters.filter((build, index, builds) =>
-        typeof build.id === "number" &&
         builds.findIndex((candidate) => getCharacterKey(candidate) === getCharacterKey(build)) === index
     )
     const selectedBuilds = slots.map((id) => id === null ? undefined : buildsById.get(id))
+
     const openCharacterModal = (slotIndex: number) => setActiveSlot(slotIndex)
 
     const selectCharacter = (build: SavedCharacterBuild) => {
@@ -44,16 +42,12 @@ export default function TeamCharacterSelector({ isEditingTeam }: { isEditingTeam
         })
         if (alreadySelected) return
 
-        setCurrentTeamCharacterIds(
-            slots.map((id, index) => index === activeSlot ? selectedId : id)
-        )
+        setTeamSlot(activeSlot, selectedId)
         setActiveSlot(null)
     }
 
     const removeCharacter = (slotIndex: number) => {
-        setCurrentTeamCharacterIds(
-            slots.map((id, index) => index === slotIndex ? null : id)
-        )
+        removeTeamSlot(slotIndex)
     }
 
     const selectedKeys = new Set(slots.flatMap((id, index) => {
@@ -83,7 +77,12 @@ export default function TeamCharacterSelector({ isEditingTeam }: { isEditingTeam
                 </Button>
             </div>
 
-            {savedCharacters.length === 0 ? (
+            {error ? (
+                <div className="rounded-xl border border-destructive/50 bg-destructive/5 px-4 py-6 text-center">
+                    <p className="font-medium text-destructive">No se pudieron cargar los personajes</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{error}</p>
+                </div>
+            ) : savedCharacters.length === 0 ? (
                 <div className="rounded-xl border border-dashed px-4 py-10 text-center">
                     <p className="font-medium">No hay personajes guardados</p>
                     <p className="mt-1 text-sm text-muted-foreground">
@@ -98,7 +97,7 @@ export default function TeamCharacterSelector({ isEditingTeam }: { isEditingTeam
                                 key={index}
                                 selectedBuild={selectedBuilds[index] ?? null}
                                 characterName={selectedBuilds[index] ? getCharacterName(selectedBuilds[index]) : ""}
-                                isEditing={isEditingTeam && selectedBuilds[index] !== undefined}
+                                isEditing={selectedBuilds[index]?.id === characterId}
                                 id={index}
                                 openCharacterModal={openCharacterModal}
                                 removeCharacter={removeCharacter}

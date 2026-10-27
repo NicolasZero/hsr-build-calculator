@@ -1,5 +1,5 @@
 import { useState, lazy } from 'react'
-import { useTeam } from '@/contexts/teamContext'
+import { useCharacter, useTeam } from '@/contexts/teamContext'
 import { validation } from '@/utils/validation'
 import { FolderOpenIcon, PlusIcon, FloppyDiskIcon, PencilIcon } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
@@ -21,9 +21,9 @@ export default function TeamBuilderPage() {
         character,
         characterId,
         saveCharacter,
-        savedCharacters,
         resetCharacter,
-    } = useTeam()
+    } = useCharacter()
+    const { savedCharacters } = useTeam()
 
     type SaveType = 'update' | 'saved_new' | 'create'
 

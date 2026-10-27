@@ -12,6 +12,13 @@ export interface SavedCharacterBuild {
     updatedAt?: number;
 }
 
+/** Registro tal y como se devuelve desde IndexedDB: siempre tiene id y fechas. */
+export interface StoredCharacterBuild extends SavedCharacterBuild {
+    id: number;
+    createdAt: number;
+    updatedAt: number;
+}
+
 export interface SavedTeam {
     id?: number;
     name: string;
@@ -20,212 +27,306 @@ export interface SavedTeam {
     updatedAt?: number;
 }
 
-const DB_NAME = 'teamBuilder'
-const DB_VERSION = 3
-
-// Helper para convertir requests de indexedDB en promesas
-const requestToPromise = <T,>(request: IDBRequest<T>): Promise<T> => {
-    return new Promise((resolve, reject) => {
-        request.onsuccess = () => resolve(request.result)
-        request.onerror = () => reject(request.error ?? new Error("IndexedDB error"))
-    })
+/** Registro tal y como se devuelve desde IndexedDB: siempre tiene id y fechas. */
+export interface StoredTeam extends SavedTeam {
+    id: number;
+    createdAt: number;
+    updatedAt: number;
 }
 
-let dbInstance: IDBDatabase | null = null;
-let dbInitPromise: Promise<IDBDatabase> | null = null;
+const DB_NAME = "teamBuilder"
+const DB_VERSION = 4
+
+const CHARACTERS_STORE = "characters"
+const TEAMS_STORE = "teams"
+
+let dbInstance: IDBDatabase | null = null
+let dbInitPromise: Promise<IDBDatabase> | null = null
+
+const resetConnection = () => {
+    dbInstance = null
+    dbInitPromise = null
+}
+
+const requestToPromise = <T,>(request: IDBRequest<T>): Promise<T> =>
+    new Promise((resolve, reject) => {
+        request.onsuccess = () => resolve(request.result)
+        request.onerror = () => reject(request.error ?? new Error("Error de IndexedDB"))
+    })
+
+const transactionDone = (tx: IDBTransaction): Promise<void> =>
+    new Promise((resolve, reject) => {
+        tx.oncomplete = () => resolve()
+        tx.onabort = () => reject(tx.error ?? new Error("Transacción de IndexedDB abortada"))
+        tx.onerror = () => reject(tx.error ?? new Error("Error en la transacción de IndexedDB"))
+    })
+
+const ensureStore = (
+    db: IDBDatabase,
+    tx: IDBTransaction,
+    name: string
+): IDBObjectStore =>
+    db.objectStoreNames.contains(name)
+        ? tx.objectStore(name)
+        : db.createObjectStore(name, { keyPath: "id", autoIncrement: true })
+
+const ensureIndex = (
+    store: IDBObjectStore,
+    name: string,
+    keyPath: string,
+    options?: IDBIndexParameters
+) => {
+    if (!store.indexNames.contains(name)) {
+        store.createIndex(name, keyPath, options)
+    }
+}
 
 export const initDB = (): Promise<IDBDatabase> => {
     if (dbInstance) {
-        return Promise.resolve(dbInstance);
+        return Promise.resolve(dbInstance)
     }
     if (dbInitPromise) {
-        return dbInitPromise;
+        return dbInitPromise
     }
 
     dbInitPromise = new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        const request = indexedDB.open(DB_NAME, DB_VERSION)
 
-        request.onupgradeneeded = (e) => {
-            const db = (e.target as IDBOpenDBRequest).result;
-            const tx = (e.target as IDBOpenDBRequest).transaction;
+        request.onupgradeneeded = () => {
+            const db = request.result
+            const tx = request.transaction
+            if (!tx) return
 
-            let store: IDBObjectStore;
-            if (!db.objectStoreNames.contains('characters')) {
-                store = db.createObjectStore('characters', { keyPath: 'id', autoIncrement: true });
-            } else {
-                store = tx!.objectStore('characters');
+            // Migraciones idempotentes: cada versión se asegura de que los stores
+            // e índices existan, vengan de la versión que vengan.
+            const charactersStore = ensureStore(db, tx, CHARACTERS_STORE)
+            ensureIndex(charactersStore, "name", "name")
+            ensureIndex(charactersStore, "updatedAt", "updatedAt")
+
+            const teamsStore = ensureStore(db, tx, TEAMS_STORE)
+            ensureIndex(teamsStore, "name", "name")
+            ensureIndex(teamsStore, "updatedAt", "updatedAt")
+
+            // Índice antiguo sobre un array sin multiEntry: no permitía buscar por
+            // personaje y solo ocupaba espacio.
+            if (teamsStore.indexNames.contains("characters")) {
+                teamsStore.deleteIndex("characters")
             }
+        }
 
-            if (store.indexNames.contains('name')) {
-                store.deleteIndex('name');
+        request.onsuccess = () => {
+            const db = request.result
+
+            // Si otra pestaña abre una versión nueva, cerramos la conexión para no
+            // bloquearla y forzamos a reabrir en la siguiente operación.
+            db.onversionchange = () => {
+                db.close()
+                resetConnection()
             }
-            store.createIndex('name', 'name', { unique: false });
+            db.onclose = () => resetConnection()
 
-            if (!store.indexNames.contains('updatedAt')) {
-                store.createIndex('updatedAt', 'updatedAt', { unique: false });
-            }
+            dbInstance = db
+            resolve(db)
+        }
 
-            if (!db.objectStoreNames.contains('teams')) {
-                const teamsStore = db.createObjectStore('teams', { keyPath: 'id', autoIncrement: true });
-                teamsStore.createIndex('name', 'name', { unique: false });
-                teamsStore.createIndex('characters', 'characters', { unique: false });
-            }
-        };
+        request.onerror = () => {
+            resetConnection()
+            reject(request.error ?? new Error("No se pudo abrir IndexedDB"))
+        }
 
-        request.onsuccess = (e) => {
-            dbInstance = (e.target as IDBOpenDBRequest).result;
-            resolve(dbInstance);
-        };
+        request.onblocked = () => {
+            resetConnection()
+            reject(new Error(
+                "La base de datos está bloqueada por otra pestaña. " +
+                "Cierra las demás pestañas de la aplicación y vuelve a intentarlo."
+            ))
+        }
+    })
 
-        request.onerror = (e) => {
-            dbInitPromise = null;
-            reject((e.target as IDBOpenDBRequest).error);
-        };
-    });
+    return dbInitPromise
+}
 
-    return dbInitPromise;
-};
+const openTransaction = async (
+    storeNames: string | string[],
+    mode: IDBTransactionMode
+): Promise<IDBTransaction> => {
+    try {
+        const db = await initDB()
+        return db.transaction(storeNames, mode)
+    } catch (error) {
+        // La conexión pudo cerrarse por un cambio de versión en otra pestaña.
+        if (error instanceof DOMException && error.name === "InvalidStateError") {
+            resetConnection()
+            const db = await initDB()
+            return db.transaction(storeNames, mode)
+        }
+        throw error
+    }
+}
 
-// Ejecuta una operación contra un object store de IndexedDB gestionando el
-// ciclo de vida completo de la transacción (abrir BD -> transacción -> store -> esperar confirmación).
-const withStore = async <T>(
+/**
+ * Ejecuta una operación dentro de una transacción y resuelve cuando la
+ * transacción ha hecho commit (no cuando la petición individual responde).
+ */
+const withStore = async <T,>(
     storeName: string,
     mode: IDBTransactionMode,
-    run: (store: IDBObjectStore) => Promise<T>,
+    run: (store: IDBObjectStore) => Promise<T>
 ): Promise<T> => {
-    // 1) Abre (o reutiliza, gracias al memoizado de initDB) la conexión a la BD.
-    const db = await initDB();
+    const tx = await openTransaction(storeName, mode)
+    const done = mode === "readonly" ? Promise.resolve() : transactionDone(tx)
+    const result = await run(tx.objectStore(storeName))
+    await done
+    return result
+}
 
-    // 2) Crea la transacción que abarca `storeName` en el modo indicado.
-    const tx = db.transaction(storeName, mode);
+const cloneRelics = (relics?: RelicData): RelicData => ({
+    setName: relics?.setName,
+    relics: relics?.relics ? relics.relics.map((relic) => ({ ...relic })) : [],
+    subStats: relics?.subStats ? relics.subStats.map((subStat) => ({ ...subStat })) : [],
+})
 
-    // 3) Promesa que se resuelve cuando la transacción se confirma de verdad.
-    //    Se registra ANTES de ejecutar `run`: si la transacción termina mientras
-    //    se espera, el evento ya se habría emitido y la promesa quedaría colgada.
-    const completion = new Promise<void>((resolve, reject) => {
-        tx.oncomplete = () => resolve();
-        tx.onabort = tx.onerror = () => reject(tx.error ?? new Error("Transaction aborted"));
-    });
+/**
+ * Normaliza un registro antiguo o nuevo:
+ * - Un solo nombre canónico (`name`) replicado en `character.name`.
+ * - El id vive solo en el registro, nunca dentro de `character`.
+ * - Garantiza buffs/relics y fechas.
+ */
+const normalizeBuild = (record: SavedCharacterBuild & { id: number }): StoredCharacterBuild => {
+    const name = (record.name?.trim() || record.character?.name?.trim() || "").trim()
+    const character: Character = { ...record.character, name }
+    delete character.id
 
-    // 4) Ejecuta la operación concreta sobre el object store.
-    let result: T;
-    try {
-        result = await run(tx.objectStore(storeName));
-    } catch (error) {
-        // Si la operación falla, se aborta la transacción para no dejar
-        // escrituras a medias. `catch` silencioso por si ya había finalizado.
-        completion.catch(() => undefined);
-        try {
-            tx.abort();
-        } catch {
-            // La transacción ya estaba finalizada: no hay nada que abortar.
-        }
-        throw error;
+    return {
+        ...record,
+        id: record.id,
+        name,
+        character,
+        buffs: record.buffs ?? [],
+        relics: cloneRelics(record.relics),
+        createdAt: record.createdAt ?? record.updatedAt ?? 0,
+        updatedAt: record.updatedAt ?? record.createdAt ?? 0,
     }
+}
 
-    // 5) En escritura, el "onsuccess" del request no garantiza que la transacción
-    //    se haya confirmado (puede abortar después, p.ej. por un índice unique).
-    //    Por eso se espera a `oncomplete`. En "readonly" no hay nada que confirmar.
-    if (mode !== "readonly") {
-        await completion;
-    } else {
-        // Se ignora explícitamente para que no quede como unhandled rejection.
-        completion.catch(() => undefined);
-    }
+export const guardarPersonaje = async (
+    build: SavedCharacterBuild
+): Promise<StoredCharacterBuild> => {
+    return withStore(CHARACTERS_STORE, "readwrite", async (store) => {
+        const now = Date.now()
+        const existing = typeof build.id === "number"
+            ? await requestToPromise<SavedCharacterBuild | undefined>(store.get(build.id))
+            : undefined
 
-    return result;
-};
+        const name = (build.character?.name?.trim() || build.name?.trim() || "").trim()
+        const character: Character = { ...build.character, name }
+        delete character.id
 
-export const guardarPersonaje = async (build: SavedCharacterBuild): Promise<number> => {
-    return withStore('characters', 'readwrite', async (store) => {
-        const dataToSave: Omit<SavedCharacterBuild, 'id'> & { id?: number } = {
-            name: build.name,
-            character: { ...build.character },
-            buffs: build.buffs,
-            relics: build.relics,
-            updatedAt: Date.now(),
-            createdAt: build.createdAt ?? Date.now(),
-        };
-
-        if (typeof build.id === 'number') {
-            dataToSave.id = build.id;
-            dataToSave.character.id = build.id;
-        } else {
-            delete dataToSave.id;
-            delete dataToSave.character.id;
+        const record: SavedCharacterBuild = {
+            ...(typeof build.id === "number" ? { id: build.id } : {}),
+            name,
+            character,
+            buffs: build.buffs ?? [],
+            relics: cloneRelics(build.relics),
+            createdAt: existing?.createdAt ?? build.createdAt ?? now,
+            updatedAt: now,
         }
 
-        const request = store.put(dataToSave);
-        return (await requestToPromise(request)) as number;
-    });
-};
+        const key = await requestToPromise(store.put(record))
+        const stored: SavedCharacterBuild & { id: number } = { ...record, id: Number(key) }
+        return normalizeBuild(stored)
+    })
+}
 
-export const obtenerPersonajes = async (): Promise<SavedCharacterBuild[]> => {
-    return withStore('characters', 'readonly', async (store) => {
-        const result = await requestToPromise(store.getAll());
-        return (result as SavedCharacterBuild[]) || [];
-    });
-};
+export const obtenerPersonajes = async (): Promise<StoredCharacterBuild[]> => {
+    return withStore(CHARACTERS_STORE, "readonly", async (store) => {
+        const records = await requestToPromise<SavedCharacterBuild[]>(store.getAll())
+        return records
+            .filter((record): record is SavedCharacterBuild & { id: number } =>
+                typeof record.id === "number"
+            )
+            .map(normalizeBuild)
+    })
+}
 
-export const obtenerPersonajePorId = async (id: number): Promise<SavedCharacterBuild | undefined> => {
-    return withStore('characters', 'readonly', async (store) => {
-        const result = await requestToPromise(store.get(id));
-        return result as SavedCharacterBuild | undefined;
-    });
-};
+export const obtenerPersonajePorId = async (
+    id: number
+): Promise<StoredCharacterBuild | undefined> => {
+    return withStore(CHARACTERS_STORE, "readonly", async (store) => {
+        const record = await requestToPromise<SavedCharacterBuild | undefined>(store.get(id))
+        if (!record || typeof record.id !== "number") return undefined
+        return normalizeBuild({ ...record, id: record.id })
+    })
+}
 
+/**
+ * Elimina el personaje y, en la misma transacción, lo quita de los equipos
+ * guardados para no dejar referencias huérfanas.
+ */
 export const eliminarPersonaje = async (id: number): Promise<void> => {
-    await withStore('characters', 'readwrite', async (store) => {
-        await requestToPromise(store.delete(id));
-    });
-};
+    const tx = await openTransaction([CHARACTERS_STORE, TEAMS_STORE], "readwrite")
+    const done = transactionDone(tx)
 
-export const guardarEquipo = async (team: SavedTeam): Promise<number> => {
-    return withStore('teams', 'readwrite', async (store) => {
-        const dataToSave: Omit<SavedTeam, 'id'> & { id?: number } = {
+    tx.objectStore(CHARACTERS_STORE).delete(id)
+
+    const teamsStore = tx.objectStore(TEAMS_STORE)
+    const teams = await requestToPromise<SavedTeam[]>(teamsStore.getAll())
+    const now = Date.now()
+    for (const team of teams) {
+        if (typeof team.id === "number" && team.characters?.includes(id)) {
+            teamsStore.put({
+                ...team,
+                characters: team.characters.filter((characterId) => characterId !== id),
+                updatedAt: now,
+            })
+        }
+    }
+
+    await done
+}
+
+export const guardarEquipo = async (team: SavedTeam): Promise<StoredTeam> => {
+    return withStore(TEAMS_STORE, "readwrite", async (store) => {
+        const now = Date.now()
+        const existing = typeof team.id === "number"
+            ? await requestToPromise<SavedTeam | undefined>(store.get(team.id))
+            : undefined
+
+        const record: SavedTeam = {
+            ...(typeof team.id === "number" ? { id: team.id } : {}),
             name: team.name.trim(),
-            characters: team.characters,
-            createdAt: team.createdAt ?? Date.now(),
-            updatedAt: Date.now(),
-        };
-
-        if (typeof team.id === 'number') {
-            dataToSave.id = team.id;
+            characters: [...team.characters],
+            createdAt: existing?.createdAt ?? team.createdAt ?? now,
+            updatedAt: now,
         }
 
-        const request = store.put(dataToSave);
-        return (await requestToPromise(request)) as number;
-    });
-};
+        const key = await requestToPromise(store.put(record))
+        return {
+            ...record,
+            id: Number(key),
+            createdAt: record.createdAt ?? now,
+            updatedAt: record.updatedAt ?? now,
+        }
+    })
+}
 
-export const obtenerEquipos = async (): Promise<SavedTeam[]> => {
-    return withStore('teams', 'readonly', async (store) => {
-        const result = await requestToPromise(store.getAll());
-        return (result as SavedTeam[]) || [];
-    });
-};
+export const obtenerEquipos = async (): Promise<StoredTeam[]> => {
+    return withStore(TEAMS_STORE, "readonly", async (store) => {
+        const records = await requestToPromise<SavedTeam[]>(store.getAll())
+        return records
+            .filter((team): team is SavedTeam & { id: number } => typeof team.id === "number")
+            .map((team) => ({
+                ...team,
+                id: team.id,
+                characters: team.characters ?? [],
+                createdAt: team.createdAt ?? team.updatedAt ?? 0,
+                updatedAt: team.updatedAt ?? team.createdAt ?? 0,
+            }))
+    })
+}
 
 export const eliminarEquipo = async (id: number): Promise<void> => {
-    await withStore('teams', 'readwrite', async (store) => {
-        await requestToPromise(store.delete(id));
-    });
-};
-
-// Retrocompatibilidad
-export const guardarDatos = async <T extends Record<string, unknown>>(datos: T, storeName: string): Promise<IDBValidKey> => {
-    return withStore(storeName, 'readwrite', async (store) => {
-        const dataToSave: Record<string, unknown> = { ...datos };
-        if (dataToSave.id === undefined || dataToSave.id === null) {
-            delete dataToSave.id;
-        }
-        const request = store.put(dataToSave);
-        return requestToPromise(request);
-    });
-};
-
-export const obtenerDatos = async <T = unknown>(storeName: string): Promise<T[]> => {
-    return withStore(storeName, 'readonly', async (store) => {
-        const result = await requestToPromise(store.getAll());
-        return (result as T[]) || [];
-    });
-};
+    return withStore(TEAMS_STORE, "readwrite", async (store) => {
+        await requestToPromise(store.delete(id))
+    })
+}

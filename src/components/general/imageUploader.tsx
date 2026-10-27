@@ -1,8 +1,9 @@
-import { useState, useEffect, type ChangeEvent } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { XIcon, ImageIcon } from "@phosphor-icons/react";
 import PreviewImage from "@/components/general/previewImg"
+import { useBlobUrl } from "@/hooks/useBlobUrl"
 import { toast } from "sonner"
 
 interface ImageUploaderProps {
@@ -10,7 +11,7 @@ interface ImageUploaderProps {
     label?: string;
     className?: string;
     image?: Blob | null;
-    onChange: (target: { name: string, value: string | number | boolean | File | Blob | null }) => void;
+    onChange: (target: { name: "image"; value: Blob | null }) => void;
 }
 
 export function ImageUploader(
@@ -22,30 +23,7 @@ export function ImageUploader(
         onChange,
     }: ImageUploaderProps
 ) {
-    const [preview, setPreview] = useState<{ image: Blob; src: string } | null>(null);
-
-    useEffect(() => {
-        if (!image) {
-            return;
-        }
-
-        const reader = new FileReader();
-        reader.onload = () => {
-            if (typeof reader.result === "string") {
-                setPreview({ image, src: reader.result });
-            }
-        };
-        reader.onerror = () => {
-            toast.error("No se pudo cargar la previsualización de la imagen.");
-        };
-        reader.readAsDataURL(image);
-
-        return () => {
-            reader.abort();
-        };
-    }, [image]);
-
-    const selectedImage = preview && preview.image === image ? preview.src : null;
+    const selectedImage = useBlobUrl(image);
 
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];

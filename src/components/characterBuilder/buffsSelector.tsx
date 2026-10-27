@@ -5,8 +5,8 @@ import NewBuffModal from "./buffsTable/buffModal"
 import ConfirmModal from "@/components/characterBuilder/buffsTable/deleteBuff"
 import { buffOrigin, buffTarget, buffType, statBuffDependiente } from "@/const/buffType"
 import { TEAM_SIZE } from "@/const/team"
-import type { BuffData } from "@/schema/buffData"
-import { useTeam } from "@/contexts/teamContext"
+import type { BuffData, StatBuffDependent } from "@/schema/buffData"
+import { useCharacter } from "@/contexts/teamContext"
 
 function isOption<T extends readonly string[]>(
     options: T,
@@ -27,7 +27,7 @@ function isDuplicate(existing: BuffData, candidate: BuffData) {
 }
 
 export default function BuffsSelector() {
-    const { buffs, setBuffs } = useTeam()
+    const { buffs, setBuffs } = useCharacter()
     const [openConfirmModal, setConfirmModal] = useState(false)
     const [buffToDeleteId, setBuffToDeleteId] = useState("")
     const [error, setError] = useState("")
@@ -72,9 +72,13 @@ export default function BuffsSelector() {
             setError("El estado del buff no es válido")
             return
         }
-        if (targetStatValue !== null && !isOption(statBuffDependiente, targetStatValue)) {
-            setError("Selecciona una estadística válida para el escalado")
-            return
+        let targetStat: StatBuffDependent | undefined
+        if (targetStatValue !== null) {
+            if (!isOption(statBuffDependiente, targetStatValue)) {
+                setError("Selecciona una estadística válida para el escalado")
+                return
+            }
+            targetStat = targetStatValue
         }
 
         const targetSlotValue = formData.get("targetSlot")
@@ -101,8 +105,8 @@ export default function BuffsSelector() {
             origen,
             objetivo,
             status: statusValue === "true",
-            ...(targetStatValue === null ? {} : { targetStat: targetStatValue }),
-            ...(targetSlot === undefined ? {} : { targetSlot }),
+            ...(targetStat !== undefined ? { targetStat } : {}),
+            ...(targetSlot !== undefined ? { targetSlot } : {}),
         }
 
         const duplicate = buffs.some(

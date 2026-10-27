@@ -2,11 +2,8 @@ import { Routes, Route, Navigate } from 'react-router'
 import Layout from './components/layout/layout'
 import Loader from '@/components/layout/loader'
 import { lazy, Suspense } from 'react'
-// import DMGCalc from './pages/dmgCalc'
-// import SpeedCalc from './pages/speedCalc'
-// import TeamPage from './pages/teamPage'
 import MaintenancePage from './pages/maintenance'
-import { TeamProvider } from "@/contexts/teamContext";
+import { TeamProvider } from "@/contexts/TeamProvider";
 
 const CharacterBuilderPage = lazy(() => import('@/pages/createCharacterPage'))
 const TeamPage = lazy(() => import('@/pages/teamPage'))
