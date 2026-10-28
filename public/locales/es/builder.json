@@ -1,15 +1,18 @@
 {
     "builder": {
         "title": "Constructor de Personajes",
-        "description": "Configura los atributos base, artefactos y mejoras para calcular el rendimiento total."
+        "description": "Configura los atributos base, artefactos y mejoras para calcular el rendimiento total.",
+        "unsavedChanges": "Cambios sin guardar",
+        "editing": "Editando"
     },
     "alerts": {
-        "character_saved_new": "¡\"{{name}}\" se guardó como un nuevo registro!",
-        "character_saved": "¡\"{{name}}\" se guardó correctamente!",
-        "character_updated": "¡\"{{name}}\" se actualizó correctamente!",
-        "character_error": "¡Ocurrió un error al guardar el personaje!",
-        "character_reset": "¡Formulario reiniciado para un nuevo personaje!",
-        "character_editing": "¡Estas editando un personaje!"
+        "characterSavedNew": "¡\"{{name}}\" se guardó como un nuevo registro!",
+        "characterSaved": "¡\"{{name}}\" se guardó correctamente!",
+        "characterUpdated": "¡\"{{name}}\" se actualizó correctamente!",
+        "characterError": "¡Ocurrió un error al guardar el personaje!",
+        "characterReset": "¡Formulario reiniciado para un nuevo personaje!",
+        "characterEditing": "¡Estas editando un personaje!",
+        "tooManySubStats": "Ya tienes 24 sub-stats"
     },
     "buttons": {
         "new": "Nuevo",
@@ -20,23 +23,34 @@
         "saveLoading": "Guardando...",
         "loadLoading": "Cargando...",
         "update": "Actualizar Personaje",
-        "add_buff": "Agregar buff"
+        "addBuff": "Agregar buff"
     },
     "placeholders": {
-        "upload_img": "Haz clic para subir",
-        "name_character": "Nombre del personaje",
+        "uploadImg": "Haz clic para subir",
+        "nameCharacter": "Nombre del personaje",
         "select": "Seleccione",
-        "name_relic": "Nombre del set",
-        "character": "Personaje"
-    },
-    "base_stats": {
-        "data_basic": "Datos básicos",
-        "stats": "Estadísticas",
-        "description": "Configura los atributos base del personaje.",
+        "nameRelic": "Nombre del set",
+        "character": "Personaje",
+        "lightCone": "Cono de luz",
         "hp": "HP",
         "atq": "ATQ",
         "def": "DEF",
-        "spd": "VEL",
+        "vel": "VEL",
+        "maxEnergy": "Energía máx",
+        "level": "Nivel",
+        "piece": "Pieza",
+        "mainStat": "Estadística principal",
+        "value": "Valor",
+        "stat": "Estadística"
+    },
+    "baseStats": {
+        "dataBasic": "Datos básicos",
+        "stats": "Estadísticas",
+        "description": "Configura los atributos base del personaje. Con o sin cono de luz equipado",
+        "hpBase": "HP Base",
+        "atqBase": "ATQ Base",
+        "defBase": "DEF Base",
+        "spdBase": "VEL Base",
         "crit_r": "P.CRIT",
         "crit_d": "D.CRIT",
         "dmg": "DAÑO",
@@ -45,14 +59,14 @@
     "relics": {
         "title": "Artefactos y Ornamentos",
         "description": "Configura los artefactos y ornamentos del personaje.",
-        "main_stats": "Atributos Principales",
-        "substats": "Subatributos",
-        "head": "Cabeza",
-        "hands": "Manos",
-        "body": "Cuerpo",
-        "feet": "Pies",
-        "sphere": "Esfera",
-        "rope": "Cuerda",
+        "mainStats": "Atributos Principales",
+        "subStats": "Subatributos",
+        "CABEZA": "Cabeza",
+        "MANO": "Manos",
+        "CUERPO": "Cuerpo",
+        "BOTAS": "Botas",
+        "ORBE": "Orbe",
+        "CUERDA": "Cuerda",
         "set": "Nombre del Set (Opcional)"
     }
 }

@@ -60,10 +60,23 @@ const replaceTeam = (teams: StoredTeam[], saved: StoredTeam): StoredTeam[] => {
         : [saved, ...teams]
 }
 
+const serializeBuilderState = (character: Character, buffs: BuffData[], relics: RelicData): string => {
+    return JSON.stringify({
+        character: {
+            ...character,
+            id: character.id ?? null,
+        },
+        buffs,
+        relics,
+    })
+}
 export function TeamProvider({ children }: { children: React.ReactNode }) {
     const [character, setCharacter] = useState<Character>(createDefaultCharacter)
     const [buffs, setBuffs] = useState<BuffData[]>([])
     const [relics, setRelics] = useState<RelicData>(createDefaultRelics)
+    const [lastSavedSnapshot, setLastSavedSnapshot] = useState<string>(() =>
+        serializeBuilderState(createDefaultCharacter(), [], createDefaultRelics())
+    )
 
     const [savedCharacters, setSavedCharacters] = useState<StoredCharacterBuild[]>([])
     const [teams, setTeams] = useState<StoredTeam[]>([])
@@ -149,9 +162,12 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
     )
 
     const resetCharacter = useCallback(() => {
-        setCharacter(createDefaultCharacter())
+        const defaultChar = createDefaultCharacter()
+        const defaultRelics = createDefaultRelics()
+        setCharacter(defaultChar)
         setBuffs([])
-        setRelics(createDefaultRelics())
+        setRelics(defaultRelics)
+        setLastSavedSnapshot(serializeBuilderState(defaultChar, [], defaultRelics))
     }, [])
 
     const saveCharacter = useCallback(
@@ -172,11 +188,13 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
                 })
 
                 setSavedCharacters((current) => replaceBuild(current, saved))
-                setCharacter((previous) => ({
-                    ...previous,
+                const nextChar = {
+                    ...character,
                     id: saved.id,
                     name: saved.name,
-                }))
+                }
+                setCharacter(nextChar)
+                setLastSavedSnapshot(serializeBuilderState(nextChar, buffs, relics))
                 setError(null)
                 return { success: true, id: saved.id }
             } catch (saveError) {
@@ -204,11 +222,20 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
                 name: record.name,
             })
             setBuffs(record.buffs.map((buff) => ({ ...buff })))
-            setRelics({
+            const loadedRelics: RelicData = {
                 setName: record.relics.setName,
                 relics: record.relics.relics.map((relic) => ({ ...relic })),
                 subStats: record.relics.subStats.map((subStat) => ({ ...subStat })),
-            })
+            }
+            const loadedChar: Character = {
+                ...createDefaultCharacter(),
+                ...record.character,
+                id: record.id,
+                name: record.name,
+            }
+            const loadedBuffs = record.buffs.map((buff) => ({ ...buff }))
+            setRelics(loadedRelics)
+            setLastSavedSnapshot(serializeBuilderState(loadedChar, loadedBuffs, loadedRelics))
             setError(null)
             return true
         } catch (loadError) {
@@ -355,14 +382,12 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
                 return [id]
             }).slice(0, TEAM_SIZE)
 
-            if (validIds.length > 0) {
-                setCurrentTeamCharacterIds(
-                    Array.from({ length: TEAM_SIZE }, (_, index) => validIds[index] ?? null)
-                )
-                // Recordamos el equipo cargado para que el botón de guardar
-                // actualice sus integrantes en lugar de crear uno nuevo.
-                setActiveTeam(team)
-            }
+            setCurrentTeamCharacterIds(
+                Array.from({ length: TEAM_SIZE }, (_, index) => validIds[index] ?? null)
+            )
+            // Recordamos el equipo cargado para que el botón de guardar
+            // actualice sus integrantes en lugar de crear uno nuevo.
+            setActiveTeam(team)
 
             return {
                 loaded: validIds.length,
@@ -424,6 +449,10 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
         }
     }, [])
 
+    const isDirty = useMemo(() => {
+        return serializeBuilderState(character, buffs, relics) !== lastSavedSnapshot
+    }, [character, buffs, relics, lastSavedSnapshot])
+
     const characterValue = useMemo<CharacterContextValue>(
         () => ({
             character,
@@ -440,6 +469,7 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
             relics,
             setRelics,
             characterStats,
+            isDirty,
             isLoading,
             error,
         }),
@@ -456,6 +486,7 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
             buffs,
             relics,
             characterStats,
+            isDirty,
             isLoading,
             error,
         ]

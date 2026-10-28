@@ -1,7 +1,6 @@
 import { useMemo, useState, type SubmitEvent } from "react"
 import {
-    ArrowsClockwiseIcon,
-    BroomIcon,
+    // BroomIcon,
     FloppyDiskIcon,
     FolderOpenIcon,
     TrashIcon,
@@ -28,14 +27,14 @@ export default function TeamManagement() {
         saveTeam,
         deleteTeam,
         loadTeam,
-        clearTeam,
+        // clearTeam,
         isLoading,
     } = useTeam()
     const [teamName, setTeamName] = useState("")
     const [teamToDelete, setTeamToDelete] = useState<StoredTeam | null>(null)
     const [isSaveOpen, setIsSaveOpen] = useState(false)
     const [isLoadOpen, setIsLoadOpen] = useState(false)
-    const [isClearOpen, setIsClearOpen] = useState(false)
+    // const [isClearOpen, setIsClearOpen] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
 
     const selectedCharacterIds = useMemo(
@@ -91,11 +90,11 @@ export default function TeamManagement() {
         }
     }
 
-    const handleClear = () => {
-        clearTeam()
-        setIsClearOpen(false)
-        toast.success("Se limpió el equipo.")
-    }
+    // const handleClear = () => {
+    //     clearTeam()
+    //     setIsClearOpen(false)
+    //     toast.success("Se limpió el equipo.")
+    // }
 
     const handleLoad = (team: StoredTeam) => {
         const { loaded, omitted } = loadTeam(team)
@@ -145,7 +144,7 @@ export default function TeamManagement() {
                         </span>
                     )}
                 </Button>
-                <Button
+                {/* <Button
                     type="button"
                     variant="outline"
                     onClick={() => { setIsClearOpen(true) }}
@@ -153,14 +152,14 @@ export default function TeamManagement() {
                 >
                     <BroomIcon size={18} />
                     Limpiar equipo
-                </Button>
+                </Button> */}
                 {activeTeam ? (
                     <Button
                         type="button"
                         onClick={handleUpdate}
                         disabled={selectedCharacterIds.length === 0 || isSaving}
                     >
-                        <ArrowsClockwiseIcon size={18} />
+                        <FloppyDiskIcon size={18} />
                         {isSaving ? "Actualizando..." : "Actualizar equipo"}
                     </Button>
                 ) : (
@@ -256,13 +255,12 @@ export default function TeamManagement() {
             </Dialog>
 
             {/* Modal para limpiar el equipo actual */}
-            <Dialog open={isClearOpen} onOpenChange={setIsClearOpen}>
+            {/* <Dialog open={isClearOpen} onOpenChange={setIsClearOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>¿Limpiar el equipo?</DialogTitle>
                         <DialogDescription>
-                            Se quitarán todos los personajes seleccionados. Los equipos guardados no se
-                            modifican.
+                            Asegurate de guardar el equipo antes de limpiar
                         </DialogDescription>
                     </DialogHeader>
                     <div className="flex justify-end gap-2">
@@ -274,7 +272,7 @@ export default function TeamManagement() {
                         </Button>
                     </div>
                 </DialogContent>
-            </Dialog>
+            </Dialog> */}
 
             {/* Modal para eliminar un equipo */}
             <Dialog

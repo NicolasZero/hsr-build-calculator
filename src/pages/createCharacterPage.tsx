@@ -22,6 +22,7 @@ export default function TeamBuilderPage() {
         characterId,
         saveCharacter,
         resetCharacter,
+        isDirty,
     } = useCharacter()
     const { savedCharacters } = useTeam()
 
@@ -42,12 +43,9 @@ export default function TeamBuilderPage() {
         try {
             const res = await saveCharacter(saveType === 'saved_new')
             if (res.success) {
+                const actionKey = saveType === 'update' ? 'Updated' : saveType === 'saved_new' ? 'SavedNew' : 'Saved'
                 toast.success(
-                    saveType === 'saved_new'
-                        ? t('alerts.character_saved_new', { name: character.name })
-                        : saveType === 'update'
-                            ? t('alerts.character_updated', { name: character.name })
-                            : t('alerts.character_saved', { name: character.name })
+                    t(`alerts.character${actionKey}`, { name: character.name })
                 )
             } else {
                 toast.error(t('alerts.character_error'))
@@ -72,6 +70,12 @@ export default function TeamBuilderPage() {
                     <div className="flex items-center gap-2 mb-1 text-2xl">
                         <PencilIcon className="text-primary" />
                         <h2 className=" font-semibold">{t('builder.title')}</h2>
+                        {isDirty && (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 animate-in fade-in duration-200">
+                                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                                {t('builder.unsavedChanges')}
+                            </span>
+                        )}
                     </div>
                     <p className='text-xs sm:text-sm text-muted-foreground'>
                         {t('builder.description')}
@@ -140,7 +144,7 @@ export default function TeamBuilderPage() {
                             type='button'
                             disabled={isSaving}
                             onClick={() => handleSave('update')}
-                            className='px-6 font-semibold shadow-md'
+                            className={`px-6 font-semibold shadow-md transition-all ${isDirty ? 'ring-2 ring-primary ring-offset-2' : ''}`}
                         >
                             <FloppyDiskIcon size={18} />
                             <span>{isSaving ? t('buttons.saveLoading') : t('buttons.update')}</span>
@@ -151,7 +155,7 @@ export default function TeamBuilderPage() {
                         type='button'
                         disabled={isSaving}
                         onClick={() => handleSave('create')}
-                        className='px-6 font-semibold shadow-md'
+                        className={`px-6 font-semibold shadow-md transition-all ${isDirty ? 'ring-2 ring-primary ring-offset-2' : ''}`}
                     >
                         <FloppyDiskIcon size={18} />
                         <span>{isSaving ? t('buttons.saveLoading') : t('buttons.save')}</span>

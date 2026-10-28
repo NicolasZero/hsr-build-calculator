@@ -9,7 +9,8 @@ export const subStats = [
     "DEF %",
     "VEL",
     "P.CRIT",
-    "D.CRIT"
+    "D.CRIT",
+    "EFECTO. RUP"
 ] as const
 
 export const mainStats = [
@@ -21,7 +22,7 @@ export const mainStats = [
     "D.CRIT",
     "DAÑO",
     "REC.E",
-    "RUPT"
+    "EFECTO. RUP"
 ] as const
 
 export const mainStatsByType = {
@@ -30,7 +31,7 @@ export const mainStatsByType = {
     "CUERPO": ["HP %", "ATQ %", "DEF %", "D.CRIT", "P.CRIT"],
     "BOTAS": ["VEL", "HP %", "ATQ %", "DEF %"],
     "ORBE": ["DAÑO", "HP %", "ATQ %", "DEF %"],
-    "CUERDA": ["REC.E", "HP %", "ATQ %", "DEF %", "RUPT"]
+    "CUERDA": ["REC.E", "HP %", "ATQ %", "DEF %", "EFECTO. RUP"]
 } as const
 
 export const valueByMainStat = {
@@ -44,7 +45,7 @@ export const valueByMainStat = {
     "D.CRIT": 64.8,
     "DAÑO": 38.8,
     "REC.E": 36,
-    "RUPT": 64.8,
+    "EFECTO. RUP": 64.8,
 } as const
 
 export const relics = [

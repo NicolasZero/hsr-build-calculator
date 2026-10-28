@@ -1,3 +1,5 @@
+import type { Element } from "@/schema/statsData"
+
 export interface Character {
     id?: number;
     name: string;
@@ -6,7 +8,7 @@ export interface Character {
     hp: number | string;
     vel: number | string;
     def: number | string;
-    // offensiveStat: '' | 'ATQ' | 'HP' | 'DEF';
+    element: Element | null;
     lightCone: string;
     maxEnergy: number | string;
     image: Blob | null;

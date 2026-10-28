@@ -18,10 +18,15 @@ interface Stats {
     hpPercent: number
     velPercent: number
     dmg: number
+    breakEffect: number
+    breakDamage: number
+    superBreakDamage: number
     elation: number
     redDef: number
     vul: number
     penRes: number
+    originalDmg: number
+    merrymake: number
 }
 
 // Relaciona los nombres de las estadísticas que vienen de los datos
@@ -42,10 +47,15 @@ const statsMap: Partial<Record<string, keyof Stats>> = {
     "P.CRIT": "propCrit",
     "D.CRIT": "dmgCrit",
     DAÑO: "dmg",
+    "EFECTO. RUP": "breakEffect",
+    "DAÑO. RUP": "breakDamage",
+    "DAÑO. ULTRARUP": "superBreakDamage",
     Exultación: "elation",
     "RED DEF": "redDef",
     VUL: "vul",
     "PEN RES": "penRes",
+    "DAÑO ORIGINAL": "originalDmg",
+    MERRYMAKE: "merrymake",
 }
 
 // Define la estructura de las estadísticas finales.
@@ -58,10 +68,15 @@ export interface TotalStatsValues {
     dmgCrit: number
     propCrit: number
     dmg: number
+    breakEffect: number
+    breakDamage: number
+    superBreakDamage: number
     elation: number
     redDef: number
     vul: number
     penRes: number
+    originalDmg: number
+    merrymake: number
 }
 
 // Crea un objeto con todas las estadísticas inicializadas en cero.
@@ -79,10 +94,15 @@ const emptyStats = (): Stats => ({
     propCrit: 0,
     dmgCrit: 0,
     dmg: 0,
+    breakEffect: 0,
+    breakDamage: 0,
+    superBreakDamage: 0,
     elation: 0,
     redDef: 0,
     vul: 0,
     penRes: 0,
+    originalDmg: 0,
+    merrymake: 0,
 })
 
 // Convierte estadisticas flat a porcentajes
@@ -173,10 +193,15 @@ export function calculateFase1Stats(
         propCrit: 5 + relicSubStats.propCrit + relicMainStats.propCrit + fase1BuffStats.propCrit,
         dmgCrit: 50 + relicSubStats.dmgCrit + relicMainStats.dmgCrit + fase1BuffStats.dmgCrit,
         dmg: relicMainStats.dmg + fase1BuffStats.dmg,
+        breakEffect: relicMainStats.breakEffect + relicSubStats.breakEffect + fase1BuffStats.breakEffect,
+        breakDamage: fase1BuffStats.breakDamage,
+        superBreakDamage: fase1BuffStats.superBreakDamage,
         elation: fase1BuffStats.elation,
         redDef: relicMainStats.redDef + fase1BuffStats.redDef,
         vul: relicMainStats.vul + fase1BuffStats.vul,
         penRes: relicMainStats.penRes + fase1BuffStats.penRes,
+        originalDmg: fase1BuffStats.originalDmg,
+        merrymake: fase1BuffStats.merrymake,
     }
 
     return { fase1Stats, base }
@@ -298,10 +323,15 @@ export function calculateTotalStats(
         propCrit: fase1Stats.propCrit + fase2BuffStats.propCrit,
         dmgCrit: fase1Stats.dmgCrit + fase2BuffStats.dmgCrit,
         dmg: fase1Stats.dmg + fase2BuffStats.dmg,
+        breakEffect: fase1Stats.breakEffect + fase2BuffStats.breakEffect,
+        breakDamage: fase1Stats.breakDamage + fase2BuffStats.breakDamage,
+        superBreakDamage: fase1Stats.superBreakDamage + fase2BuffStats.superBreakDamage,
         elation: fase1Stats.elation + fase2BuffStats.elation,
         redDef: fase1Stats.redDef + fase2BuffStats.redDef,
         vul: fase1Stats.vul + fase2BuffStats.vul,
         penRes: fase1Stats.penRes + fase2BuffStats.penRes,
+        originalDmg: fase1Stats.originalDmg + fase2BuffStats.originalDmg,
+        merrymake: fase1Stats.merrymake + fase2BuffStats.merrymake,
     }
 
     return { total }

@@ -2,8 +2,8 @@ import { useCharacter } from "@/contexts/teamContext"
 import { Input } from "@/components/ui/input"
 import { useTranslation } from 'react-i18next';
 import { ImageUploader } from '@/components/general/imageUploader';
-
-// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ELEMENTS } from "@/const/element";
 
 
 export default function BaseStats() {
@@ -14,17 +14,17 @@ export default function BaseStats() {
         <section className="bg-muted/40 px-4 py-2 border flex flex-col sm:flex-row gap-4">
 
             <div className='w-full max-w-sm '>
-                <h2 className='font-semibold text-xl text-primary'>{t('base_stats.data_basic')}</h2>
+                <h2 className='font-semibold text-xl text-primary'>{t('baseStats.dataBasic')}</h2>
 
-                <ImageUploader name='character_img' label={t('placeholders.upload_img')} image={character.image} onChange={editCharacter} />
+                <ImageUploader name='character_img' label={t('placeholders.uploadImg')} image={character.image} onChange={editCharacter} />
 
-                <label className="text-sm block mt-2">{t('placeholders.name_character')}
+                <label className="text-sm block mt-2">{t('placeholders.nameCharacter')}
                     <Input
                         type="text"
                         name="name"
                         value={character.name}
                         onChange={(e) => editCharacter(e.target)}
-                        placeholder={t('placeholders.name_character')}
+                        placeholder={t('placeholders.nameCharacter')}
                         autoComplete='off'
                     />
                 </label>
@@ -32,12 +32,28 @@ export default function BaseStats() {
 
             <div className='w-full grid grid-cols-2 lg:grid-cols-3 gap-4'>
                 <div className='col-span-full'>
-                    <h2 className='font-semibold text-xl text-primary'>{t('base_stats.stats')}</h2>
-                    <p className="text-muted-foreground text-sm">Con o sin cono de luz equipado</p>
+                    <h2 className='font-semibold text-xl text-primary'>{t('baseStats.stats')}</h2>
+                    <p className="text-muted-foreground text-sm">{t('baseStats.description')}</p>
                 </div>
 
-                <label className="text-sm col-span-full">Cono de luz (opcional)
+                <label className="text-sm md:col-span-2">Cono de luz (opcional)
                     <Input name="lightCone" value={character.lightCone} type="text" placeholder="Cono de luz" onChange={(e) => editCharacter(e.target)} />
+                </label>
+
+                <label className="text-sm">Elemento
+                    <Select onValueChange={(value) => editCharacter({ name: 'element', value })} value={character.element || ''}>
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Elemento" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {ELEMENTS.map((element) => (
+                                <SelectItem key={element} value={element}>
+                                    {/* <ElementIcon element={element} /> */}
+                                    {element}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </label>
 
                 <label className="text-sm">HP Base

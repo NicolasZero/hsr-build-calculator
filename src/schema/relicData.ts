@@ -1,6 +1,6 @@
-export type SubStatsType = "ATQ" | "HP" | "DEF" | "ATQ %" | "HP %" | "DEF %" | "VEL" | "P.CRIT" | "D.CRIT"
+export type SubStatsType = "ATQ" | "HP" | "DEF" | "ATQ %" | "HP %" | "DEF %" | "VEL" | "P.CRIT" | "D.CRIT" | "EFECTO. RUP"
 
-export type MainStatsType = "ATQ" | "ATQ %" | "HP" | "HP %" | "DEF %" | "VEL" | "P.CRIT" | "D.CRIT" | "DAÑO" | "REC.E" | "RUPT"
+export type MainStatsType = "ATQ" | "ATQ %" | "HP" | "HP %" | "DEF %" | "VEL" | "P.CRIT" | "D.CRIT" | "DAÑO" | "REC.E" | "EFECTO. RUP"
 
 export type PieceName = "CABEZA" | "MANO" | "CUERPO" | "BOTAS" | "ORBE" | "CUERDA"
 

@@ -8,6 +8,7 @@ import { TeamProvider } from "@/contexts/TeamProvider";
 const CharacterBuilderPage = lazy(() => import('@/pages/createCharacterPage'))
 const TeamPage = lazy(() => import('@/pages/teamPage'))
 const SavedCharactersPage = lazy(() => import('@/pages/savedCharactersPage'))
+const DamageCalculatorPage = lazy(() => import('@/pages/damageCalculatorPage'))
 
 
 function App() {
@@ -20,7 +21,7 @@ function App() {
             <Route index element={<CharacterBuilderPage />} />
             <Route path='characters' element={<SavedCharactersPage />} />
             <Route path='build-calc' element={<MaintenancePage />} />
-            <Route path='dmg-calc' element={<MaintenancePage />} />
+            <Route path='dmg-calc' element={<DamageCalculatorPage />} />
             <Route path='speed-calc' element={<MaintenancePage />} />
             <Route path='teams' element={<TeamPage />} />
             <Route path='*' element={<Navigate to="/" replace />} />

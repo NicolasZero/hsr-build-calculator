@@ -12,10 +12,15 @@ export const buffType: BuffType[] = [
     "D.CRIT",
     "P.CRIT",
     "DAÑO",
+    "DAÑO. RUP",
+    "DAÑO. ULTRARUP",
+    "EFECTO. RUP",
     "Exultación",
     "VUL",
     "PEN RES",
     "RED DEF",
+    "DAÑO ORIGINAL",
+    "MERRYMAKE",
 ] as const
 
 export const buffOrigin: Origen[] = [

@@ -55,6 +55,7 @@ export interface CharacterContextValue {
     relics: RelicData
     setRelics: Dispatch<SetStateAction<RelicData>>
     characterStats: TotalStatsValues
+    isDirty: boolean
     isLoading: boolean
     error: string | null
 }

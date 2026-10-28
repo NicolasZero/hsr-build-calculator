@@ -60,7 +60,7 @@ export default function RelicSelector() {
         const value = formData.get('value') as string
         if (!stat || !value) return
         if (subStat.length >= 24) {
-            toast.error("Ya tienes 24 sub-stats")
+            toast.error(t('alerts.tooManySubStats'))
             return
         }
         setRelics((current) => ({
@@ -78,12 +78,12 @@ export default function RelicSelector() {
 
             <label className="col-span-full flex flex-col md:flex-row md:items-center gap-1 md:gap-4">
                 <span className="text-sm whitespace-nowrap">{t('relics.set')}</span>
-                <Input name="set" value={setName} onChange={(e) => setSetName(e.target.value)} placeholder={t('placeholders.name_relic')} />
+                <Input name="set" value={setName} onChange={(e) => setSetName(e.target.value)} placeholder={t('placeholders.nameRelic')} />
             </label>
 
             {/*Main stats*/}
             <div>
-                <h3 className="text-lg font-semibold">Stats Principales</h3>
+                <h3 className="text-lg font-semibold">{t('relics.mainStats')}</h3>
                 <form onSubmit={handleAddRelic} className="flex gap-4 items-end mb-4">
                     {/* Piece selection */}
                     <Select name="piece" value={relicOpt} onValueChange={(v) => {
@@ -91,11 +91,11 @@ export default function RelicSelector() {
                         setMainStatOpt(v === "CABEZA" ? "HP" : v === "MANO" ? "ATQ" : "")
                     }}>
                         <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Pieza" />
+                            <SelectValue placeholder={t('placeholders.piece')} />
                         </SelectTrigger>
                         <SelectContent>
                             {relicPieces.map((relic) => (
-                                <SelectItem key={relic} value={relic}>{relic}</SelectItem>
+                                <SelectItem key={relic} value={relic}>{t(`relics.${relic}`)}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
@@ -103,7 +103,7 @@ export default function RelicSelector() {
                     {/* Main stat selection */}
                     <Select name="mainStat" value={mainStatOpt} onValueChange={(v) => setMainStatOpt(v)} >
                         <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Main Stat" />
+                            <SelectValue placeholder={t('placeholders.mainStat')} />
                         </SelectTrigger>
                         <SelectContent>
                             {
@@ -131,11 +131,11 @@ export default function RelicSelector() {
 
             {/*Sub Stats*/}
             <div>
-                <h3 className="text-lg font-semibold">Sub-stats</h3>
+                <h3 className="text-lg font-semibold">{t('relics.subStats')}</h3>
                 <form onSubmit={handleAddSubStat} className="flex gap-4 mb-4" >
                     <Select name="stat">
                         <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Stat" />
+                            <SelectValue placeholder={t('placeholders.stat')} />
                         </SelectTrigger>
                         <SelectContent>
                             {subStats.map((stat) => (

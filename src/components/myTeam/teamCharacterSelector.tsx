@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router"
+// import { useNavigate } from "react-router"
 import { PlusIcon, UsersThreeIcon } from "@phosphor-icons/react"
 import { useCharacter, useTeam } from "@/contexts/teamContext"
 import type { SavedCharacterBuild } from "@/lib/indexedDB"
@@ -8,6 +8,7 @@ import { TEAM_SIZE } from "@/const/team"
 import { Button } from "@/components/ui/button"
 import TeamCharacterModal from "@/components/myTeam/teamCharacterModal"
 import TeamCharacterCard from "@/components/myTeam/teamCharacterCard"
+import { toast } from "sonner"
 
 export default function TeamCharacterSelector() {
     const {
@@ -17,9 +18,10 @@ export default function TeamCharacterSelector() {
         setTeamSlot,
         removeTeamSlot,
         error,
+        clearTeam
     } = useTeam()
     const { characterId } = useCharacter()
-    const navigate = useNavigate()
+    // const navigate = useNavigate()
     const [activeSlot, setActiveSlot] = useState<number | null>(null)
 
     const slots = Array.from({ length: TEAM_SIZE }, (_, index) => currentTeamCharacterIds[index] ?? null)
@@ -59,6 +61,12 @@ export default function TeamCharacterSelector() {
         !selectedKeys.has(getCharacterKey(build))
     )
 
+    const handleClear = () => {
+        clearTeam()
+        // setIsClearOpen(false)
+        toast.success("Se limpió el equipo.")
+    }
+
     return (
         <section className="rounded-2xl border bg-muted/40 p-3 md:p-6">
             <div className="mb-5 flex flex-wrap flex-col md:flex-row items-center justify-between gap-3">
@@ -69,11 +77,11 @@ export default function TeamCharacterSelector() {
                 <Button
                     type="button"
                     variant="outline"
-                    onClick={() => navigate("/")}
+                    onClick={() => handleClear()}
                     className="flex items-center gap-2"
                 >
                     <PlusIcon size={17} />
-                    Registrar Nuevo personaje
+                    Nuevo Equipo
                 </Button>
             </div>
 

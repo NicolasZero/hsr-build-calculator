@@ -1,15 +1,17 @@
 {
     "builder": {
         "title": "Character Builder",
-        "description": "Configure base attributes, relics and buffs to calculate total performance."
+        "description": "Configure base attributes, relics and buffs to calculate total performance.",
+        "unsavedChanges": "Unsaved changes",
+        "editing": "Editing"
     },
     "alerts": {
-        "character_save_new": "\"{{name}}\" was saved as a new record!",
-        "character_saved": "\"{{name}}\" was saved successfully!",
-        "character_updated": "\"{{name}}\" was updated successfully!",
-        "character_error": "An error occurred while saving the character!",
-        "character_reset": "Form reset for a new character!",
-        "character_editing": "You are editing a character!"
+        "characterSaveNew": "\"{{name}}\" was saved as a new record!",
+        "characterSaved": "\"{{name}}\" was saved successfully!",
+        "characterUpdated": "\"{{name}}\" was updated successfully!",
+        "characterError": "An error occurred while saving the character!",
+        "characterReset": "Form reset for a new character!",
+        "characterEditing": "You are editing a character!"
     },
     "buttons": {
         "new": "New",
@@ -20,22 +22,30 @@
         "saveLoading": "Saving...",
         "loadLoading": "Loading...",
         "update": "Update Character",
-        "add_buff": "Add buff"
+        "addBuff": "Add buff"
     },
     "placeholders": {
-        "upload_img": "Click to upload",
-        "name_character": "Character name",
+        "uploadImg": "Click to upload",
+        "nameCharacter": "Character name",
         "select": "Select",
-        "name_relic": "Set name (optional)",
-        "character": "Character"
-    },
-    "base_stats": {
-        "title": "Base Stats",
-        "description": "Configure the character's base attributes.",
+        "nameRelic": "Set name (optional)",
+        "character": "Character",
+        "lightCone": "Light Cone",
         "hp": "HP",
         "atq": "ATK",
         "def": "DEF",
         "spd": "SPD",
+        "maxEnergy": "Max Energy",
+        "level": "Level"
+    },
+    "baseStats": {
+        "dataBasic": "Base Data",
+        "stats": "Stats",
+        "description": "Configure the character's base attributes. With or without light cone equipped",
+        "hpBase": "HP Base",
+        "atqBase": "ATK Base",
+        "defBase": "DEF Base",
+        "spdBase": "SPD Base",
         "crit_r": "CRIT.R",
         "crit_d": "CRIT.D",
         "dmg": "DMG",
@@ -44,13 +54,17 @@
     "relics": {
         "title": "Relics and Planar Ornaments",
         "description": "Configure the character's relics and ornaments.",
-        "main_stats": "Main Stats",
-        "substats": "Sub Stats",
-        "head": "Head",
-        "hands": "Hands",
-        "body": "Body",
-        "feet": "Feet",
-        "sphere": "Sphere",
-        "rope": "Rope"
+        "mainStats": "Main Stats",
+        "subStats": "Sub Stats",
+        "CABEZA": "Head",
+        "MANO": "Hands",
+        "CUERPO": "Body",
+        "BOTAS": "Feet",
+        "ORBE": "Sphere",
+        "CUERDA": "Rope",
+        "set": "Set name (optional)"
+    },
+    "toasts": {
+        "tooManySubStats": "You already have 24 sub-stats"
     }
 }

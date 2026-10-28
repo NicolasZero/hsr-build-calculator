@@ -12,9 +12,39 @@ export interface BuffData {
     targetSlot?: number // Posición del equipo afectada cuando el objetivo es "Personaje objetivo"
 }
 
-export type BuffType = "ATQ" | "HP" | "VEL" | "DEF" | "ATQ %" | "HP %" | "VEL %" | "DEF %" | "D.CRIT" | "P.CRIT" | "DAÑO" | "Exultación" | "VUL" | "PEN RES" | "RED RES" | "RED DEF"
+export type BuffType =
+    "ATQ" |
+    "HP" |
+    "VEL" |
+    "DEF" |
+    "ATQ %" |
+    "HP %" |
+    "VEL %" |
+    "DEF %" |
+    "D.CRIT" |
+    "P.CRIT" |
+    "DAÑO" |
+    "DAÑO. RUP" |
+    "DAÑO. ULTRARUP" |
+    "EFECTO. RUP" |
+    "Exultación" |
+    "VUL" |
+    "PEN RES" |
+    "RED RES" |
+    "RED DEF" |
+    "DAÑO ORIGINAL" |
+    "MERRYMAKE"
 
-export type Origen = "Básico" | "Habilidad" | "Talento" | "Definitiva" | "Rastro" | "Eidolon" | "Técnica" | "Cono de Luz" | "Set"
+export type Origen =
+    "Básico" |
+    "Habilidad" |
+    "Talento" |
+    "Definitiva" |
+    "Rastro" |
+    "Eidolon" |
+    "Técnica" |
+    "Cono de Luz" |
+    "Set"
 
 export type Target =
     "Todos los aliados" |
