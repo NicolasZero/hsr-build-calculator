@@ -17,6 +17,5 @@ export interface EnemyData {
     weakness: Element // Debilidad Elemental
     mitigation?: number // Mitigación Porcentual
     defenseReduction?: number
-    defenseIgnore?: number
     vulnerability?: number
 }

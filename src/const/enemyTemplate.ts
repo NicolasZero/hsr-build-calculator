@@ -17,17 +17,16 @@ export const enemyTemplate: EnemyData = {
     weaknesses: ["FISICO"],
     mitigation: 0,
     defenseReduction: 0,
-    defenseIgnore: 0,
-    vulnerability: 0,
+    vulnerability: 0
 }
 
 export const enemyDefault: EnemyData = {
     name: "Enemigo Generico",
-    lvl: 1,
-    maxHP: 1000,
-    hp: 1000,
-    maxToughness: 100,
-    toughness: 100,
+    lvl: 95,
+    maxHP: 438100,
+    hp: 438100,
+    maxToughness: 720,
+    toughness: 720,
     toughnessBroken: false,
     speed: 100,
     elementalResistance: {
@@ -43,6 +42,5 @@ export const enemyDefault: EnemyData = {
     weaknesses: ["FISICO"],
     mitigation: 0,
     defenseReduction: 0,
-    defenseIgnore: 0,
-    vulnerability: 0,
+    vulnerability: 0
 }

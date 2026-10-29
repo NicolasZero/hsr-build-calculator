@@ -1,14 +1,17 @@
 import { useMemo, useState, type ChangeEvent, type FormEvent } from "react"
 import { Link } from "react-router"
-import { CalculatorIcon, CrosshairIcon, ImageIcon, ShieldIcon, SwordIcon } from "@phosphor-icons/react"
+import { CalculatorIcon, CrosshairIcon, FolderOpenIcon, ImageIcon, ShieldIcon, SwordIcon } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useTeam } from "@/contexts/teamContext"
+import { attackTarget } from "@/const/battleData"
 import { enemyDefault } from "@/const/enemyTemplate"
 import type { EnemyData } from "@/schema/enemyData"
-import type { Element } from "@/schema/statsData"
+import type { AttackTarget, Element } from "@/schema/statsData"
 import { useBlobUrl } from "@/hooks/useBlobUrl"
+import { LoadTeamModal } from "@/components/myTeam/loadTeamModal"
 import {
     calculateDamage,
     getStatValue,
@@ -29,6 +32,29 @@ const DAMAGE_TYPE_LABELS: Record<DamageType, string> = {
     general: "Daño General",
     elation: "Daño de Exultación",
     superBreak: "Daño de Super Break",
+}
+
+const ATTACK_TARGET_LABELS: Record<AttackTarget, string> = {
+    UNICO: "Único",
+    RAFAGA: "Ráfaga",
+    TODOS: "Todos",
+    REBOTE: "Rebote",
+}
+
+interface HitGroup {
+    id: string
+    multiplier: number
+    hits: number
+    toughnessReduction: number
+}
+
+interface DamageSegment extends HitGroup {
+    result: DamageCalculationResult
+}
+
+interface DamageAttackResult {
+    total: DamageCalculationResult
+    segments: DamageSegment[]
 }
 
 const numberValue = (value: string): number => {
@@ -55,12 +81,18 @@ function Field({
 }
 
 export default function DamageCalculatorPage() {
-    const { teams, teamMembers, teamStats, loadTeam, isLoading } = useTeam()
-    const [selectedTeamId, setSelectedTeamId] = useState("")
+    const { teams, activeTeam, teamMembers, teamStats, isLoading } = useTeam()
+    const [isLoadTeamOpen, setIsLoadTeamOpen] = useState(false)
     const [selectedMemberId, setSelectedMemberId] = useState("")
     const [attackElement, setAttackElement] = useState<Element>("FISICO")
     const [attackStat, setAttackStat] = useState<AttackStat>("atq")
     const [skillMultiplier, setSkillMultiplier] = useState("100")
+    const [attackTargetType, setAttackTargetType] = useState<AttackTarget>("UNICO")
+    const [hitMultiplier, setHitMultiplier] = useState("100")
+    const [hitCount, setHitCount] = useState("1")
+    const [hitToughnessReduction, setHitToughnessReduction] = useState("30")
+    const [hitGroups, setHitGroups] = useState<HitGroup[]>([])
+    const [hitGroupError, setHitGroupError] = useState("")
     const [damageType, setDamageType] = useState<DamageType>("general")
     const [enemy, setEnemy] = useState<EnemyData>(() => ({
         ...enemyDefault,
@@ -76,24 +108,21 @@ export default function DamageCalculatorPage() {
 
     // Super Break-specific inputs
     const [toughnessReduction, setToughnessReduction] = useState("30")
+    const [toughnessEfficiency, setToughnessEfficiency] = useState("0")
 
     const chosenMember =
         teamMembers.find((member) => String(member.id) === selectedMemberId) ?? null
     const memberStats = chosenMember ? teamStats[chosenMember.id]?.total : null
     const enemyImageUrl = useBlobUrl(enemy.image)
 
-    const result = useMemo<DamageCalculationResult | null>(() => {
+    const result = useMemo<DamageAttackResult | null>(() => {
         if (!hasAttacked || !chosenMember || !memberStats) return null
         const character = chosenMember.build.character
-        const multiplier = numberValue(skillMultiplier)
         const effectiveResistance = enemy.elementalResistance[attackElement] ?? 0
-        const enemyWeaknesses = enemy.weaknesses ?? [enemy.weakness]
-        const hasWeakness = enemyWeaknesses.includes(attackElement)
 
-        return calculateDamage({
+        const sharedInput = {
             damageType,
             baseStat: getStatValue(attackStat, character, memberStats),
-            skillMultiplier: multiplier,
             damageBonus: memberStats.dmg,
             originalDmg: memberStats.originalDmg,
             critRate: memberStats.propCrit,
@@ -101,9 +130,10 @@ export default function DamageCalculatorPage() {
             attackerLevel: Number(character.lvl) || 80,
             enemyLevel: enemy.lvl,
             enemyResistance: effectiveResistance,
-            resistancePenetration: memberStats.penRes + (hasWeakness ? 20 : 0),
+            resistancePenetration: memberStats.penRes,
             defenseReduction: (enemy.defenseReduction ?? 0) + memberStats.redDef,
-            defenseIgnore: enemy.defenseIgnore ?? 0,
+            // defenseIgnore: enemy.defenseIgnore ?? 0,
+            defenseIgnore: memberStats.redDef ?? 0,
             vulnerability: (enemy.vulnerability ?? 0) + memberStats.vul,
             mitigation: enemy.mitigation ?? 0,
             toughnessBroken: enemy.toughnessBroken ?? false,
@@ -117,26 +147,67 @@ export default function DamageCalculatorPage() {
 
             // Super Break
             toughnessReduction: numberValue(toughnessReduction),
+            toughnessEfficiency: numberValue(toughnessEfficiency),
             breakEffect: memberStats.breakEffect,
             breakDamage: memberStats.breakDamage,
             superBreakDamage: memberStats.superBreakDamage,
-        })
+        }
+        const groups = attackTargetType === "REBOTE"
+            ? hitGroups
+            : [{
+                id: "single-hit",
+                multiplier: numberValue(skillMultiplier),
+                hits: 1,
+                toughnessReduction: numberValue(toughnessReduction),
+            }]
+        const segments = groups.map((group) => ({
+            ...group,
+            result: calculateDamage({
+                ...sharedInput,
+                skillMultiplier: group.multiplier,
+                toughnessReduction:
+                    damageType === "superBreak" && attackTargetType === "REBOTE"
+                        ? group.toughnessReduction
+                        : numberValue(toughnessReduction),
+            }),
+        }))
+        const firstResult = segments[0]?.result
+        if (!firstResult) return null
+
+        const total = segments.reduce(
+            (accumulator, segment) => ({
+                ...accumulator,
+                baseDamage: accumulator.baseDamage + segment.result.baseDamage * segment.hits,
+                nonCritical: accumulator.nonCritical + segment.result.nonCritical * segment.hits,
+                critical: accumulator.critical + segment.result.critical * segment.hits,
+                expected: accumulator.expected + segment.result.expected * segment.hits,
+                ...(accumulator.effectiveToughnessReduction !== undefined &&
+                    segment.result.effectiveToughnessReduction !== undefined
+                    ? {
+                        effectiveToughnessReduction:
+                            accumulator.effectiveToughnessReduction +
+                            segment.result.effectiveToughnessReduction * segment.hits,
+                    }
+                    : {}),
+            }),
+            { ...firstResult, baseDamage: 0, nonCritical: 0, critical: 0, expected: 0 }
+        )
+
+        return { total, segments }
     }, [
         hasAttacked, chosenMember, memberStats, skillMultiplier, enemy,
         attackElement, attackStat, damageType, punchline, certifiedBanger,
-        hasCertifiedBanger, toughnessReduction,
+        hasCertifiedBanger, toughnessReduction, toughnessEfficiency,
+        attackTargetType, hitGroups,
     ])
 
     const updateEnemy = <K extends keyof EnemyData>(key: K, value: EnemyData[K]) => {
         setEnemy((current) => ({ ...current, [key]: value }))
     }
 
-    const handleTeamChange = (teamId: string) => {
-        setSelectedTeamId(teamId)
+    const handleTeamLoaded = () => {
         setSelectedMemberId("")
         setHasAttacked(false)
-        const selectedTeam = teams.find((team) => String(team.id) === teamId)
-        if (selectedTeam) loadTeam(selectedTeam)
     }
 
     const handleEnemyImage = (event: ChangeEvent<HTMLInputElement>) => {
@@ -148,18 +219,71 @@ export default function DamageCalculatorPage() {
     const handleAttack = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         if (!chosenMember || !memberStats) return
+        if (attackTargetType === "REBOTE" && hitGroups.length === 0) {
+            setHitGroupError("Agrega al menos un grupo de impactos para calcular el rebote")
+            return
+        }
+        setHitGroupError("")
         setHasAttacked(true)
+    }
+
+    const addHitGroup = () => {
+        const rawMultiplier = hitMultiplier.trim()
+        const rawHits = hitCount.trim()
+        const multiplier = Number(hitMultiplier)
+        const hits = Number(hitCount)
+        if (!rawMultiplier || !Number.isFinite(multiplier) || multiplier < 0) {
+            setHitGroupError("Ingresa un multiplicador válido (mayor o igual a 0)")
+            return
+        }
+        if (!rawHits || !Number.isInteger(hits) || hits < 1) {
+            setHitGroupError("La cantidad de impactos debe ser un entero mayor o igual a 1")
+            return
+        }
+        const rawToughnessReduction = hitToughnessReduction.trim()
+        const groupToughnessReduction = Number(hitToughnessReduction)
+        if (
+            damageType === "superBreak" &&
+            (!rawToughnessReduction ||
+                !Number.isFinite(groupToughnessReduction) ||
+                groupToughnessReduction < 0)
+        ) {
+            setHitGroupError("Ingresa una reducción de firmeza válida (mayor o igual a 0)")
+            return
+        }
+        setHitGroups((current) => [
+            ...current,
+            {
+                id: crypto.randomUUID(),
+                multiplier,
+                hits,
+                toughnessReduction: damageType === "superBreak"
+                    ? groupToughnessReduction
+                    : numberValue(toughnessReduction),
+            },
+        ])
+        setHitGroupError("")
     }
 
     const toggleWeakness = (element: Element) => {
         const weaknesses = enemy.weaknesses ?? [enemy.weakness]
-        const nextWeaknesses = weaknesses.includes(element)
+        const isCurrentlyWeak = weaknesses.includes(element)
+        const nextWeaknesses = isCurrentlyWeak
             ? weaknesses.filter((weakness) => weakness !== element)
             : [...weaknesses, element]
+
+        // Si se marca la debilidad -> resistencia elemental pasa a 0.
+        // Si se desmarca -> resistencia elemental pasa a 20.
+        const nextResistance = isCurrentlyWeak ? 20 : 0
+
         setEnemy((current) => ({
             ...current,
             weakness: nextWeaknesses[0] ?? "FISICO",
             weaknesses: nextWeaknesses,
+            elementalResistance: {
+                ...current.elementalResistance,
+                [element]: nextResistance,
+            },
         }))
     }
 
@@ -186,17 +310,19 @@ export default function DamageCalculatorPage() {
                         <h2 className="text-lg font-semibold">Equipo y ataque</h2>
                     </div>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                        <Field label="Equipo guardado">
-                            <Select value={selectedTeamId} onValueChange={handleTeamChange} disabled={isLoading || teams.length === 0}>
-                                <SelectTrigger className="w-full">
-                                    <SelectValue placeholder={isLoading ? "Cargando equipos..." : "Selecciona un equipo"} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {teams.map((team) => (
-                                        <SelectItem key={team.id} value={String(team.id)}>{team.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                        <Field label="Equipo seleccionado">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setIsLoadTeamOpen(true)}
+                                disabled={isLoading}
+                                className="w-full justify-between font-normal text-foreground"
+                            >
+                                <span className="truncate">
+                                    {activeTeam?.name ?? "Seleccionar equipo..."}
+                                </span>
+                                <FolderOpenIcon size={18} className="shrink-0 text-muted-foreground" />
+                            </Button>
                         </Field>
                         <Field label="Personaje que ataca">
                             <Select
@@ -226,6 +352,25 @@ export default function DamageCalculatorPage() {
                                 </SelectContent>
                             </Select>
                         </Field>
+                        <Field label="Tipo de ataque">
+                            <Select
+                                value={attackTargetType}
+                                onValueChange={(value) => {
+                                    setAttackTargetType(value as AttackTarget)
+                                    setHasAttacked(false)
+                                    setHitGroupError("")
+                                }}
+                            >
+                                <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    {attackTarget.map((target) => (
+                                        <SelectItem key={target} value={target}>
+                                            {ATTACK_TARGET_LABELS[target]}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </Field>
                         <Field label="Elemento del ataque">
                             <Select value={attackElement} onValueChange={(value) => setAttackElement(value as Element)}>
                                 <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
@@ -248,28 +393,98 @@ export default function DamageCalculatorPage() {
                                 </Select>
                             </Field>
                         )}
-                        <Field label="Multiplicador de habilidad (%)">
-                            <Input
-                                type="number"
-                                min="0"
-                                step="any"
-                                value={skillMultiplier}
-                                onChange={(event) => setSkillMultiplier(event.target.value)}
-                                required
-                            />
-                        </Field>
+                        {attackTargetType !== "REBOTE" && (
+                            <Field label={damageType === "superBreak" ? "Multiplicador de UltraRuptura (%)" : "Multiplicador de habilidad (%)"}>
+                                <Input
+                                    type="number"
+                                    min="0"
+                                    step="any"
+                                    value={skillMultiplier}
+                                    onChange={(event) => setSkillMultiplier(event.target.value)}
+                                    required
+                                />
+                            </Field>
+                        )}
                     </div>
+
+                    {attackTargetType === "REBOTE" && (
+                        <div className="mt-4 rounded-lg border p-4">
+                            <h3 className="font-medium">Grupos de impactos del rebote</h3>
+                            <p className="mt-1 text-sm text-muted-foreground">
+                                Agrega cada multiplicador y cuántas veces impacta. Por ejemplo: 100% × 1 y 50% × 3.
+                            </p>
+                            <div className={`mt-3 grid items-end gap-3 ${damageType === "superBreak" ? "sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_auto]" : "sm:grid-cols-[1fr_1fr_auto]"}`}>
+                                <Field label={damageType === "superBreak" ? "Multiplicador de UltraRuptura (%)" : "Multiplicador de habilidad (%)"}>
+                                    <Input
+                                        type="number"
+                                        min="0"
+                                        step="any"
+                                        value={hitMultiplier}
+                                        onChange={(event) => setHitMultiplier(event.target.value)}
+                                        required
+                                    />
+                                </Field>
+                                {damageType === "superBreak" && (
+                                    <Field label="Reducción de firmeza del grupo">
+                                        <Input
+                                            type="number"
+                                            min="0"
+                                            step="any"
+                                            value={hitToughnessReduction}
+                                            onChange={(event) => setHitToughnessReduction(event.target.value)}
+                                            required
+                                        />
+                                    </Field>
+                                )}
+                                <Field label="Cantidad de impactos">
+                                    <Input
+                                        type="number"
+                                        min="1"
+                                        step="1"
+                                        value={hitCount}
+                                        onChange={(event) => setHitCount(event.target.value)}
+                                        required
+                                    />
+                                </Field>
+                                <Button type="button" onClick={addHitGroup}>Añadir grupo</Button>
+                            </div>
+                            {hitGroupError && <p role="alert" className="mt-2 text-sm text-destructive">{hitGroupError}</p>}
+                            {hitGroups.length > 0 && (
+                                <ul className="mt-4 flex flex-col gap-2">
+                                    {hitGroups.map((group) => (
+                                        <li key={group.id} className="flex items-center justify-between gap-3 rounded-md bg-muted/50 px-3 py-2 text-sm">
+                                            <span>
+                                                {group.multiplier}% · {group.hits} {group.hits === 1 ? "impacto" : "impactos"}
+                                                {damageType === "superBreak" && ` · Reducción de firmeza: ${group.toughnessReduction}`}
+                                            </span>
+                                            <Button
+                                                type="button"
+                                                variant="destructive"
+                                                size="sm"
+                                                aria-label={`Eliminar grupo ${group.multiplier}% con ${group.hits} impactos`}
+                                                onClick={() => {
+                                                    setHitGroups((current) => current.filter((item) => item.id !== group.id))
+                                                    setHasAttacked(false)
+                                                }}
+                                            >
+                                                Eliminar
+                                            </Button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    )}
 
                     {/* Campos específicos de Exultación */}
                     {damageType === "elation" && (
                         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            <label className="flex items-center gap-2 self-end rounded-lg border px-3 py-2 text-sm">
-                                <input
-                                    type="checkbox"
+                            <label className="flex cursor-pointer items-center gap-2 self-end rounded-lg border px-3 py-2 text-sm">
+                                <Checkbox
                                     checked={hasCertifiedBanger}
-                                    onChange={(event) => setHasCertifiedBanger(event.target.checked)}
+                                    onCheckedChange={(checked) => setHasCertifiedBanger(checked === true)}
                                 />
-                                Tiene Certified Banger
+                                <span>Tiene Certified Banger</span>
                             </label>
                             {hasCertifiedBanger ? (
                                 <Field label="Certified Banger (stacks)">
@@ -298,13 +513,24 @@ export default function DamageCalculatorPage() {
                     {/* Campos específicos de Super Break */}
                     {damageType === "superBreak" && (
                         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            <Field label="Reducción de firmeza del ataque">
+                            {attackTargetType !== "REBOTE" && (
+                                <Field label="Reducción de firmeza del ataque">
+                                    <Input
+                                        type="number"
+                                        min="0"
+                                        step="any"
+                                        value={toughnessReduction}
+                                        onChange={(event) => setToughnessReduction(event.target.value)}
+                                    />
+                                </Field>
+                            )}
+                            <Field label="Eficiencia de ruptura (%)">
                                 <Input
                                     type="number"
                                     min="0"
                                     step="any"
-                                    value={toughnessReduction}
-                                    onChange={(event) => setToughnessReduction(event.target.value)}
+                                    value={toughnessEfficiency}
+                                    onChange={(event) => setToughnessEfficiency(event.target.value)}
                                 />
                             </Field>
                         </div>
@@ -348,9 +574,12 @@ export default function DamageCalculatorPage() {
                                     {ELEMENTS.map((element) => {
                                         const selected = (enemy.weaknesses ?? [enemy.weakness]).includes(element)
                                         return (
-                                            <label key={element} className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm ${selected ? "border-primary bg-primary/10" : "bg-background/50"}`}>
-                                                <input type="checkbox" checked={selected} onChange={() => toggleWeakness(element)} />
-                                                {element}
+                                            <label key={element} className={`flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${selected ? "border-primary bg-primary/10" : "bg-background/50"}`}>
+                                                <Checkbox
+                                                    checked={selected}
+                                                    onCheckedChange={() => toggleWeakness(element)}
+                                                />
+                                                <span>{element}</span>
                                             </label>
                                         )
                                     })}
@@ -398,13 +627,12 @@ export default function DamageCalculatorPage() {
                             <Field label="Mitigación de daño (%)">
                                 <Input type="number" min="0" max="100" step="any" value={enemy.mitigation ?? 0} onChange={(event) => updateEnemy("mitigation", numberValue(event.target.value))} />
                             </Field>
-                            <label className="flex items-center gap-2 self-end rounded-lg border px-3 py-2 text-sm">
-                                <input
-                                    type="checkbox"
+                            <label className="flex cursor-pointer items-center gap-2 self-end rounded-lg border px-3 py-2 text-sm">
+                                <Checkbox
                                     checked={enemy.toughnessBroken ?? false}
-                                    onChange={(event) => updateEnemy("toughnessBroken", event.target.checked)}
+                                    onCheckedChange={(checked) => updateEnemy("toughnessBroken", checked === true)}
                                 />
-                                Firmeza rota
+                                <span>Firmeza rota</span>
                             </label>
                         </div>
                     </details>
@@ -425,52 +653,77 @@ export default function DamageCalculatorPage() {
                                 {chosenMember.name} · {DAMAGE_TYPE_LABELS[damageType]} · {[attackElement]} · {enemy.name || "Enemigo"}
                             </p>
                         </div>
-                        <p className="text-xs text-muted-foreground">Daño estimado por impacto</p>
+                        <p className="text-xs text-muted-foreground">
+                            {attackTargetType === "REBOTE" ? "Daño total del ataque" : "Daño estimado por impacto"}
+                        </p>
                     </div>
                     <div className={`grid gap-3 ${canCrit ? "sm:grid-cols-3" : "sm:grid-cols-1 max-w-sm"}`}>
-                        <DamageResult label="Sin crítico" value={result.nonCritical} />
+                        <DamageResult label="Sin crítico" value={result.total.nonCritical} />
                         {canCrit && (
                             <>
-                                <DamageResult label="Crítico" value={result.critical} />
-                                <DamageResult label="Daño esperado" value={result.expected} highlighted />
+                                <DamageResult label="Crítico" value={result.total.critical} />
+                                <DamageResult label="Daño esperado" value={result.total.expected} highlighted />
                             </>
                         )}
                     </div>
+                    {attackTargetType === "REBOTE" && (
+                        <div className="mt-4 rounded-lg border bg-background/60 p-4">
+                            <h3 className="font-medium">Desglose de impactos</h3>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                                {result.segments.reduce((total, segment) => total + segment.hits, 0)} impactos en total
+                            </p>
+                            <ul className="mt-2 flex flex-col gap-2 text-sm text-muted-foreground">
+                                {result.segments.map((segment) => (
+                                    <li key={segment.id}>
+                                        {segment.multiplier}% {damageType === "superBreak" ? "de UltraRuptura" : "de habilidad"}
+                                        {damageType === "superBreak" && ` · firmeza efectiva: ${segment.result.effectiveToughnessReduction?.toFixed(2)}`}
+                                        {" · "}{segment.hits} {segment.hits === 1 ? "impacto" : "impactos"} · {displayNumber(segment.result.expected)} por impacto · subtotal: {displayNumber(segment.result.expected * segment.hits)}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                     <details className="mt-4 text-sm">
                         <summary className="cursor-pointer font-medium">Ver desglose del cálculo</summary>
                         <ul className="mt-3 grid gap-2 text-muted-foreground sm:grid-cols-2">
                             {damageType === "general" && (
                                 <li>Stat usada: {displayNumber(getStatValue(attackStat, chosenMember.build.character, memberStats))}</li>
                             )}
-                            <li>Daño base: {displayNumber(result.baseDamage)}</li>
-                            <li>Original DMG Mult: x{result.originalDmgMultiplier.toFixed(3)}</li>
-                            <li>Multiplicador DEF: {(result.defenseMultiplier * 100).toFixed(1)}%</li>
-                            <li>RES efectiva: {result.effectiveResistance.toFixed(1)}% (x{result.resistanceMultiplier.toFixed(3)})</li>
-                            <li>Multiplicador de vulnerabilidad: x{result.vulnerabilityMultiplier.toFixed(3)}</li>
-                            <li>Mitigación restante: {(result.mitigationMultiplier * 100).toFixed(1)}%</li>
-                            <li>Broken Mult: x{result.brokenMultiplier.toFixed(1)}</li>
+                            <li>Daño base: {displayNumber(result.total.baseDamage)}</li>
+                            <li>Original DMG Mult: x{result.total.originalDmgMultiplier.toFixed(3)}</li>
+                            <li>Multiplicador DEF: {(result.total.defenseMultiplier * 100).toFixed(1)}%</li>
+                            <li>RES efectiva: {result.total.effectiveResistance.toFixed(1)}% (x{result.total.resistanceMultiplier.toFixed(3)})</li>
+                            <li>Multiplicador de vulnerabilidad: x{result.total.vulnerabilityMultiplier.toFixed(3)}</li>
+                            <li>Mitigación restante: {(result.total.mitigationMultiplier * 100).toFixed(1)}%</li>
+                            <li>Broken Mult: x{result.total.brokenMultiplier.toFixed(1)}</li>
                             {damageType === "elation" && (
                                 <>
-                                    <li>Exultación Mult: x{result.elationMultiplier?.toFixed(3)}</li>
-                                    <li>Punchline Mult: x{result.punchlineMultiplier?.toFixed(3)}</li>
-                                    <li>Merrymake Mult: x{result.merrymakeMultiplier?.toFixed(3)}</li>
+                                    <li>Exultación Mult: x{result.total.elationMultiplier?.toFixed(3)}</li>
+                                    <li>Punchline Mult: x{result.total.punchlineMultiplier?.toFixed(3)}</li>
+                                    <li>Merrymake Mult: x{result.total.merrymakeMultiplier?.toFixed(3)}</li>
                                 </>
                             )}
                             {damageType === "superBreak" && (
                                 <>
-                                    <li>Efecto de ruptura Mult: x{result.breakEffectMultiplier?.toFixed(3)}</li>
-                                    <li>Daño de ruptura Mult: x{result.breakDmgMultiplier?.toFixed(3)}</li>
-                                    <li>Super Break DMG Mult: x{result.superBreakDmgMultiplier?.toFixed(3)}</li>
+                                    <li>Reducción de firmeza efectiva: {result.total.effectiveToughnessReduction?.toFixed(2)}</li>
+                                    <li>Efecto de ruptura Mult: x{result.total.breakEffectMultiplier?.toFixed(3)}</li>
+                                    <li>Daño de ruptura Mult: x{result.total.breakDmgMultiplier?.toFixed(3)}</li>
+                                    <li>Super Break DMG Mult: x{result.total.superBreakDmgMultiplier?.toFixed(3)}</li>
                                 </>
                             )}
                         </ul>
                     </details>
                     <p className="mt-4 text-xs text-muted-foreground">
-                        Fórmula de daño basada en las mecánicas de HSR: incluye DEF, RES, vulnerabilidad, mitigación, multiplicador de firmeza rota y crítico.{" "}
-                        <a className="underline underline-offset-4" href="https://www.prydwen.gg/star-rail/guides/damage-formula" target="_blank" rel="noreferrer">Referencia de fórmula</a>.
+                        Fórmula de daño basada en las mecánicas de HSR: incluye DEF, RES, vulnerabilidad, mitigación, multiplicador de firmeza rota y crítico.
                     </p>
                 </section>
             )}
+            {/* Modal para seleccionar equipo */}
+            <LoadTeamModal
+                open={isLoadTeamOpen}
+                onOpenChange={setIsLoadTeamOpen}
+                onTeamSelect={handleTeamLoaded}
+            />
         </main>
     )
 }

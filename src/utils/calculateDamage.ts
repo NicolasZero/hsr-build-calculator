@@ -31,6 +31,7 @@ export interface DamageCalculationInput {
 
     // Super Break-specific
     toughnessReduction: number
+    toughnessEfficiency: number
     breakEffect: number
     breakDamage: number
     superBreakDamage: number
@@ -55,6 +56,7 @@ export interface DamageCalculationResult {
     merrymakeMultiplier?: number
 
     // Super Break-specific
+    effectiveToughnessReduction?: number
     breakEffectMultiplier?: number
     breakDmgMultiplier?: number
     superBreakDmgMultiplier?: number
@@ -65,11 +67,11 @@ export interface DamageCalculationResult {
  * DEF, RES, Vulnerabilidad, Mitigación y Broken.
  */
 function sharedMultipliers(input: DamageCalculationInput) {
-    // DEF Multiplier: (attackerLvl + 20) / ((enemyLvl + 20) * (1 - defReduction - defIgnore) + attackerLvl + 20)
-    const defReduction = Math.min(100, Math.max(-100, input.defenseReduction)) / 100
-    const defIgnore = Math.min(100, Math.max(0, input.defenseIgnore)) / 100
     const attackerLevel = Math.max(1, input.attackerLevel)
     const enemyLevel = Math.max(1, input.enemyLevel)
+    // DEF Multiplier: (attackerLvl + 20) / ((enemyLvl + 20) * (1 - defReduction - defIgnore) + attackerLvl + 20)
+    const defReduction = Math.min(100, Math.max(-100, input.defenseReduction)) * 0.01
+    const defIgnore = Math.min(100, Math.max(0, input.defenseIgnore)) * 0.01
     const attackerDefense = attackerLevel + 20
     const enemyDefense =
         (enemyLevel + 20) * Math.max(0, 1 - defReduction - defIgnore)
@@ -79,13 +81,13 @@ function sharedMultipliers(input: DamageCalculationInput) {
     // RES Multiplier: 1 - (RES - RES PEN), clamped [0.1, 2.0]
     // RES efectiva en rango [-100%, 90%], resultado en rango [10%, 200%]
     const effectiveResistance = input.enemyResistance - input.resistancePenetration
-    const resistanceMultiplier = Math.min(2.0, Math.max(0.1, 1 - effectiveResistance / 100))
+    const resistanceMultiplier = Math.min(2.0, Math.max(0.1, 1 - effectiveResistance * 0.01))
 
     // Vulnerability Multiplier: (1 + Vulnerability)
-    const vulnerabilityMultiplier = Math.max(0, 1 + input.vulnerability / 100)
+    const vulnerabilityMultiplier = Math.max(0, 1 + input.vulnerability * 0.01)
 
     // DMG Mitigation Multiplier: 1 - DMG Mitigation
-    const mitigationMultiplier = Math.max(0, 1 - input.mitigation / 100)
+    const mitigationMultiplier = Math.max(0, 1 - input.mitigation * 0.01)
 
     // Broken Multiplier: 1 si está roto, 0.9 si no
     const brokenMultiplier = input.toughnessBroken ? 1 : 0.9
@@ -100,20 +102,18 @@ function sharedMultipliers(input: DamageCalculationInput) {
     }
 }
 
-/**
- * Calcula el daño general (General DMG).
- */
+// Calcula el daño general (General DMG)
 function calculateGeneralDamage(input: DamageCalculationInput): DamageCalculationResult {
     const shared = sharedMultipliers(input)
 
     // Base DMG = Stat * Ability Multiplier
-    const baseDamage = input.baseStat * (input.skillMultiplier / 100)
+    const baseDamage = input.baseStat * (input.skillMultiplier * 0.01)
 
     // Original DMG Multiplier = (1 + Original DMG)
-    const originalDmgMultiplier = 1 + input.originalDmg / 100
+    const originalDmgMultiplier = 1 + input.originalDmg * 0.01
 
     // DMG Boost Multiplier = (1 + DMG Boost)
-    const dmgBoostMultiplier = 1 + input.damageBonus / 100
+    const dmgBoostMultiplier = 1 + input.damageBonus * 0.01
 
     const nonCritical =
         baseDamage *
@@ -125,8 +125,8 @@ function calculateGeneralDamage(input: DamageCalculationInput): DamageCalculatio
         shared.mitigationMultiplier *
         shared.brokenMultiplier
 
-    const critRate = Math.min(100, Math.max(0, input.critRate)) / 100
-    const critical = nonCritical * (1 + input.critDamage / 100)
+    const critRate = Math.min(100, Math.max(0, input.critRate)) * 0.01
+    const critical = nonCritical * (1 + input.critDamage * 0.01)
 
     return {
         baseDamage,
@@ -134,7 +134,7 @@ function calculateGeneralDamage(input: DamageCalculationInput): DamageCalculatio
         ...shared,
         nonCritical,
         critical,
-        expected: nonCritical * (1 + critRate * (input.critDamage / 100)),
+        expected: nonCritical * (1 + critRate * (input.critDamage * 0.01)),
     }
 }
 
@@ -152,13 +152,13 @@ function calculateElationDamage(input: DamageCalculationInput): DamageCalculatio
     const levelMult = exultationLevelMultiplier[level] ?? exultationLevelMultiplier[80]
 
     // Base DMG = Level Multiplier * Ability Multiplier
-    const baseDamage = levelMult * (input.skillMultiplier / 100)
+    const baseDamage = levelMult * (input.skillMultiplier * 0.01)
 
     // Original Elation DMG Multiplier = (1 + Original DMG)
-    const originalDmgMultiplier = 1 + input.originalDmg / 100
+    const originalDmgMultiplier = 1 + input.originalDmg * 0.01
 
     // Elation Multiplier = (1 + Elation Stat)
-    const elationMultiplier = 1 + input.elation / 100
+    const elationMultiplier = 1 + input.elation * 0.01
 
     // Punchline Multiplier
     let punchlineMultiplier: number
@@ -171,7 +171,7 @@ function calculateElationDamage(input: DamageCalculationInput): DamageCalculatio
     }
 
     // Merrymake Multiplier = (1 + Merrymake)
-    const merrymakeMultiplier = 1 + input.merrymake / 100
+    const merrymakeMultiplier = 1 + input.merrymake * 0.01
 
     const nonCritical =
         baseDamage *
@@ -185,8 +185,8 @@ function calculateElationDamage(input: DamageCalculationInput): DamageCalculatio
         shared.mitigationMultiplier *
         shared.brokenMultiplier
 
-    const critRate = Math.min(100, Math.max(0, input.critRate)) / 100
-    const critical = nonCritical * (1 + input.critDamage / 100)
+    const critRate = Math.min(100, Math.max(0, input.critRate)) * 0.01
+    const critical = nonCritical * (1 + input.critDamage * 0.01)
 
     return {
         baseDamage,
@@ -197,14 +197,14 @@ function calculateElationDamage(input: DamageCalculationInput): DamageCalculatio
         ...shared,
         nonCritical,
         critical,
-        expected: nonCritical * (1 + critRate * (input.critDamage / 100)),
+        expected: nonCritical * (1 + critRate * (input.critDamage * 0.01)),
     }
 }
 
 /**
  * Calcula el daño de Super Break (Super Break DMG).
  *
- * Super Break DMG = (Toughness Reduction / 10) × Ability Multiplier
+ * Super Break DMG = (Effective Toughness Reduction / 10) × Ability Multiplier
  *   × (1 + Break Effect) × (1 + Break DMG Increase) × (1 + Super Break DMG Increase)
  *   × DEF × RES × Vuln × Mit × Broken
  *
@@ -216,13 +216,16 @@ function calculateSuperBreakDamage(input: DamageCalculationInput): DamageCalcula
     const level = Math.max(1, Math.min(80, Math.round(input.attackerLevel)))
     const levelMult = superBreakLevelMultiplier[level] ?? superBreakLevelMultiplier[80]
 
-    // Base DMG = (Toughness Reduction / 10) * Level Multiplier * Ability Multiplier
-    const baseDamage =
-        (input.toughnessReduction / 10) * levelMult * (input.skillMultiplier / 100)
+    const effectiveToughnessReduction =
+        input.toughnessReduction * (1 + input.toughnessEfficiency * 0.01)
 
-    const breakEffectMultiplier = 1 + input.breakEffect / 100
-    const breakDmgMultiplier = 1 + input.breakDamage / 100
-    const superBreakDmgMultiplier = 1 + input.superBreakDamage / 100
+    // Base DMG = (Effective Toughness Reduction / 10) * Level Multiplier * Ability Multiplier
+    const baseDamage =
+        (effectiveToughnessReduction / 10) * levelMult * (input.skillMultiplier * 0.01)
+
+    const breakEffectMultiplier = 1 + input.breakEffect * 0.01
+    const breakDmgMultiplier = 1 + input.breakDamage * 0.01
+    const superBreakDmgMultiplier = 1 + input.superBreakDamage * 0.01
 
     const nonCritical =
         baseDamage *
@@ -239,6 +242,7 @@ function calculateSuperBreakDamage(input: DamageCalculationInput): DamageCalcula
     return {
         baseDamage,
         originalDmgMultiplier: 1,
+        effectiveToughnessReduction,
         breakEffectMultiplier,
         breakDmgMultiplier,
         superBreakDmgMultiplier,
@@ -266,5 +270,5 @@ export function getStatValue(
     character: { atq: number | string; hp: number | string; def: number | string },
     total: TotalStatsValues
 ): number {
-    return (Number(character[stat]) || 0) * (1 + (total[stat] || 0) / 100)
+    return (Number(character[stat]) || 0) * (1 + (total[stat] || 0) * 0.01)
 }

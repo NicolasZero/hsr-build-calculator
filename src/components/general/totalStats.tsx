@@ -18,12 +18,12 @@ const STATS_ITEMS: StatItemConfig[] = [
     { buff: 'dmgCrit', label: 'D.CRIT', tooltip: 'Daño Crítico' },
     { buff: 'propCrit', label: 'P.CRIT', tooltip: 'Probabilidad Crítica' },
     { buff: 'dmg', label: 'DAÑO', tooltip: 'Aumento de Daño' },
-    { buff: 'breakDamage', label: 'DAÑO. RUP', tooltip: 'Aumento de Daño de Ruptura' },
-    { buff: 'superBreakDamage', label: 'DAÑO. ULTRARUP', tooltip: 'Aumento de Daño de UltraRuptura' },
+    { buff: 'breakDamage', label: 'DAÑO. RUP', tooltip: 'Daño de Ruptura' },
+    { buff: 'superBreakDamage', label: 'DAÑO. ULTRARUP', tooltip: 'Daño de UltraRuptura' },
     { buff: 'breakEffect', label: 'EFECTO. RUP', tooltip: 'Efecto de Ruptura' },
     { buff: 'elation', label: 'Exultación', tooltip: 'Aumento de Exultación' },
     { buff: 'penRes', label: 'PEN RES', tooltip: 'Penetración de Resistencia' },
-    { buff: 'redDef', label: 'RED DEF', tooltip: 'Reducción o Ignorar Defensa' },
+    { buff: 'redDef', label: 'RED DEF', tooltip: 'Ignorar Defensa' },
     { buff: 'vul', label: 'VUL', tooltip: 'Aumento de Vulnerabilidad' },
 ]
 
@@ -43,11 +43,11 @@ export default function TotalStats({ total, character, className = "" }: TotalSt
         { buff: "P.CRIT", valor: total.propCrit },
         { buff: "D.CRIT", valor: total.dmgCrit },
         { buff: "DAÑO", valor: total.dmg },
-        { buff: "DAÑO. RUP", valor: total.breakDamage },
-        { buff: "DAÑO. ULTRARUP", valor: total.superBreakDamage },
-        { buff: "EFECTO. RUP", valor: total.breakEffect },
-        { buff: "Exultación", valor: total.elation },
-        { buff: "RED DEF", valor: total.redDef },
+        { buff: "DAÑO RUP", valor: total.breakDamage },
+        { buff: "DAÑO ULTRARUP", valor: total.superBreakDamage },
+        { buff: "EFECTO RUP", valor: total.breakEffect },
+        { buff: "EXULTACION", valor: total.elation },
+        { buff: "IGN DEF", valor: total.redDef },
         { buff: "VUL", valor: total.vul },
         { buff: "PEN RES", valor: total.penRes }
     ]
@@ -76,7 +76,7 @@ export default function TotalStats({ total, character, className = "" }: TotalSt
 
                     return (
                         <TooltipComponent key={item.buff} content={item.tooltip}>
-                            <li>{item.label}: {bonusVal}%</li>
+                            <li><span className="hidden sm:inline">{item.label}</span><span className="sm:hidden">{item.tooltip}</span>: {bonusVal}%</li>
                         </TooltipComponent>
                     )
                 })}

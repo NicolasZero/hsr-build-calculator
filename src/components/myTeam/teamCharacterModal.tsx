@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { MagnifyingGlassIcon, SparkleIcon, UserCircleIcon } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input"
 import type { SavedCharacterBuild } from "@/lib/indexedDB"
 import { getCharacterName } from "@/lib/characterBuild"
 import { useBlobUrl } from "@/hooks/useBlobUrl"
+
+const PAGE_SIZE = 24
 
 interface TeamCharacterModalProps {
     open: boolean
@@ -35,9 +37,44 @@ export default function TeamCharacterModal({
     onSelect,
 }: TeamCharacterModalProps) {
     const [searchTerm, setSearchTerm] = useState("")
-    const filteredCharacters = characters.filter((character) =>
-        getCharacterName(character).toLocaleLowerCase().includes(searchTerm.trim().toLocaleLowerCase())
-    )
+    const [pagination, setPagination] = useState({ searchTerm: "", visibleCount: PAGE_SIZE })
+    const loadMoreRef = useRef<HTMLDivElement>(null)
+
+    const filteredCharacters = useMemo(() => {
+        const normalized = searchTerm.trim().toLocaleLowerCase()
+        if (!normalized) return characters
+
+        return characters.filter((character) =>
+            getCharacterName(character).toLocaleLowerCase().includes(normalized)
+        )
+    }, [characters, searchTerm])
+
+    const visibleCount = pagination.searchTerm === searchTerm ? pagination.visibleCount : PAGE_SIZE
+    const visibleCharacters = filteredCharacters.slice(0, visibleCount)
+    const hasMoreCharacters = visibleCharacters.length < filteredCharacters.length
+
+    useEffect(() => {
+        const target = loadMoreRef.current
+        if (!target || !hasMoreCharacters) return
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setPagination((current) => ({
+                        searchTerm,
+                        visibleCount: Math.min(
+                            (current.searchTerm === searchTerm ? current.visibleCount : PAGE_SIZE) + PAGE_SIZE,
+                            filteredCharacters.length
+                        ),
+                    }))
+                }
+            },
+            { rootMargin: "150px" }
+        )
+        observer.observe(target)
+
+        return () => observer.disconnect()
+    }, [filteredCharacters.length, hasMoreCharacters, searchTerm, visibleCount])
 
     const handleSelect = (character: SavedCharacterBuild) => {
         onSelect(character)
@@ -88,27 +125,34 @@ export default function TeamCharacterModal({
                             No se encontraron personajes que coincidan con “{searchTerm}”.
                         </p>
                     ) : (
-                        filteredCharacters.map((character) => (
-                            <Button
-                                key={character.id}
-                                type="button"
-                                variant="outline"
-                                onClick={() => handleSelect(character)}
-                                className="h-auto w-full justify-start gap-3 whitespace-normal p-3 text-left"
-                            >
-                                <CharacterAvatar key={character.id} character={character} />
-                                <span className="min-w-0 flex-1">
-                                    <span className="block truncate font-semibold">
-                                        {getCharacterName(character)}
+                        <>
+                            {visibleCharacters.map((character) => (
+                                <Button
+                                    key={character.id}
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => handleSelect(character)}
+                                    className="h-auto w-full justify-start gap-3 whitespace-normal p-3 text-left"
+                                >
+                                    <CharacterAvatar character={character} />
+                                    <span className="min-w-0 flex-1">
+                                        <span className="block truncate font-semibold">
+                                            {getCharacterName(character)}
+                                        </span>
+                                        <span className="mt-1 block text-xs text-muted-foreground">
+                                            HP {character.character.hp || "—"}
+                                            {" · "}ATQ {character.character.atq || "—"}
+                                            {" · "}VEL {character.character.vel || "—"}
+                                        </span>
                                     </span>
-                                    <span className="mt-1 block text-xs text-muted-foreground">
-                                        HP {character.character.hp || "—"}
-                                        {" · "}ATQ {character.character.atq || "—"}
-                                        {" · "}VEL {character.character.vel || "—"}
-                                    </span>
-                                </span>
-                            </Button>
-                        ))
+                                </Button>
+                            ))}
+                            {hasMoreCharacters && (
+                                <div ref={loadMoreRef} className="py-2 text-center text-xs text-muted-foreground" aria-live="polite">
+                                    Cargando más personajes...
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             </DialogContent>
