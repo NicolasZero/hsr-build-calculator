@@ -60,7 +60,9 @@ function StatsChart({ data = chartData }: { data?: ChartData[] }) {
                         tickMargin={10}
                         axisLine={false}
                     />
-                    <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent
+                        labelFormatter={(value) => t(`buffs.types.${value}`) as BuffType}
+                    />} />
                     <Bar dataKey="valor" fill="var(--color-primary)" radius={4} />
                 </BarChart>
             </ChartContainer>

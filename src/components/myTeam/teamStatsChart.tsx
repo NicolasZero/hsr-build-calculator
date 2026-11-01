@@ -165,7 +165,9 @@ export default function TeamStatsChart({ teamMembers, contributions }: TeamStats
                         tickMargin={10}
                         axisLine={false}
                     />
-                    <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent
+                        labelFormatter={(value) => t(`buffs.types.${value}`) as BuffType}
+                    />} />
                     <ChartLegend content={<ChartLegendContent />} />
                     {visibleMembers.map((member) => {
                         const index = teamMembers.findIndex(({ id }) => id === member.id)
