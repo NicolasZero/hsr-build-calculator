@@ -1,11 +1,17 @@
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { PlusIcon } from "@phosphor-icons/react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { buffOrigin, buffTarget, buffType, statBuffDependiente } from "@/const/buffType"
+import {
+    buffOrigin,
+    buffTarget,
+    buffType,
+    statBuffDependiente,
+} from "@/const/buffType"
 import { TEAM_SIZE } from "@/const/team"
 import type { BuffData, Target } from "@/schema/buffData"
 
@@ -28,6 +34,7 @@ interface BuffFormProps {
 }
 
 function BuffForm({ onSubmit, onCancel, type, error, buffToEdit }: BuffFormProps) {
+    const { t } = useTranslation("stats")
     const [dependiente, setDependiente] = useState(Boolean(buffToEdit?.targetStat))
     const [status, setStatus] = useState(buffToEdit?.status ?? true)
     const [objetivo, setObjetivo] = useState<Target>(buffToEdit?.objetivo ?? buffTarget[0])
@@ -54,7 +61,7 @@ function BuffForm({ onSubmit, onCancel, type, error, buffToEdit }: BuffFormProps
                         <SelectContent>
                             {buffType.map((buffTypeOption) => (
                                 <SelectItem key={buffTypeOption} value={buffTypeOption}>
-                                    {buffTypeOption}
+                                    {t(`buffs.types.${buffTypeOption}`)}
                                 </SelectItem>
                             ))}
                         </SelectContent>
@@ -133,7 +140,7 @@ function BuffForm({ onSubmit, onCancel, type, error, buffToEdit }: BuffFormProps
                         <SelectContent>
                             {buffOrigin.map((origin) => (
                                 <SelectItem key={origin} value={origin}>
-                                    {origin}
+                                    {t(`buffs.origins.${origin}`)}
                                 </SelectItem>
                             ))}
                         </SelectContent>
@@ -148,14 +155,14 @@ function BuffForm({ onSubmit, onCancel, type, error, buffToEdit }: BuffFormProps
                         <SelectContent>
                             {buffTarget.map((target) => (
                                 <SelectItem key={target} value={target}>
-                                    {target}
+                                    {t(`buffs.targets.${target}`)}
                                 </SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
                 </label>
 
-                {objetivo === "Personaje objetivo" && (
+                {objetivo === "targetCharacter" && (
                     <label className="text-xs">
                         Posición del personaje objetivo:
                         <Select

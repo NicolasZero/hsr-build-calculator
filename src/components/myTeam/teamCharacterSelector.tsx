@@ -1,5 +1,5 @@
 import { useState } from "react"
-// import { useNavigate } from "react-router"
+import { useNavigate } from "react-router"
 import { PlusIcon, UsersThreeIcon } from "@phosphor-icons/react"
 import { useCharacter, useTeam } from "@/contexts/teamContext"
 import type { SavedCharacterBuild } from "@/lib/indexedDB"
@@ -21,7 +21,7 @@ export default function TeamCharacterSelector() {
         clearTeam
     } = useTeam()
     const { characterId } = useCharacter()
-    // const navigate = useNavigate()
+    const navigate = useNavigate()
     const [activeSlot, setActiveSlot] = useState<number | null>(null)
 
     const slots = Array.from({ length: TEAM_SIZE }, (_, index) => currentTeamCharacterIds[index] ?? null)
@@ -96,6 +96,9 @@ export default function TeamCharacterSelector() {
                     <p className="mt-1 text-sm text-muted-foreground">
                         Guarda personajes desde el Constructor de Personaje para agregarlos a tu equipo.
                     </p>
+                    <Button type="button" className="mt-4" onClick={() => navigate("/")}>
+                        Ir al constructor
+                    </Button>
                 </div>
             ) : (
                 <div className="grid gap-3 sm:grid-cols-2">

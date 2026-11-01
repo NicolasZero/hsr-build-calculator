@@ -11,7 +11,7 @@ import { toast } from "sonner"
 
 export default function RelicSelector() {
     const { relics, setRelics } = useCharacter()
-    const { t } = useTranslation('builder');
+    const { t } = useTranslation(['builder', 'stats']);
 
     // UI local que no forma parte de los datos del personaje.
     const [relicOpt, setRelicOpt] = useState<string>("")
@@ -72,7 +72,7 @@ export default function RelicSelector() {
     return (
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
             <header className="col-span-full">
-                <h2 className="text-xl font-semibold text-primary dark:text-cyan-500">{t('relics.title')}</h2>
+                <h2 className="text-xl font-semibold text-primary">{t('relics.title')}</h2>
                 <p className="text-sm text-muted-foreground">{t('relics.description')}</p>
             </header>
 
@@ -88,7 +88,7 @@ export default function RelicSelector() {
                     {/* Piece selection */}
                     <Select name="piece" value={relicOpt} onValueChange={(v) => {
                         setRelicOpt(v)
-                        setMainStatOpt(v === "CABEZA" ? "HP" : v === "MANO" ? "ATQ" : "")
+                        setMainStatOpt(v === "head" ? "hpFlat" : v === "hand" ? "atqFlat" : "")
                     }}>
                         <SelectTrigger className="w-full">
                             <SelectValue placeholder={t('placeholders.piece')} />
@@ -109,7 +109,7 @@ export default function RelicSelector() {
                             {
                                 relicOpt ?
                                     mainStatsByType[relicOpt as keyof typeof mainStatsByType].map((stat: string) => (
-                                        <SelectItem key={stat} value={stat}>{stat}</SelectItem>
+                                        <SelectItem key={stat} value={stat}>{t(`buffs.types.${stat}`, { ns: "stats" })}</SelectItem>
                                     )) : null
                             }
                         </SelectContent>
@@ -139,7 +139,7 @@ export default function RelicSelector() {
                         </SelectTrigger>
                         <SelectContent>
                             {subStats.map((stat) => (
-                                <SelectItem key={stat} value={stat}>{stat}</SelectItem>
+                                <SelectItem key={stat} value={stat}>{t(`buffs.types.${stat}`, { ns: "stats" })}</SelectItem>
                             ))}
                         </SelectContent>
                     </Select>

@@ -107,7 +107,7 @@ export default function BuffsSelector() {
 
         const targetSlotValue = formData.get("targetSlot")
         let targetSlot: number | undefined
-        if (objetivo === "Personaje objetivo") {
+        if (objetivo === "targetCharacter") {
             const parsedTargetSlot = typeof targetSlotValue === "string" ? Number(targetSlotValue) : Number.NaN
             if (!Number.isInteger(parsedTargetSlot) || parsedTargetSlot < 1 || parsedTargetSlot > TEAM_SIZE) {
                 setError("Selecciona una posición válida del equipo")

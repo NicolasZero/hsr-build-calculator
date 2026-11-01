@@ -1,48 +1,80 @@
-import type { BuffType, Origen, Target, StatBuffDependent } from "@/schema/buffData"
+import type { BuffType, Origen, Target, StatBuffDependent, ChartData } from "@/schema/buffData"
 
 export const buffType: BuffType[] = [
-    "ATQ",
-    "HP",
-    "VEL",
-    "DEF",
-    "ATQ %",
-    "HP %",
-    "VEL %",
-    "DEF %",
-    "D.CRIT",
-    "P.CRIT",
-    "DAÑO",
-    "DAÑO. RUP",
-    "DAÑO. ULTRARUP",
-    "EFECTO. RUP",
-    "Exultación",
-    "VUL",
-    "PEN RES",
-    "RED DEF",
-    "DAÑO ORIGINAL",
-    "MERRYMAKE",
-] as const
+    "atqFlat",
+    "hpFlat",
+    "velFlat",
+    "defFlat",
+    "atqPercent",
+    "hpPercent",
+    "velPercent",
+    "defPercent",
+    "dmgCrit",
+    "propCrit",
+    "dmg",
+    "vul",
+    "penRes",
+    "redDef",
+    "originalDmg",
+    "breakDamage",
+    "superBreakDamage",
+    "breakEffect",
+    "elation",
+    "merrymake",
+]
+
+export const visibleBuff: BuffType[] = [
+    "atqFlat",
+    "hpFlat",
+    "velFlat",
+    "defFlat",
+    "atqPercent",
+    "hpPercent",
+    "velPercent",
+    "defPercent",
+    "dmgCrit",
+    "propCrit",
+    "dmg",
+    "vul",
+    "penRes",
+    "redDef"
+]
+
+export const chartData: ChartData[] = [
+    { buff: "hpFlat", valor: 0 },
+    { buff: "atqFlat", valor: 0 },
+    { buff: "defFlat", valor: 0 },
+    { buff: "velFlat", valor: 0 },
+    { buff: "propCrit", valor: 5 },
+    { buff: "dmgCrit", valor: 50 },
+    { buff: "dmg", valor: 0 },
+    { buff: "breakDamage", valor: 0 },
+    { buff: "superBreakDamage", valor: 0 },
+    { buff: "breakEffect", valor: 0 },
+    { buff: "elation", valor: 0 },
+    { buff: "redDef", valor: 0 },
+    { buff: "vul", valor: 0 },
+    { buff: "penRes", valor: 0 }
+]
 
 export const buffOrigin: Origen[] = [
-    "Básico",
-    "Habilidad",
-    "Talento",
-    "Definitiva",
-    "Rastro",
+    "basic",
+    "skill",
+    "talent",
+    "ultimate",
+    "Trace",
     "Eidolon",
-    "Técnica",
-    "Cono de Luz",
-    "Set",
-] as const
+    "technique",
+    "lightCone",
+    "setBonus",
+]
 
 export const buffTarget: Target[] = [
-    "Todos los aliados",
-    "Este personaje",
-    // "Primero del equipo",
-    "Personaje objetivo",
-    // "Personajes de la misma vía",
-    "Todos excepto este personaje"
-] as const
+    "allAllies",
+    "thisCharacter",
+    "targetCharacter",
+    "allAlliesExcludingThis"
+]
 
 export const statBuffDependiente: StatBuffDependent[] = [
     "HP de este personaje",

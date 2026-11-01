@@ -1,30 +1,29 @@
 import StatsChart from "@/components/general/statsChart"
 import type { TotalStatsValues } from "@/utils/calculateTotalStats"
 import type { Character } from "@/schema/character"
-import TooltipComponent from "@/components/general/tooltips"
+import type { BuffType } from "@/schema/buffData"
+import { useTranslation } from "react-i18next"
 
 interface StatItemConfig {
-    buff: keyof TotalStatsValues
-    label: string
-    tooltip: string
+    buff: BuffType
     hasBaseKey?: 'hp' | 'atq' | 'def' | 'vel'
 }
 
 const STATS_ITEMS: StatItemConfig[] = [
-    { buff: 'hp', hasBaseKey: 'hp', label: 'HP', tooltip: 'Vida' },
-    { buff: 'atq', hasBaseKey: 'atq', label: 'ATQ', tooltip: 'Ataque' },
-    { buff: 'def', hasBaseKey: 'def', label: 'DEF', tooltip: 'Defensa' },
-    { buff: 'vel', hasBaseKey: 'vel', label: 'VEL', tooltip: 'Velocidad' },
-    { buff: 'dmgCrit', label: 'D.CRIT', tooltip: 'Daño Crítico' },
-    { buff: 'propCrit', label: 'P.CRIT', tooltip: 'Probabilidad Crítica' },
-    { buff: 'dmg', label: 'DAÑO', tooltip: 'Aumento de Daño' },
-    { buff: 'breakDamage', label: 'DAÑO. RUP', tooltip: 'Daño de Ruptura' },
-    { buff: 'superBreakDamage', label: 'DAÑO. ULTRARUP', tooltip: 'Daño de UltraRuptura' },
-    { buff: 'breakEffect', label: 'EFECTO. RUP', tooltip: 'Efecto de Ruptura' },
-    { buff: 'elation', label: 'Exultación', tooltip: 'Aumento de Exultación' },
-    { buff: 'penRes', label: 'PEN RES', tooltip: 'Penetración de Resistencia' },
-    { buff: 'redDef', label: 'RED DEF', tooltip: 'Ignorar Defensa' },
-    { buff: 'vul', label: 'VUL', tooltip: 'Aumento de Vulnerabilidad' },
+    { buff: 'hpPercent', hasBaseKey: 'hp' },
+    { buff: 'atqPercent', hasBaseKey: 'atq' },
+    { buff: 'defPercent', hasBaseKey: 'def' },
+    { buff: 'velPercent', hasBaseKey: 'vel' },
+    { buff: 'dmgCrit' },
+    { buff: 'propCrit' },
+    { buff: 'dmg' },
+    { buff: 'penRes' },
+    { buff: 'redDef' },
+    { buff: 'vul' },
+    { buff: 'breakDamage' },
+    { buff: 'superBreakDamage' },
+    { buff: 'breakEffect' },
+    { buff: 'elation' },
 ]
 
 export interface TotalStatsProps {
@@ -34,22 +33,23 @@ export interface TotalStatsProps {
 }
 
 export default function TotalStats({ total, character, className = "" }: TotalStatsProps) {
+    const { t } = useTranslation("stats")
 
-    const chartData = [
-        { buff: "HP", valor: total.hp },
-        { buff: "ATQ", valor: total.atq },
-        { buff: "DEF", valor: total.def },
-        { buff: "VEL", valor: total.vel },
-        { buff: "P.CRIT", valor: total.propCrit },
-        { buff: "D.CRIT", valor: total.dmgCrit },
-        { buff: "DAÑO", valor: total.dmg },
-        { buff: "DAÑO RUP", valor: total.breakDamage },
-        { buff: "DAÑO ULTRARUP", valor: total.superBreakDamage },
-        { buff: "EFECTO RUP", valor: total.breakEffect },
-        { buff: "EXULTACION", valor: total.elation },
-        { buff: "IGN DEF", valor: total.redDef },
-        { buff: "VUL", valor: total.vul },
-        { buff: "PEN RES", valor: total.penRes }
+    const chartData: { buff: BuffType; valor: number }[] = [
+        { buff: "hpPercent", valor: total.hpPercent },
+        { buff: "atqPercent", valor: total.atqPercent },
+        { buff: "defPercent", valor: total.defPercent },
+        { buff: "velPercent", valor: total.velPercent },
+        { buff: "propCrit", valor: total.propCrit },
+        { buff: "dmgCrit", valor: total.dmgCrit },
+        { buff: "dmg", valor: total.dmg },
+        { buff: "redDef", valor: total.redDef },
+        { buff: "vul", valor: total.vul },
+        { buff: "penRes", valor: total.penRes },
+        { buff: "breakDamage", valor: total.breakDamage },
+        { buff: "superBreakDamage", valor: total.superBreakDamage },
+        { buff: "breakEffect", valor: total.breakEffect },
+        { buff: "elation", valor: total.elation }
     ]
 
     return (
@@ -63,21 +63,21 @@ export default function TotalStats({ total, character, className = "" }: TotalSt
                         const calculatedFinal = (baseVal * (1 + bonusVal / 100)).toFixed(0)
 
                         return (
-                            <TooltipComponent key={item.buff} content={item.tooltip}>
-                                <li>
-                                    {item.label}: {calculatedFinal}{" "}
-                                    <span className="text-xs text-primary">
-                                        ({bonusVal.toFixed(1)}%)
-                                    </span>
-                                </li>
-                            </TooltipComponent>
+                            // <TooltipComponent key={item.buff} content={item.tooltip}>
+                            <li key={item.buff}>
+                                {t(`buffs.types.${item.buff}`)}: {calculatedFinal}{" "}
+                                <span className="text-xs text-primary">
+                                    ({bonusVal.toFixed(1)}%)
+                                </span>
+                            </li>
+                            // </TooltipComponent>
                         )
                     }
 
                     return (
-                        <TooltipComponent key={item.buff} content={item.tooltip}>
-                            <li><span className="hidden sm:inline">{item.label}</span><span className="sm:hidden">{item.tooltip}</span>: {bonusVal}%</li>
-                        </TooltipComponent>
+                        // <TooltipComponent key={item.buff} content={item.tooltip}>
+                        <li key={item.buff}>{t(`buffs.types.${item.buff}`)}: {bonusVal}%</li>
+                        // </TooltipComponent>
                     )
                 })}
             </ul>

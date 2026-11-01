@@ -1,41 +1,23 @@
 import { useState } from "react"
+import { useTranslation } from "react-i18next"
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
-
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
+import { visibleBuff, chartData } from "@/const/buffType"
+import type { BuffType, ChartData } from "@/schema/buffData"
 
-interface ChartDatum {
-    buff: string
-    valor: number
-}
+function StatsChart({ data = chartData }: { data?: ChartData[] }) {
+    const { t } = useTranslation("stats")
 
-const chartData = [
-    { buff: "HP", valor: 0 },
-    { buff: "ATQ", valor: 0 },
-    { buff: "DEF", valor: 0 },
-    { buff: "VEL", valor: 0 },
-    { buff: "P.CRIT", valor: 5 },
-    { buff: "D.CRIT", valor: 50 },
-    { buff: "DAÑO", valor: 0 },
-    { buff: "DAÑO. RUP", valor: 0 },
-    { buff: "DAÑO. ULTRARUP", valor: 0 },
-    { buff: "EFECTO. RUP", valor: 0 },
-    { buff: "Exultación", valor: 0 },
-    { buff: "RED DEF", valor: 0 },
-    { buff: "VUL", valor: 0 },
-    { buff: "PEN RES", valor: 0 }
-]
+    const chartConfig = {
+        valor: {
+            label: t("buffs.chart.bonus"),
+        }
+    } satisfies ChartConfig
 
-const chartConfig = {
-    valor: {
-        label: "Bono %",
-    }
-} satisfies ChartConfig
-
-function StatsChart({ data = chartData }: { data?: ChartDatum[] }) {
-    const [visibleStats, setVisibleStats] = useState(() => data.map(({ buff }) => buff))
+    const [visibleStats, setVisibleStats] = useState(() => visibleBuff.map((buff) => buff))
     const visibleData = data.filter(({ buff }) => visibleStats.includes(buff))
 
-    const toggleStat = (stat: string) => {
+    const toggleStat = (stat: BuffType) => {
         setVisibleStats((current) =>
             current.includes(stat)
                 ? current.filter((visibleStat) => visibleStat !== stat)
@@ -58,13 +40,12 @@ function StatsChart({ data = chartData }: { data?: ChartDatum[] }) {
                             type="button"
                             aria-pressed={isVisible}
                             onClick={() => toggleStat(buff)}
-                            className={`rounded-md border px-2 py-1 text-xs transition-colors ${
-                                isVisible
-                                    ? "border-primary bg-primary text-primary-foreground"
-                                    : "border-input bg-background text-muted-foreground"
-                            }`}
+                            className={`border px-2 py-1 text-xs transition-colors ${isVisible
+                                ? "border-primary bg-primary text-primary-foreground"
+                                : "border-input bg-background text-muted-foreground"
+                                }`}
                         >
-                            {buff}
+                            {t(`buffs.types.${buff}`)}
                         </button>
                     )
                 })}
@@ -74,11 +55,12 @@ function StatsChart({ data = chartData }: { data?: ChartDatum[] }) {
                     <CartesianGrid vertical={false} />
                     <XAxis
                         dataKey="buff"
+                        tickFormatter={(value: string) => t(`buffs.types.${value as BuffType}`)}
                         tickLine={false}
                         tickMargin={10}
                         axisLine={false}
                     />
-                    <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                    <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
                     <Bar dataKey="valor" fill="var(--color-primary)" radius={4} />
                 </BarChart>
             </ChartContainer>

@@ -17,6 +17,7 @@ export interface TeamMember {
 
 export interface TeamMemberStats {
     total: TotalStatsValues
+    contributions: Record<number, TotalStatsValues>
 }
 
 export interface SaveCharacterResult {

@@ -1,0 +1,48 @@
+{
+    "buffs": {
+        "types": {
+            "atqFlat": "ATQ",
+            "defFlat": "DEF",
+            "hpFlat": "HP",
+            "velFlat": "VEL",
+            "atqPercent": "ATQ %",
+            "defPercent": "DEF %",
+            "hpPercent": "HP %",
+            "velPercent": "VEL %",
+            "propCrit": "Prop Crit",
+            "dmgCrit": "Dñ Crit",
+            "dmg": "Daño",
+            "breakEffect": "Efect Rupt",
+            "breakDamage": "Dñ Rupt",
+            "superBreakDamage": "Dñ UltraRupt",
+            "elation": "Exultación",
+            "redDef": "RED DEF",
+            "vul": "VUL",
+            "penRes": "PEN RES",
+            "redRes": "RED RES",
+            "originalDmg": "Dñ Original",
+            "merrymake": "Dñ Exultación"
+        },
+        "origins": {
+            "basic": "Básico",
+            "skill": "Habilidad",
+            "talent": "Talento",
+            "ultimate": "Definitiva",
+            "Trace": "Rastro",
+            "Eidolon": "Eidolon",
+            "technique": "Técnica",
+            "lightCone": "Cono de Luz",
+            "setBonus": "Set"
+        },
+        "targets": {
+            "allAllies": "Todos los aliados",
+            "thisCharacter": "Este personaje",
+            "allAlliesExcludingThis": "Todos excepto este personaje",
+            "targetCharacter": "Personaje objetivo",
+            "targetCharacterWithSlot": "Personaje objetivo (Posición {{slot}})"
+        },
+        "chart": {
+            "bonus": "Bono %"
+        }
+    }
+}

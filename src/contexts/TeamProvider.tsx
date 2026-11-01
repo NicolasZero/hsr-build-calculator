@@ -18,6 +18,7 @@ import {
 } from "@/lib/indexedDB"
 import type { StoredCharacterBuild, StoredTeam } from "@/lib/indexedDB"
 import { calculateFase1Stats, calculateTotalStats } from "@/utils/calculateTotalStats"
+import type { TotalStatsValues } from "@/utils/calculateTotalStats"
 import type { TeamSnapshot } from "@/utils/calculateTotalStats"
 import {
     CharacterContext,
@@ -70,6 +71,26 @@ const serializeBuilderState = (character: Character, buffs: BuffData[], relics: 
         relics,
     })
 }
+
+const TOTAL_STAT_KEYS = [
+    "hpPercent",
+    "atqPercent",
+    "defPercent",
+    "velPercent",
+    "dmgCrit",
+    "propCrit",
+    "dmg",
+    "breakEffect",
+    "breakDamage",
+    "superBreakDamage",
+    "elation",
+    "redDef",
+    "vul",
+    "penRes",
+    "originalDmg",
+    "merrymake",
+] satisfies (keyof TotalStatsValues)[]
+
 export function TeamProvider({ children }: { children: React.ReactNode }) {
     const [character, setCharacter] = useState<Character>(createDefaultCharacter)
     const [buffs, setBuffs] = useState<BuffData[]>([])
@@ -335,20 +356,74 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
             })),
         }))
 
+        const otherBuffsByMember = new Map<number, BuffData[]>()
+        for (const member of teamMembers) {
+            const otherBuffs: BuffData[] = []
+            // Una sola pasada evita los arrays intermedios de filter().flatMap().
+            for (const emitter of buffsByEmitter) {
+                if (emitter.id !== member.id) otherBuffs.push(...emitter.buffs)
+            }
+            otherBuffsByMember.set(member.id, otherBuffs)
+        }
+
         const result: Record<number, TeamMemberStats> = {}
         for (const member of teamMembers) {
-            const otherMembersBuffs = buffsByEmitter
-                .filter((emitter) => emitter.id !== member.id)
-                .flatMap((emitter) => emitter.buffs)
-
-            result[member.id] = calculateTotalStats(
+            const total = calculateTotalStats(
                 member.build.character,
                 member.build.buffs,
                 member.build.relics,
-                otherMembersBuffs,
+                otherBuffsByMember.get(member.id),
                 member.slot,
                 snapshots
             )
+
+            // La base sin buffs es la salida de fase uno; ejecutar fase dos aquí repetía trabajo.
+            const withoutBuffs = calculateFase1Stats(
+                member.build.character,
+                [],
+                member.build.relics,
+                [],
+                member.slot
+            ).fase1Stats
+            const contributions: Record<number, TotalStatsValues> = {}
+
+            for (const emitter of buffsByEmitter) {
+                const emitterBuffs = emitter.buffs
+                if (emitterBuffs.length === 0) {
+                    const contribution = { ...withoutBuffs }
+                    for (const stat of TOTAL_STAT_KEYS) {
+                        contribution[stat] = 0
+                    }
+                    contributions[emitter.id] = contribution
+                    continue
+                }
+
+                const withEmitter = emitter.id === member.id
+                    ? calculateTotalStats(
+                        member.build.character,
+                        emitterBuffs,
+                        member.build.relics,
+                        [],
+                        member.slot,
+                        snapshots
+                    ).total
+                    : calculateTotalStats(
+                        member.build.character,
+                        [],
+                        member.build.relics,
+                        emitterBuffs,
+                        member.slot,
+                        snapshots
+                    ).total
+
+                const contribution = { ...withEmitter }
+                for (const stat of TOTAL_STAT_KEYS) {
+                    contribution[stat] = withEmitter[stat] - withoutBuffs[stat]
+                }
+                contributions[emitter.id] = contribution
+            }
+
+            result[member.id] = { total: total.total, contributions }
         }
 
         return result

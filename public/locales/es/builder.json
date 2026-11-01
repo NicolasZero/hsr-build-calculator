@@ -19,11 +19,11 @@
         "newCharacter": "Nuevo Personaje",
         "load": "Cargar Personaje",
         "save": "Guardar Personaje",
-        "saveNew": "Guardar como Nuevo",
+        "saveNew": "Guardar Como Nuevo",
         "saveLoading": "Guardando...",
         "loadLoading": "Cargando...",
         "update": "Actualizar Personaje",
-        "addBuff": "Agregar buff"
+        "addBuff": "Agregar Buff"
     },
     "placeholders": {
         "uploadImg": "Haz clic para subir",
@@ -51,9 +51,7 @@
         "atqBase": "ATQ Base",
         "defBase": "DEF Base",
         "spdBase": "VEL Base",
-        "crit_r": "P.CRIT",
-        "crit_d": "D.CRIT",
-        "dmg": "DAÑO",
+        "maxEenrgy": "Energía Maximas",
         "level": "Nivel"
     },
     "relics": {
@@ -61,12 +59,12 @@
         "description": "Configura los artefactos y ornamentos del personaje.",
         "mainStats": "Atributos Principales",
         "subStats": "Subatributos",
-        "CABEZA": "Cabeza",
-        "MANO": "Manos",
-        "CUERPO": "Cuerpo",
-        "BOTAS": "Botas",
-        "ORBE": "Orbe",
-        "CUERDA": "Cuerda",
+        "head": "Cabeza",
+        "hand": "Manos",
+        "body": "Cuerpo",
+        "feet": "Botas",
+        "Sphere": "Orbe",
+        "rope": "Cuerda",
         "set": "Nombre del Set (Opcional)"
     }
 }

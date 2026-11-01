@@ -2,6 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { Button } from "@/components/ui/button"
 import { TrashIcon, PenIcon, } from "@phosphor-icons/react"
 import type { BuffData } from "@/schema/buffData"
+import TranslatedBuffLabel from "./translatedBuffLabel"
 // import { PersonajeCell } from "./PersonajeCell"
 
 declare module "@tanstack/react-table" {
@@ -13,16 +14,27 @@ declare module "@tanstack/react-table" {
 
 export const columns: ColumnDef<BuffData>[] = [
     { accessorKey: "valor", header: "Valor" },
-    { accessorKey: "buff", header: "Buff" },
-    { accessorKey: "origen", header: "Origen" },
+    {
+        accessorKey: "buff",
+        header: "Buff",
+        cell: ({ row }) => <TranslatedBuffLabel translationKey={`buffs.types.${row.original.buff}`} />,
+    },
+    {
+        accessorKey: "origen",
+        header: "Origen",
+        cell: ({ row }) => <TranslatedBuffLabel translationKey={`buffs.origins.${row.original.origen}`} />,
+    },
     {
         accessorKey: "objetivo",
         header: "Objetivo",
         cell: ({ row }) => {
             const { objetivo, targetSlot } = row.original
-            return objetivo === "Personaje objetivo" && targetSlot
-                ? `${objetivo} (Posición ${targetSlot})`
-                : objetivo
+            return (
+                <TranslatedBuffLabel
+                    translationKey={`buffs.targets.${objetivo}`}
+                    slot={objetivo === "targetCharacter" ? targetSlot : undefined}
+                />
+            )
         },
     },
     {

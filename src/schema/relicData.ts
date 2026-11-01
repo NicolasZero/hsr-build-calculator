@@ -1,8 +1,43 @@
-export type SubStatsType = "ATQ" | "HP" | "DEF" | "ATQ %" | "HP %" | "DEF %" | "VEL" | "P.CRIT" | "D.CRIT" | "EFECTO. RUP"
+import { STATS } from "@/const/stats"
 
-export type MainStatsType = "ATQ" | "ATQ %" | "HP" | "HP %" | "DEF %" | "VEL" | "P.CRIT" | "D.CRIT" | "DAÑO" | "REC.E" | "EFECTO. RUP"
+// Ahora excluimos las que no apliquen
+export type SubStatsType = Exclude<
+    typeof STATS[number],
+    "dmg" |
+    "energyRegeneration" |
+    "breakDamage" |
+    "superBreakDamage" |
+    "elation" |
+    "redDef" |
+    "vul" |
+    "penRes" |
+    "redRes" |
+    "originalDmg" |
+    "merrymake"
+>
 
-export type PieceName = "CABEZA" | "MANO" | "CUERPO" | "BOTAS" | "ORBE" | "CUERDA"
+export type MainStatsType = Exclude<
+    typeof STATS[number],
+    "defFlat" |
+    "velPercent" |
+    "breakDamage" |
+    "superBreakDamage" |
+    "elation" |
+    "redDef" |
+    "vul" |
+    "penRes" |
+    "redRes" |
+    "originalDmg" |
+    "merrymake"
+>
+
+export type PieceName =
+    "head" |
+    "hand" |
+    "body" |
+    "feet" |
+    "Sphere" |
+    "rope"
 
 export interface SubStat {
     stat: SubStatsType

@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { ChartBarIcon } from "@phosphor-icons/react"
 import TotalStats from "@/components/general/totalStats"
+import TeamStatsChart from "@/components/myTeam/teamStatsChart"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useTeam } from "@/contexts/teamContext"
 
@@ -17,7 +18,7 @@ export default function TeamCharacterStats() {
         <section className="rounded-2xl border bg-muted/40 p-3 md:p-6">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                    <ChartBarIcon size={22} className="text-primary dark:text-cyan-500" />
+                    <ChartBarIcon size={22} className="text-primary" />
                     <h2 className="text-lg font-semibold">Estadísticas del equipo</h2>
                 </div>
                 <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
@@ -48,10 +49,24 @@ export default function TeamCharacterStats() {
                     Agrega un personaje al equipo para ver sus estadísticas.
                 </p>
             ) : (
-                <TotalStats
-                    total={stats.total}
-                    character={selectedMember.build?.character}
-                />
+                <div className="flex flex-col gap-6">
+                    <TotalStats
+                        total={stats.total}
+                        character={selectedMember.build?.character}
+                    />
+                    <section className="rounded-xl border bg-background/60 p-3 md:p-4">
+                        <div className="mb-3">
+                            <h3 className="font-semibold">Aporte de buffs por integrante</h3>
+                            <p className="text-sm text-muted-foreground">
+                                Cada barra muestra cuánto aporta cada personaje a las estadísticas seleccionadas.
+                            </p>
+                        </div>
+                        <TeamStatsChart
+                            teamMembers={teamMembers}
+                            contributions={stats.contributions}
+                        />
+                    </section>
+                </div>
             )}
         </section>
     )

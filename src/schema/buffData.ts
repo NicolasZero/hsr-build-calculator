@@ -9,48 +9,53 @@ export interface BuffData {
     targetStat?: StatBuffDependent // La estadistica objetivo del buff si escala con otra estadistica
     umbralStat?: number // La estadistica solo escala por encima de este valor
     valorMaximo?: number // Tope para el valor calculado de un buff escalable
-    targetSlot?: number // Posición del equipo afectada cuando el objetivo es "Personaje objetivo"
+    targetSlot?: number // Posición del equipo afectada cuando el objetivo es "targetCharacter"
 }
 
 export type BuffType =
-    "ATQ" |
-    "HP" |
-    "VEL" |
-    "DEF" |
-    "ATQ %" |
-    "HP %" |
-    "VEL %" |
-    "DEF %" |
-    "D.CRIT" |
-    "P.CRIT" |
-    "DAÑO" |
-    "DAÑO. RUP" |
-    "DAÑO. ULTRARUP" |
-    "EFECTO. RUP" |
-    "Exultación" |
-    "VUL" |
-    "PEN RES" |
-    "RED RES" |
-    "RED DEF" |
-    "DAÑO ORIGINAL" |
-    "MERRYMAKE"
+    "atqFlat" |
+    "defFlat" |
+    "hpFlat" |
+    "velFlat" |
+    "atqPercent" |
+    "defPercent" |
+    "hpPercent" |
+    "velPercent" |
+    "propCrit" |
+    "dmgCrit" |
+    "dmg" |
+    "breakEffect" |
+    "breakDamage" |
+    "superBreakDamage" |
+    "elation" |
+    "redDef" |
+    "vul" |
+    "penRes" |
+    "redRes" |
+    "originalDmg" |
+    "merrymake"
+
+export interface ChartData {
+    buff: BuffType
+    valor: number
+}
 
 export type Origen =
-    "Básico" |
-    "Habilidad" |
-    "Talento" |
-    "Definitiva" |
-    "Rastro" |
+    "basic" |
+    "skill" |
+    "talent" |
+    "ultimate" |
+    "Trace" |
     "Eidolon" |
-    "Técnica" |
-    "Cono de Luz" |
-    "Set"
+    "technique" |
+    "lightCone" |
+    "setBonus"
 
 export type Target =
-    "Todos los aliados" |
-    "Este personaje" |
-    "Todos excepto este personaje" |
-    "Personaje objetivo"
+    "allAllies" |
+    "thisCharacter" |
+    "allAlliesExcludingThis" |
+    "targetCharacter"
 
 // Buffs que escalan con otras estadisticas
 // Este personaje = el personaje que tiene el buff aplicado (el emisor)

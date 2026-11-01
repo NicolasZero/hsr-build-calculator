@@ -1,0 +1,48 @@
+{
+    "buffs": {
+        "types": {
+            "atqFlat": "ATK",
+            "defFlat": "DEF",
+            "hpFlat": "HP",
+            "velFlat": "SPD",
+            "atqPercent": "ATK %",
+            "defPercent": "DEF %",
+            "hpPercent": "HP %",
+            "velPercent": "SPD %",
+            "propCrit": "CRIT Rate",
+            "dmgCrit": "CRIT DMG",
+            "dmg": "DMG",
+            "breakEffect": "Break Effect",
+            "breakDamage": "Break DMG",
+            "superBreakDamage": "Super Break DMG",
+            "elation": "Elation",
+            "redDef": "DEF Reduction",
+            "vul": "Vulnerability",
+            "penRes": "RES PEN",
+            "redRes": "RES Reduction",
+            "originalDmg": "Original DMG",
+            "merrymake": "Merrymake"
+        },
+        "origins": {
+            "basic": "Basic Attack",
+            "skill": "Skill",
+            "talent": "Talent",
+            "ultimate": "Ultimate",
+            "Trace": "Trace",
+            "Eidolon": "Eidolon",
+            "technique": "Technique",
+            "lightCone": "Light Cone",
+            "setBonus": "Set Bonus"
+        },
+        "targets": {
+            "allAllies": "All Allies",
+            "thisCharacter": "This Character",
+            "allAlliesExcludingThis": "All Allies Except This Character",
+            "targetCharacter": "Target Character",
+            "targetCharacterWithSlot": "Target Character (Slot {{slot}})"
+        },
+        "chart": {
+            "bonus": "Bonus %"
+        }
+    }
+}
