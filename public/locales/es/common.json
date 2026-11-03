@@ -4,7 +4,8 @@
         "characters": "Personajes",
         "teams": "Equipos",
         "dmg": "Daño",
-        "speed": "Velocidad"
+        "speed": "Velocidad",
+        "settings": "Configuración"
     },
     "footer": {
         "created_by": "Creado por"

@@ -1,9 +1,9 @@
-import type {AttackTarget, AttackType} from "@/schema/statsData"
+import type { AttackTarget, AttackType } from "@/schema/statsData"
 
 export const attackTarget: AttackTarget[] = [
-    "UNICO", "RAFAGA", "TODOS", "REBOTE"
+    "single", "blast", "aoe", "bounce"
 ]
 
 export const attackType: AttackType[] = [
-    "Basic", "Skill", "Ultimate", "Follow-Up"
+    "basic", "skill", "ultimate", "followUp"
 ]

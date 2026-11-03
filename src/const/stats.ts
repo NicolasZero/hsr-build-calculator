@@ -3,13 +3,13 @@ import type { statsType } from "@/schema/stats"
 // Definimos las estadísticas base en un array constante
 export const STATS: statsType[] = [
     "hpFlat",
-    "atqFlat",
+    "atkFlat",
     "defFlat",
-    "velFlat",
+    "spdFlat",
     "hpPercent",
-    "atqPercent",
+    "atkPercent",
     "defPercent",
-    "velPercent",
+    "spdPercent",
     "propCrit",
     "dmgCrit",
     "dmg",

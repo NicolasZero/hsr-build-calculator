@@ -1,14 +1,14 @@
 {
     "buffs": {
         "types": {
-            "atqFlat": "ATK",
+            "atkFlat": "ATK",
             "defFlat": "DEF",
             "hpFlat": "HP",
-            "velFlat": "SPD",
-            "atqPercent": "ATK %",
+            "spdFlat": "SPD",
+            "atkPercent": "ATK %",
             "defPercent": "DEF %",
             "hpPercent": "HP %",
-            "velPercent": "SPD %",
+            "spdPercent": "SPD %",
             "propCrit": "CRIT Rate",
             "dmgCrit": "CRIT DMG",
             "dmg": "DMG",
@@ -21,7 +21,8 @@
             "penRes": "RES PEN",
             "redRes": "RES Reduction",
             "originalDmg": "Original DMG",
-            "merrymake": "Merrymake"
+            "merrymake": "Merrymake",
+            "energyRegeneration": "Energy Regeneration"
         },
         "origins": {
             "basic": "Basic Attack",
@@ -41,8 +42,52 @@
             "targetCharacter": "Target Character",
             "targetCharacterWithSlot": "Target Character (Slot {{slot}})"
         },
-        "chart": {
-            "bonus": "Bonus %"
+        "dependent": {
+            "atkThisCharacter": "ATK of this character",
+            "defThisCharacter": "DEF of this character",
+            "hpThisCharacter": "HP of this character",
+            "spdThisCharacter": "SPD of this character",
+            "critDmgThisCharacter": "CRIT DMG of this character",
+            "critRateThisCharacter": "CRIT RATE of this character",
+            "energyOfTarget": "Energy of target"
         }
-    }
+    },
+    "chart": {
+        "bonus": "Bonus %"
+    },
+    "elements": {
+        "fire": "Fire",
+        "ice": "Ice",
+        "imaginary": "Imaginary",
+        "physical": "Physical",
+        "quantum": "Quantum",
+        "lightning": "Lightning",
+        "wind": "Wind"
+    },
+    "path": {
+        "preservation": "Preservation",
+        "erudition": "Erudition",
+        "abundance": "Abundance",
+        "hunt": "Hunt",
+        "harmony": "Harmony",
+        "nihility": "Nihility",
+        "destruction": "Destruction",
+        "remembrance": "Remembrance",
+        "elation": "Elation"
+    },
+    "battle": {
+        "attackType": {
+            "basic": "Basic",
+            "skill": "Skill",
+            "ultimate": "Ultimate",
+            "followUp": "Follow Up"
+        },
+        "AttackTarget": {
+            "single": "Single",
+            "blast": "Blast",
+            "aoe": "AoE",
+            "bounce": "Bounce"
+        }
+    },
+    "all": "All"
 }

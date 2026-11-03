@@ -10,7 +10,7 @@ function StatsChart({ data = chartData }: { data?: ChartData[] }) {
 
     const chartConfig = {
         valor: {
-            label: t("buffs.chart.bonus"),
+            label: t("chart.bonus"),
         }
     } satisfies ChartConfig
 

@@ -1,27 +1,28 @@
 {
     "buffs": {
         "types": {
-            "atqFlat": "ATQ",
+            "atkFlat": "ATQ",
             "defFlat": "DEF",
             "hpFlat": "HP",
-            "velFlat": "VEL",
-            "atqPercent": "ATQ %",
+            "spdFlat": "VEL",
+            "atkPercent": "ATQ %",
             "defPercent": "DEF %",
             "hpPercent": "HP %",
-            "velPercent": "VEL %",
-            "propCrit": "Prop Crit",
-            "dmgCrit": "Dñ Crit",
+            "spdPercent": "VEL %",
+            "propCrit": "Prop.Crit",
+            "dmgCrit": "Dñ.Crit",
             "dmg": "Daño",
-            "breakEffect": "Efect Rupt",
-            "breakDamage": "Dñ Rupt",
-            "superBreakDamage": "Dñ UltraRupt",
+            "breakEffect": "Efect.Rupt",
+            "breakDamage": "Dñ.Rupt",
+            "superBreakDamage": "Dñ.UltraRupt",
             "elation": "Exultación",
             "redDef": "RED DEF",
             "vul": "VUL",
             "penRes": "PEN RES",
             "redRes": "RED RES",
-            "originalDmg": "Dñ Original",
-            "merrymake": "Dñ Exultación"
+            "originalDmg": "Dñ.Original",
+            "merrymake": "Dñ.Exultación",
+            "energyRegeneration": "Rec.Energía"
         },
         "origins": {
             "basic": "Básico",
@@ -32,7 +33,7 @@
             "Eidolon": "Eidolon",
             "technique": "Técnica",
             "lightCone": "Cono de Luz",
-            "setBonus": "Set"
+            "setBonus": "Set de Artefactos"
         },
         "targets": {
             "allAllies": "Todos los aliados",
@@ -41,8 +42,52 @@
             "targetCharacter": "Personaje objetivo",
             "targetCharacterWithSlot": "Personaje objetivo (Posición {{slot}})"
         },
-        "chart": {
-            "bonus": "Bono %"
+        "dependent": {
+            "atkThisCharacter": "ATQ de este personaje",
+            "defThisCharacter": "DEF de este personaje",
+            "hpThisCharacter": "HP de este personaje",
+            "spdThisCharacter": "VEL de este personaje",
+            "critDmgThisCharacter": "Dñ.CRIT de este personaje",
+            "critRateThisCharacter": "Prop.CRIT de este personaje",
+            "energyOfTarget": "Energía del objetivo"
         }
-    }
+    },
+    "chart": {
+        "bonus": "Bono %"
+    },
+    "elements": {
+        "fire": "Fuego",
+        "ice": "Hielo",
+        "imaginary": "Imaginario",
+        "physical": "Física",
+        "quantum": "Cuántico",
+        "lightning": "Rayo",
+        "wind": "Viento"
+    },
+    "path": {
+        "preservation": "Concervación",
+        "erudition": "Erudición",
+        "abundance": "Abundancia",
+        "hunt": "Cacería",
+        "harmony": "Armonia",
+        "nihility": "Nihilidad",
+        "destruction": "Destrucción",
+        "remembrance": "Reminiscensia",
+        "elation": "Exultación"
+    },
+    "battle": {
+        "attackType": {
+            "basic": "Básico",
+            "skill": "Habilida",
+            "ultimate": "Definitica",
+            "followUp": "Ataque de Seguimiento"
+        },
+        "AttackTarget": {
+            "single": "Unico",
+            "blast": "Rafaga",
+            "aoe": "Area",
+            "bounce": "Rebote"
+        }
+    },
+    "all": "Todos"
 }

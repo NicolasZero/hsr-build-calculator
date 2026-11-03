@@ -1,13 +1,13 @@
 import type { BuffType, Origen, Target, StatBuffDependent, ChartData } from "@/schema/buffData"
 
 export const buffType: BuffType[] = [
-    "atqFlat",
+    "atkFlat",
     "hpFlat",
-    "velFlat",
+    "spdFlat",
     "defFlat",
-    "atqPercent",
+    "atkPercent",
     "hpPercent",
-    "velPercent",
+    "spdPercent",
     "defPercent",
     "dmgCrit",
     "propCrit",
@@ -24,13 +24,13 @@ export const buffType: BuffType[] = [
 ]
 
 export const visibleBuff: BuffType[] = [
-    "atqFlat",
+    "atkFlat",
     "hpFlat",
-    "velFlat",
+    "spdFlat",
     "defFlat",
-    "atqPercent",
+    "atkPercent",
     "hpPercent",
-    "velPercent",
+    "spdPercent",
     "defPercent",
     "dmgCrit",
     "propCrit",
@@ -42,9 +42,9 @@ export const visibleBuff: BuffType[] = [
 
 export const chartData: ChartData[] = [
     { buff: "hpFlat", valor: 0 },
-    { buff: "atqFlat", valor: 0 },
+    { buff: "atkFlat", valor: 0 },
     { buff: "defFlat", valor: 0 },
-    { buff: "velFlat", valor: 0 },
+    { buff: "spdFlat", valor: 0 },
     { buff: "propCrit", valor: 5 },
     { buff: "dmgCrit", valor: 50 },
     { buff: "dmg", valor: 0 },
@@ -77,11 +77,11 @@ export const buffTarget: Target[] = [
 ]
 
 export const statBuffDependiente: StatBuffDependent[] = [
-    "HP de este personaje",
-    "ATQ de este personaje",
-    "DEF de este personaje",
-    "VEL de este personaje",
-    "D.CRIT de este personaje",
-    "P.CRIT de este personaje",
-    "Energía del aliado",
+    "atkThisCharacter",
+    "defThisCharacter",
+    "hpThisCharacter",
+    "spdThisCharacter",
+    "critDmgThisCharacter",
+    "critRateThisCharacter",
+    "energyOfTarget",
 ]

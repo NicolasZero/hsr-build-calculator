@@ -1,5 +1,5 @@
 import type { Character } from "@/schema/character"
-import type { BuffData, BuffType, Origen, Target } from "@/schema/buffData"
+import type { BuffData } from "@/schema/buffData"
 import type { RelicData } from "@/schema/relicData"
 
 export interface SavedCharacterBuild {
@@ -186,58 +186,6 @@ const cloneRelics = (relics?: RelicData): RelicData => ({
     subStats: relics?.subStats ? relics.subStats.map((subStat) => ({ ...subStat })) : [],
 })
 
-const legacyBuffTypes: Partial<Record<string, BuffType>> = {
-    "ATQ %": "atqPercent",
-    "DEF %": "defPercent",
-    "HP %": "hpPercent",
-    "VEL %": "velPercent",
-    ATQ: "atqFlat",
-    DEF: "defFlat",
-    HP: "hpFlat",
-    VEL: "velFlat",
-    "P.CRIT": "propCrit",
-    "D.CRIT": "dmgCrit",
-    DAÑO: "dmg",
-    "EFECTO. RUP": "breakEffect",
-    "EFECTO RUP": "breakEffect",
-    "DAÑO. RUP": "breakDamage",
-    "DAÑO RUP": "breakDamage",
-    "DAÑO. ULTRARUP": "superBreakDamage",
-    "DAÑO ULTRARUP": "superBreakDamage",
-    Exultación: "elation",
-    "RED DEF": "redDef",
-    VUL: "vul",
-    "PEN RES": "penRes",
-    "RED RES": "redRes",
-    "DAÑO ORIGINAL": "originalDmg",
-    MERRYMAKE: "merrymake",
-}
-
-const legacyOrigins: Partial<Record<string, Origen>> = {
-    Básico: "basic",
-    Habilidad: "skill",
-    Talento: "talent",
-    Definitiva: "ultimate",
-    Rastro: "Trace",
-    Técnica: "technique",
-    "Cono de Luz": "lightCone",
-    Set: "setBonus",
-}
-
-const legacyTargets: Partial<Record<string, Target>> = {
-    "Todos los aliados": "allAllies",
-    "Este personaje": "thisCharacter",
-    "Todos excepto este personaje": "allAlliesExcludingThis",
-    "Personaje objetivo": "targetCharacter",
-}
-
-const normalizeBuff = (buff: BuffData): BuffData => ({
-    ...buff,
-    buff: legacyBuffTypes[buff.buff] ?? buff.buff,
-    origen: legacyOrigins[buff.origen] ?? buff.origen,
-    objetivo: legacyTargets[buff.objetivo] ?? buff.objetivo,
-})
-
 /**
  * Normaliza un registro antiguo o nuevo:
  * - Un solo nombre canónico (`name`) replicado en `character.name`.
@@ -254,7 +202,7 @@ const normalizeBuild = (record: SavedCharacterBuild & { id: number }): StoredCha
         id: record.id,
         name,
         character,
-        buffs: (record.buffs ?? []).map(normalizeBuff),
+        buffs: record.buffs ?? [],
         relics: cloneRelics(record.relics),
         createdAt: record.createdAt ?? record.updatedAt ?? 0,
         updatedAt: record.updatedAt ?? record.createdAt ?? 0,
@@ -311,10 +259,9 @@ export const obtenerPersonajePorId = async (
     })
 }
 
-/**
- * Elimina el personaje y, en la misma transacción, lo quita de los equipos
- * guardados para no dejar referencias huérfanas.
- */
+
+// Elimina el personaje y, en la misma transacción, lo quita de los equipos
+ // guardados para no dejar referencias huérfanas.
 export const eliminarPersonaje = async (id: number): Promise<void> => {
     const tx = await openTransaction([CHARACTERS_STORE, TEAMS_STORE], "readwrite")
     const done = transactionDone(tx)
@@ -337,6 +284,7 @@ export const eliminarPersonaje = async (id: number): Promise<void> => {
     await done
 }
 
+// ===== Equipos/Team ===== //
 export const guardarEquipo = async (team: SavedTeam): Promise<StoredTeam> => {
     return withStore(TEAMS_STORE, "readwrite", async (store) => {
         const now = Date.now()

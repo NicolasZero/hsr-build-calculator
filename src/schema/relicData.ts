@@ -1,8 +1,8 @@
-import { STATS } from "@/const/stats"
+import type { statsType } from "@/schema/stats"
 
 // Ahora excluimos las que no apliquen
 export type SubStatsType = Exclude<
-    typeof STATS[number],
+    statsType,
     "dmg" |
     "energyRegeneration" |
     "breakDamage" |
@@ -17,9 +17,9 @@ export type SubStatsType = Exclude<
 >
 
 export type MainStatsType = Exclude<
-    typeof STATS[number],
+    statsType,
     "defFlat" |
-    "velPercent" |
+    "spdPercent" |
     "breakDamage" |
     "superBreakDamage" |
     "elation" |

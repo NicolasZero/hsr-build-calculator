@@ -85,7 +85,7 @@ function BuffForm({ onSubmit, onCancel, type, error, buffToEdit }: BuffFormProps
                                     <SelectContent>
                                         {statBuffDependiente.map((stat) => (
                                             <SelectItem key={stat} value={stat}>
-                                                {stat}
+                                                {t(`buffs.dependent.${stat}`)}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>

@@ -29,10 +29,10 @@ export default function TeamBuilderPage() {
     type SaveType = 'update' | 'saved_new' | 'create'
 
     const handleSave = async (saveType: SaveType = 'update') => {
-        const { isValid, errors } = validation(character)
+        const { isValid, errors } = validation(character, t)
 
         if (!isValid) {
-            toast.error(t('alerts.character_error'), {
+            toast.error(t('alerts.characterError'), {
                 description: errors,
             })
             return
@@ -48,10 +48,10 @@ export default function TeamBuilderPage() {
                     t(`alerts.character${actionKey}`, { name: character.name })
                 )
             } else {
-                toast.error(t('alerts.character_error'))
+                toast.error(t('alerts.characterError'))
             }
         } catch {
-            toast.error(t('alerts.character_error'))
+            toast.error(t('alerts.characterError'))
         } finally {
             setIsSaving(false)
         }
@@ -121,9 +121,7 @@ export default function TeamBuilderPage() {
                 <BuffsSelector />
             </section>
 
-            <section className='bg-muted/40 px-4 py-2 border'>
-                <TotalStats />
-            </section>
+            <TotalStats className="bg-muted/40 px-4 py-2 border" />
 
             {/* Botones de acción inferior */}
             <section className='flex items-center justify-end gap-3 flex-wrap'>

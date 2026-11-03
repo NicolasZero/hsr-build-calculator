@@ -1,18 +1,20 @@
 import { useCharacter } from "@/contexts/teamContext"
 import TotalStats from "@/components/general/totalStats"
 import { ChartBarIcon } from "@phosphor-icons/react"
+import { useTranslation } from 'react-i18next';
 
-export default function CharacterStats() {
+
+export default function CharacterStats({ className }: { className?: string }) {
     const { character, characterStats } = useCharacter()
+    const { t } = useTranslation()
 
     return (
-        <>
-            <div className="flex items-center gap-2 mb-4">
+        <div className={className}>
+            <div className="flex items-center gap-2">
                 <ChartBarIcon size={22} className="text-primary" />
-                <h2 className="text-lg font-semibold">Estadísticas del personaje</h2>
+                <h2 className="text-lg font-semibold">{t("builder.stats.title")}</h2>
             </div>
-            {/* <TotalStats total={total} data={data} character={character} /> */}
             <TotalStats total={characterStats} character={character} />
-        </>
+        </div>
     )
 }

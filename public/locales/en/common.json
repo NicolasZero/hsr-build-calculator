@@ -4,7 +4,8 @@
         "characters": "Characters",
         "teams": "Teams",
         "dmg": "Damage",
-        "speed": "Speed"
+        "speed": "Speed",
+        "settings": "Settings"
     },
     "footer": {
         "created_by": "Created by"

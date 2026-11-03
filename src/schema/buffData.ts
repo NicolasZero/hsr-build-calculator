@@ -13,14 +13,14 @@ export interface BuffData {
 }
 
 export type BuffType =
-    "atqFlat" |
+    "atkFlat" |
     "defFlat" |
     "hpFlat" |
-    "velFlat" |
-    "atqPercent" |
+    "spdFlat" |
+    "atkPercent" |
     "defPercent" |
     "hpPercent" |
-    "velPercent" |
+    "spdPercent" |
     "propCrit" |
     "dmgCrit" |
     "dmg" |
@@ -34,6 +34,27 @@ export type BuffType =
     "redRes" |
     "originalDmg" |
     "merrymake"
+
+// Define la estructura de las estadísticas finales.
+// Todas las propiedades contienen números.
+export interface TotalStatsValues {
+    atkPercent: number
+    hpPercent: number
+    defPercent: number
+    spdPercent: number
+    dmgCrit: number
+    propCrit: number
+    dmg: number
+    breakEffect: number
+    breakDamage: number
+    superBreakDamage: number
+    elation: number
+    redDef: number
+    vul: number
+    penRes: number
+    originalDmg: number
+    merrymake: number
+}
 
 export interface ChartData {
     buff: BuffType
@@ -61,10 +82,10 @@ export type Target =
 // Este personaje = el personaje que tiene el buff aplicado (el emisor)
 // del Aliado = el personaje que recibe el buff
 export type StatBuffDependent =
-    "ATQ de este personaje" |
-    "DEF de este personaje" |
-    "HP de este personaje" |
-    "VEL de este personaje" |
-    "D.CRIT de este personaje" |
-    "P.CRIT de este personaje" |
-    "Energía del aliado"
+    "atkThisCharacter" |
+    "defThisCharacter" |
+    "hpThisCharacter" |
+    "spdThisCharacter" |
+    "critDmgThisCharacter" |
+    "critRateThisCharacter" |
+    "energyOfTarget"

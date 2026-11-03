@@ -1,22 +1,22 @@
 import { valueByMainStat } from "@/const/relicStats"
-import type { BuffData } from "@/schema/buffData"
+import type { BuffData, BuffType, StatBuffDependent, TotalStatsValues } from "@/schema/buffData"
 import type { Character } from "@/schema/character"
 import type { RelicData } from "@/schema/relicData"
 
 // Define todas las estadísticas que el sistema puede calcular.
 // Las estadísticas "Flat" son valores fijos, mientras que las que
 // terminan en "Percent" representan porcentajes.
-interface Stats {
-    atqFlat: number
+export interface Stats {
+    atkFlat: number
     defFlat: number
     hpFlat: number
-    velFlat: number
+    spdFlat: number
     propCrit: number
     dmgCrit: number
-    atqPercent: number
+    atkPercent: number
     defPercent: number
     hpPercent: number
-    velPercent: number
+    spdPercent: number
     dmg: number
     breakEffect: number
     breakDamage: number
@@ -29,68 +29,41 @@ interface Stats {
     merrymake: number
 }
 
-// Relaciona los nombres de las estadísticas que vienen de los datos
-// (por ejemplo, "ATQ %") con las propiedades que usa TypeScript.
-//
-// Partial permite que no todos los strings tengan una equivalencia.
-// Record<string, keyof Stats> indica que cada valor válido debe ser
-// una clave definida dentro de la interfaz Stats.
-const statsMap: Partial<Record<string, keyof Stats>> = {
-    atqPercent: "atqPercent",
-    defPercent: "defPercent",
-    hpPercent: "hpPercent",
-    velPercent: "velPercent",
-    atqFlat: "atqFlat",
-    defFlat: "defFlat",
-    hpFlat: "hpFlat",
-    velFlat: "velFlat",
-    propCrit: "propCrit",
-    dmgCrit: "dmgCrit",
-    dmg: "dmg",
-    breakEffect: "breakEffect",
-    breakDamage: "breakDamage",
-    superBreakDamage: "superBreakDamage",
-    elation: "elation",
-    redDef: "redDef",
-    vul: "vul",
-    penRes: "penRes",
-    originalDmg: "originalDmg",
-    merrymake: "merrymake"
-}
-
-// Define la estructura de las estadísticas finales.
-// Todas las propiedades contienen números.
-export interface TotalStatsValues {
-    atqPercent: number
-    hpPercent: number
-    defPercent: number
-    velPercent: number
-    dmgCrit: number
-    propCrit: number
-    dmg: number
-    breakEffect: number
-    breakDamage: number
-    superBreakDamage: number
-    elation: number
-    redDef: number
-    vul: number
-    penRes: number
-    originalDmg: number
-    merrymake: number
-}
+const statsMap: BuffType[] = [
+    "atkPercent",
+    "defPercent",
+    "hpPercent",
+    "spdPercent",
+    "atkFlat",
+    "defFlat",
+    "hpFlat",
+    "spdFlat",
+    "propCrit",
+    "dmgCrit",
+    "dmg",
+    "breakEffect",
+    "breakDamage",
+    "superBreakDamage",
+    "elation",
+    "redDef",
+    "vul",
+    "penRes",
+    "originalDmg",
+    "merrymake"
+]
 
 // Crea un objeto con todas las estadísticas inicializadas en cero.
 // Se utiliza una función para generar un objeto nuevo cada vez,
 // evitando reutilizar accidentalmente el mismo objeto entre cálculos.
 const emptyStats = (): Stats => ({
-    atqPercent: 0,
+    atkPercent: 0,
     defPercent: 0,
     hpPercent: 0,
-    velPercent: 0,
-    atqFlat: 0,
+    spdPercent: 0,
+    atkFlat: 0,
     defFlat: 0,
     hpFlat: 0,
-    velFlat: 0,
+    spdFlat: 0,
     propCrit: 0,
     dmgCrit: 0,
     dmg: 0,
@@ -105,6 +78,7 @@ const emptyStats = (): Stats => ({
     merrymake: 0,
 })
 
+// suma buffs directos (ignora los que dependen de otras stats)
 const addDirectBuffStats = (stats: Stats, buffs: BuffData[]) => {
     for (const buff of buffs) {
         if (buff.targetStat) continue
@@ -125,6 +99,8 @@ const getOwnActiveBuffs = (buffs: BuffData[], targetSlot?: number) =>
             (buff.objetivo !== "targetCharacter" || buff.targetSlot === targetSlot)
     )
 
+// Obtiene los buffs activos del personaje
+// y suma los buffs directos que NO escalan con otra estadistica
 const getOtherActiveBuffs = (buffs: BuffData[], targetSlot?: number) =>
     buffs.filter(
         (buff) =>
@@ -133,14 +109,16 @@ const getOtherActiveBuffs = (buffs: BuffData[], targetSlot?: number) =>
             (buff.objetivo !== "targetCharacter" || buff.targetSlot === targetSlot)
     )
 
+// Calcula las estadisticas totales de los artefactos
+// y suma los buffs directos que NO escalan con otra estadistica
 const calculateFase1StatsFromActiveBuffs = (
     relics: RelicData,
     ownActiveBuffs: BuffData[],
     otherActiveBuffs: BuffData[],
-    base: { atq: number; def: number; vel: number; hp: number }
+    base: { atk: number; def: number; spd: number; hp: number }
 ): {
     fase1Stats: TotalStatsValues
-    base: { atq: number; def: number; vel: number; hp: number }
+    base: { atk: number; def: number; spd: number; hp: number }
 } => {
     // Calcula las estadisticas totales de los artefactos
     const relicMainStats = emptyStats()
@@ -167,18 +145,18 @@ const calculateFase1StatsFromActiveBuffs = (
 
     // Suma las estadisticas totales
     const fase1Stats: TotalStatsValues = {
-        atqPercent: flatAsPercent(
-            relicMainStats.atqFlat + relicSubStats.atqFlat + fase1BuffStats.atqFlat,
-            base.atq
-        ) + relicMainStats.atqPercent + relicSubStats.atqPercent + fase1BuffStats.atqPercent,
+        atkPercent: flatAsPercent(
+            relicMainStats.atkFlat + relicSubStats.atkFlat + fase1BuffStats.atkFlat,
+            base.atk
+        ) + relicMainStats.atkPercent + relicSubStats.atkPercent + fase1BuffStats.atkPercent,
         defPercent: flatAsPercent(
             relicMainStats.defFlat + relicSubStats.defFlat + fase1BuffStats.defFlat,
             base.def
         ) + relicMainStats.defPercent + relicSubStats.defPercent + fase1BuffStats.defPercent,
-        velPercent: flatAsPercent(
-            relicMainStats.velFlat + relicSubStats.velFlat + fase1BuffStats.velFlat,
-            base.vel
-        ) + relicMainStats.velPercent + relicSubStats.velPercent + fase1BuffStats.velPercent,
+        spdPercent: flatAsPercent(
+            relicMainStats.spdFlat + relicSubStats.spdFlat + fase1BuffStats.spdFlat,
+            base.spd
+        ) + relicMainStats.spdPercent + relicSubStats.spdPercent + fase1BuffStats.spdPercent,
         hpPercent: flatAsPercent(
             relicMainStats.hpFlat + relicSubStats.hpFlat + fase1BuffStats.hpFlat,
             base.hp
@@ -209,12 +187,12 @@ export function calculateFase1Stats(
     targetSlot?: number
 ): {
     fase1Stats: TotalStatsValues
-    base: { atq: number; def: number; vel: number; hp: number }
+    base: { atk: number; def: number; spd: number; hp: number }
 } {
     const base = {
-        atq: Number(character.atq) || 0,
+        atk: Number(character.atk) || 0,
         def: Number(character.def) || 0,
-        vel: Number(character.vel) || 0,
+        spd: Number(character.spd) || 0,
         hp: Number(character.hp) || 0,
     }
 
@@ -228,7 +206,7 @@ export function calculateFase1Stats(
 
 export interface TeamSnapshot {
     stats: TotalStatsValues
-    base: { atq: number; def: number; vel: number; hp: number }
+    base: { atk: number; def: number; spd: number; hp: number }
 }
 
 // Fase 2: Calcula las estadisticas totales incluyendo los buffs que escalan con otras estadisticas y la pasiva
@@ -243,11 +221,12 @@ export function calculateTotalStats(
     const ownActiveBuffs = getOwnActiveBuffs(buffs, targetSlot)
     const otherActiveBuffs = getOtherActiveBuffs(otherBuffs ?? [], targetSlot)
     const base = {
-        atq: Number(character.atq) || 0,
+        atk: Number(character.atk) || 0,
         def: Number(character.def) || 0,
-        vel: Number(character.vel) || 0,
+        spd: Number(character.spd) || 0,
         hp: Number(character.hp) || 0,
     }
+
     // Reutiliza los buffs filtrados para evitar recorrer las listas otra vez en la fase uno.
     const { fase1Stats } = calculateFase1StatsFromActiveBuffs(
         relics,
@@ -260,37 +239,37 @@ export function calculateTotalStats(
     // para evitar bucles infinitos de retroalimentación
     const getStatFromFase1 = (
         stats: TotalStatsValues,
-        targetStat: string,
-        baseStats: { atq: number; def: number; vel: number; hp: number }
+        targetStat: StatBuffDependent,
+        baseStats: { atk: number; def: number; spd: number; hp: number }
     ): number => {
-        if (targetStat === "ATQ de este personaje") {
-            return baseStats.atq * (1 + stats.atqPercent * 0.01)
+        if (targetStat === "atkThisCharacter") {
+            return baseStats.atk * (1 + stats.atkPercent * 0.01)
         }
-        if (targetStat === "DEF de este personaje") {
+        if (targetStat === "defThisCharacter") {
             return baseStats.def * (1 + stats.defPercent * 0.01)
         }
-        if (targetStat === "HP de este personaje") {
+        if (targetStat === "hpThisCharacter") {
             return baseStats.hp * (1 + stats.hpPercent * 0.01)
         }
-        if (targetStat === "VEL de este personaje") {
-            return baseStats.vel * (1 + stats.velPercent * 0.01)
+        if (targetStat === "spdThisCharacter") {
+            return baseStats.spd * (1 + stats.spdPercent * 0.01)
         }
-        if (targetStat === "D.CRIT de este personaje") {
+        if (targetStat === "critDmgThisCharacter") {
             return stats.dmgCrit
         }
-        if (targetStat === "P.CRIT de este personaje") {
+        if (targetStat === "critRateThisCharacter") {
             return stats.propCrit
         }
-        if (targetStat === "Energía del aliado") {
+        if (targetStat === "energyOfTarget") {
             return Number(character.maxEnergy) || 0
         }
         return 0
     }
 
     // Calcula el valor real de un buff escalable
-    //buff = buff que se aplica al personaje (ej: "ATQ %" )
-    //statValue = valor de la estadistica objetivo (ej: "ATQ")
-    //umbralStat = estadistica base necesaria para que el buff se aplique (ej: si es "ATQ %" y "DEF" con umbral 1337, el buff solo se aplicara si el personaje tiene al menos 1337 de DEF)
+    //buff = buff que se aplica al personaje (ej: "ATk %" )
+    //statValue = valor de la estadistica objetivo (ej: "ATk")
+    //umbralStat = estadistica base necesaria para que el buff se aplique (ej: si es "ATk %" y "DEF" con umbral 1337, el buff solo se aplicara si el personaje tiene al menos 1337 de DEF)
     //valorMaximo = tope para el valor calculado de un buff escalable
     const calculateBuffValue = (buff: BuffData, statValue: number) => {
         const scaledStatValue = Math.max(0, statValue - (buff.umbralStat ?? 0))
@@ -336,9 +315,9 @@ export function calculateTotalStats(
 
     // Total final combinando Fase 1 y Fase 2
     const total: TotalStatsValues = {
-        atqPercent: fase1Stats.atqPercent + flatAsPercent(fase2BuffStats.atqFlat, base.atq) + fase2BuffStats.atqPercent,
+        atkPercent: fase1Stats.atkPercent + flatAsPercent(fase2BuffStats.atkFlat, base.atk) + fase2BuffStats.atkPercent,
         defPercent: fase1Stats.defPercent + flatAsPercent(fase2BuffStats.defFlat, base.def) + fase2BuffStats.defPercent,
-        velPercent: fase1Stats.velPercent + flatAsPercent(fase2BuffStats.velFlat, base.vel) + fase2BuffStats.velPercent,
+        spdPercent: fase1Stats.spdPercent + flatAsPercent(fase2BuffStats.spdFlat, base.spd) + fase2BuffStats.spdPercent,
         hpPercent: fase1Stats.hpPercent + flatAsPercent(fase2BuffStats.hpFlat, base.hp) + fase2BuffStats.hpPercent,
         propCrit: fase1Stats.propCrit + fase2BuffStats.propCrit,
         dmgCrit: fase1Stats.dmgCrit + fase2BuffStats.dmgCrit,

@@ -12,7 +12,9 @@
         "characterError": "¡Ocurrió un error al guardar el personaje!",
         "characterReset": "¡Formulario reiniciado para un nuevo personaje!",
         "characterEditing": "¡Estas editando un personaje!",
-        "tooManySubStats": "Ya tienes 24 sub-stats"
+        "tooManySubStats": "Ya tienes 24 sub-stats",
+        "requiredField": "El campo {{field}} es requerido",
+        "requiredFields": "Los campos {{fields}} son requeridos"
     },
     "buttons": {
         "new": "Nuevo",
@@ -27,44 +29,43 @@
     },
     "placeholders": {
         "uploadImg": "Haz clic para subir",
-        "nameCharacter": "Nombre del personaje",
+        "name": "Nombre",
         "select": "Seleccione",
-        "nameRelic": "Nombre del set",
         "character": "Personaje",
-        "lightCone": "Cono de luz",
-        "hp": "HP",
-        "atq": "ATQ",
-        "def": "DEF",
-        "vel": "VEL",
-        "maxEnergy": "Energía máx",
-        "level": "Nivel",
         "piece": "Pieza",
-        "mainStat": "Estadística principal",
         "value": "Valor",
-        "stat": "Estadística"
+        "stat": "Estadistica"
     },
     "baseStats": {
         "dataBasic": "Datos básicos",
         "stats": "Estadísticas",
         "description": "Configura los atributos base del personaje. Con o sin cono de luz equipado",
+        "nameCharacter": "Nombre del Personaje",
         "hpBase": "HP Base",
-        "atqBase": "ATQ Base",
+        "atkBase": "ATQ Base",
         "defBase": "DEF Base",
         "spdBase": "VEL Base",
-        "maxEenrgy": "Energía Maximas",
+        "lightCone": "Cono de Luz",
+        "maxEnergy": "Energía Máxima",
+        "element": "Elemento",
+        "path": "Vía",
         "level": "Nivel"
     },
     "relics": {
         "title": "Artefactos y Ornamentos",
         "description": "Configura los artefactos y ornamentos del personaje.",
         "mainStats": "Atributos Principales",
-        "subStats": "Subatributos",
+        "subStats": "Sub Atributos",
         "head": "Cabeza",
         "hand": "Manos",
         "body": "Cuerpo",
         "feet": "Botas",
         "Sphere": "Orbe",
         "rope": "Cuerda",
-        "set": "Nombre del Set (Opcional)"
-    }
+        "set": "Nombre del Set"
+    },
+    "stats": {
+        "title": "Estadísticas del personaje"
+    },
+    "optional": "Opcional"
 }

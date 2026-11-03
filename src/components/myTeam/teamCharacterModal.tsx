@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import type { SavedCharacterBuild } from "@/lib/indexedDB"
 import { getCharacterName } from "@/lib/characterBuild"
 import { useBlobUrl } from "@/hooks/useBlobUrl"
+// import { useTranslation } from 'react-i18next';
 
 const PAGE_SIZE = 24
 
@@ -39,6 +40,7 @@ export default function TeamCharacterModal({
     const [searchTerm, setSearchTerm] = useState("")
     const [pagination, setPagination] = useState({ searchTerm: "", visibleCount: PAGE_SIZE })
     const loadMoreRef = useRef<HTMLDivElement>(null)
+    // const { t } = useTranslation()
 
     const filteredCharacters = useMemo(() => {
         const normalized = searchTerm.trim().toLocaleLowerCase()
@@ -86,7 +88,7 @@ export default function TeamCharacterModal({
             <DialogContent className="flex max-h-[85vh] max-w-2xl flex-col overflow-hidden p-6">
                 <DialogHeader>
                     <div className="flex items-center gap-2">
-                        <SparkleIcon size={22} className="text-primary dark:text-cyan-500" />
+                        <SparkleIcon size={22} className="text-primary" />
                         <DialogTitle className="text-lg font-bold">Seleccionar personaje</DialogTitle>
                     </div>
                     <DialogDescription>
@@ -141,8 +143,8 @@ export default function TeamCharacterModal({
                                         </span>
                                         <span className="mt-1 block text-xs text-muted-foreground">
                                             HP {character.character.hp || "—"}
-                                            {" · "}ATQ {character.character.atq || "—"}
-                                            {" · "}VEL {character.character.vel || "—"}
+                                            {" · "}ATQ {character.character.atk || "—"}
+                                            {" · "}VEL {character.character.spd || "—"}
                                         </span>
                                     </span>
                                 </Button>

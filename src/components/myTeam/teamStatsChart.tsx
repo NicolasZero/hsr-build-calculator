@@ -9,11 +9,10 @@ import {
     type ChartConfig,
 } from "@/components/ui/chart"
 import type { TeamMember } from "@/contexts/teamContext"
-import type { TotalStatsValues } from "@/utils/calculateTotalStats"
+import type { TotalStatsValues } from "@/schema/buffData"
 import { useTranslation } from "react-i18next"
 import type { BuffType } from "@/schema/buffData"
 import { visibleBuff } from "@/const/buffType"
-
 
 interface TeamStatsChartProps {
     teamMembers: TeamMember[]
@@ -22,9 +21,9 @@ interface TeamStatsChartProps {
 
 const STATS: BuffType[] = [
     "hpPercent",
-    "atqPercent",
+    "atkPercent",
     "defPercent",
-    "velPercent",
+    "spdPercent",
     "propCrit",
     "dmgCrit",
     "dmg",

@@ -1,12 +1,12 @@
 export type statsType =
     "hpFlat" |
-    "atqFlat" |
+    "atkFlat" |
     "defFlat" |
-    "velFlat" |
+    "spdFlat" |
     "hpPercent" |
-    "atqPercent" |
+    "atkPercent" |
     "defPercent" |
-    "velPercent" |
+    "spdPercent" |
     "propCrit" |
     "dmgCrit" |
     "dmg" |

@@ -78,7 +78,7 @@ export default function RelicSelector() {
 
             <label className="col-span-full flex flex-col md:flex-row md:items-center gap-1 md:gap-4">
                 <span className="text-sm whitespace-nowrap">{t('relics.set')}</span>
-                <Input name="set" value={setName} onChange={(e) => setSetName(e.target.value)} placeholder={t('placeholders.nameRelic')} />
+                <Input name="set" value={setName} onChange={(e) => setSetName(e.target.value)} placeholder={t('relics.set')} />
             </label>
 
             {/*Main stats*/}
@@ -88,7 +88,7 @@ export default function RelicSelector() {
                     {/* Piece selection */}
                     <Select name="piece" value={relicOpt} onValueChange={(v) => {
                         setRelicOpt(v)
-                        setMainStatOpt(v === "head" ? "hpFlat" : v === "hand" ? "atqFlat" : "")
+                        setMainStatOpt(v === "head" ? "hpFlat" : v === "hand" ? "atkFlat" : "")
                     }}>
                         <SelectTrigger className="w-full">
                             <SelectValue placeholder={t('placeholders.piece')} />
@@ -103,7 +103,7 @@ export default function RelicSelector() {
                     {/* Main stat selection */}
                     <Select name="mainStat" value={mainStatOpt} onValueChange={(v) => setMainStatOpt(v)} >
                         <SelectTrigger className="w-full">
-                            <SelectValue placeholder={t('placeholders.mainStat')} />
+                            <SelectValue placeholder={t('placeholders.stat')} />
                         </SelectTrigger>
                         <SelectContent>
                             {
@@ -120,7 +120,7 @@ export default function RelicSelector() {
                 <div className="grid md:grid-cols-2 gap-4 md:px-4">
                     {mainStats.map((stat, index) => (
                         <div key={index} className="p-2 border rounded flex items-center justify-between gap-2">
-                            <p className="text-sm whitespace-nowrap">{stat.piece}: {stat.mainStat} = {valueByMainStat[stat.mainStat as keyof typeof valueByMainStat]}</p>
+                            <p className="text-sm whitespace-nowrap">{t(`relics.${stat.piece}`)}: {t(`buffs.types.${stat.mainStat}`, { ns: "stats" })} = {valueByMainStat[stat.mainStat as keyof typeof valueByMainStat]}</p>
                             <Button size="icon" variant="destructive" className="h-6 w-6" onClick={() => removeStat(index, "main")}>
                                 <XIcon />
                             </Button>

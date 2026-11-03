@@ -18,7 +18,7 @@ import {
 } from "@/lib/indexedDB"
 import type { StoredCharacterBuild, StoredTeam } from "@/lib/indexedDB"
 import { calculateFase1Stats, calculateTotalStats } from "@/utils/calculateTotalStats"
-import type { TotalStatsValues } from "@/utils/calculateTotalStats"
+import type { TotalStatsValues } from "@/schema/buffData"
 import type { TeamSnapshot } from "@/utils/calculateTotalStats"
 import {
     CharacterContext,
@@ -74,9 +74,9 @@ const serializeBuilderState = (character: Character, buffs: BuffData[], relics: 
 
 const TOTAL_STAT_KEYS = [
     "hpPercent",
-    "atqPercent",
+    "atkPercent",
     "defPercent",
-    "velPercent",
+    "spdPercent",
     "dmgCrit",
     "propCrit",
     "dmg",

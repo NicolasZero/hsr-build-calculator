@@ -2,13 +2,13 @@ import type { RelicData, MainStatsType, SubStatsType, PieceName } from "@/schema
 
 export const subStats: SubStatsType[] = [
     "hpFlat",
-    "atqFlat",
+    "atkFlat",
     "defFlat",
-    "velFlat",
+    "spdFlat",
     "hpPercent",
-    "atqPercent",
+    "atkPercent",
     "defPercent",
-    "velPercent",
+    "spdPercent",
     "propCrit",
     "dmgCrit",
     "breakEffect"
@@ -16,10 +16,10 @@ export const subStats: SubStatsType[] = [
 
 export const mainStats: MainStatsType[] = [
     "hpFlat",
-    "atqFlat",
-    "velFlat",
+    "atkFlat",
+    "spdFlat",
     "hpPercent",
-    "atqPercent",
+    "atkPercent",
     "defPercent",
     "propCrit",
     "dmgCrit",
@@ -30,20 +30,20 @@ export const mainStats: MainStatsType[] = [
 
 export const mainStatsByType: Record<PieceName, MainStatsType[]> = {
     "head": ["hpFlat"],
-    "hand": ["atqFlat"],
-    "body": ["hpPercent", "atqPercent", "defPercent", "dmgCrit", "propCrit"],
-    "feet": ["velFlat", "hpPercent", "atqPercent", "defPercent"],
-    "Sphere": ["dmg", "hpPercent", "atqPercent", "defPercent"],
-    "rope": ["energyRegeneration", "hpPercent", "atqPercent", "defPercent", "breakEffect"]
+    "hand": ["atkFlat"],
+    "body": ["hpPercent", "atkPercent", "defPercent", "dmgCrit", "propCrit"],
+    "feet": ["spdFlat", "hpPercent", "atkPercent", "defPercent"],
+    "Sphere": ["dmg", "hpPercent", "atkPercent", "defPercent"],
+    "rope": ["energyRegeneration", "hpPercent", "atkPercent", "defPercent", "breakEffect"]
 } as const
 
 export const valueByMainStat: Record<MainStatsType, number> = {
     "hpFlat": 705,
-    "atqFlat": 352,
+    "atkFlat": 352,
     "hpPercent": 43.2,
-    "atqPercent": 43.2,
+    "atkPercent": 43.2,
     "defPercent": 54,
-    "velFlat": 25,
+    "spdFlat": 25,
     "propCrit": 34.8,
     "dmgCrit": 64.8,
     "dmg": 38.8,

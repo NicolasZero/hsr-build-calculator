@@ -1,6 +1,6 @@
 // import type { Element } from "@/schema/element"
 import { exultationLevelMultiplier, superBreakLevelMultiplier } from "@/const/levelMultiplier"
-import type { TotalStatsValues } from "@/utils/calculateTotalStats"
+import type { TotalStatsValues } from "@/schema/buffData"
 
 export type DamageType = "general" | "elation" | "superBreak"
 
@@ -266,8 +266,8 @@ export function calculateDamage(input: DamageCalculationInput): DamageCalculatio
 }
 
 export function getStatValue(
-    stat: "atq" | "hp" | "def",
-    character: { atq: number | string; hp: number | string; def: number | string },
+    stat: "atk" | "hp" | "def",
+    character: { atk: number | string; hp: number | string; def: number | string },
     total: TotalStatsValues
 ): number {
     return (Number(character[stat]) || 0) * (1 + (total[stat] || 0) * 0.01)

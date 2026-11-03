@@ -2,10 +2,10 @@ import type { Character } from "@/schema/character"
 
 export const characterDefault: Character = {
     name: '',
-    atq: "",
+    atk: "",
     lvl: "80",
     hp: "",
-    vel: "",
+    spd: "",
     def: "",
     element: null,
     lightCone: "",

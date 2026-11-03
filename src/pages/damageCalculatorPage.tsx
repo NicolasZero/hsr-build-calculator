@@ -1,11 +1,14 @@
-import { useMemo, useState, type ChangeEvent, type FormEvent } from "react"
+import { useMemo, useState, type ChangeEvent, type SubmitEvent } from "react"
 import { Link } from "react-router"
-import { CalculatorIcon, CrosshairIcon, FolderOpenIcon, ImageIcon, ShieldIcon, SwordIcon } from "@phosphor-icons/react"
+import { CalculatorIcon, CrosshairIcon, FolderOpenIcon, ImageIcon, PlusIcon, ShieldIcon, SwordIcon } from "@phosphor-icons/react"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
+import { DamageHistory, type DamageHistoryEntry } from "@/components/damage/damageHistory"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useTeam } from "@/contexts/teamContext"
+import Loader from "@/components/layout/loader"
 import { attackTarget } from "@/const/battleData"
 import { enemyDefault } from "@/const/enemyTemplate"
 import type { EnemyData } from "@/schema/enemyData"
@@ -20,10 +23,10 @@ import {
 } from "@/utils/calculateDamage"
 import { ELEMENTS } from "@/const/element"
 
-type AttackStat = "atq" | "hp" | "def"
+type AttackStat = "atk" | "hp" | "def"
 
 const STAT_LABELS: Record<AttackStat, string> = {
-    atq: "ATQ",
+    atk: "ATQ",
     hp: "HP",
     def: "DEF",
 }
@@ -32,13 +35,6 @@ const DAMAGE_TYPE_LABELS: Record<DamageType, string> = {
     general: "Daño General",
     elation: "Daño de Exultación",
     superBreak: "Daño de Super Break",
-}
-
-const ATTACK_TARGET_LABELS: Record<AttackTarget, string> = {
-    UNICO: "Único",
-    RAFAGA: "Ráfaga",
-    TODOS: "Todos",
-    REBOTE: "Rebote",
 }
 
 interface HitGroup {
@@ -81,13 +77,13 @@ function Field({
 }
 
 export default function DamageCalculatorPage() {
-    const { teams, activeTeam, teamMembers, teamStats, isLoading } = useTeam()
+    const { activeTeam, teamMembers, teamStats, isLoading } = useTeam()
     const [isLoadTeamOpen, setIsLoadTeamOpen] = useState(false)
     const [selectedMemberId, setSelectedMemberId] = useState("")
-    const [attackElement, setAttackElement] = useState<Element>("FISICO")
-    const [attackStat, setAttackStat] = useState<AttackStat>("atq")
+    const [attackElement, setAttackElement] = useState<Element>("physical")
+    const [attackStat, setAttackStat] = useState<AttackStat>("atk")
     const [skillMultiplier, setSkillMultiplier] = useState("100")
-    const [attackTargetType, setAttackTargetType] = useState<AttackTarget>("UNICO")
+    const [attackTargetType, setAttackTargetType] = useState<AttackTarget>("single")
     const [hitMultiplier, setHitMultiplier] = useState("100")
     const [hitCount, setHitCount] = useState("1")
     const [hitToughnessReduction, setHitToughnessReduction] = useState("30")
@@ -100,6 +96,7 @@ export default function DamageCalculatorPage() {
         elementalResistance: { ...enemyDefault.elementalResistance },
     }))
     const [hasAttacked, setHasAttacked] = useState(false)
+    const [damageHistory, setDamageHistory] = useState<DamageHistoryEntry[]>([])
 
     // Elation-specific inputs
     const [punchline, setPunchline] = useState("0")
@@ -152,7 +149,7 @@ export default function DamageCalculatorPage() {
             breakDamage: memberStats.breakDamage,
             superBreakDamage: memberStats.superBreakDamage,
         }
-        const groups = attackTargetType === "REBOTE"
+        const groups = attackTargetType === "bounce"
             ? hitGroups
             : [{
                 id: "single-hit",
@@ -166,7 +163,7 @@ export default function DamageCalculatorPage() {
                 ...sharedInput,
                 skillMultiplier: group.multiplier,
                 toughnessReduction:
-                    damageType === "superBreak" && attackTargetType === "REBOTE"
+                    damageType === "superBreak" && attackTargetType === "bounce"
                         ? group.toughnessReduction
                         : numberValue(toughnessReduction),
             }),
@@ -216,15 +213,33 @@ export default function DamageCalculatorPage() {
         event.target.value = ""
     }
 
-    const handleAttack = (event: FormEvent<HTMLFormElement>) => {
+    const handleAttack = (event: SubmitEvent) => {
         event.preventDefault()
         if (!chosenMember || !memberStats) return
-        if (attackTargetType === "REBOTE" && hitGroups.length === 0) {
+        if (attackTargetType === "bounce" && hitGroups.length === 0) {
             setHitGroupError("Agrega al menos un grupo de impactos para calcular el rebote")
             return
         }
         setHitGroupError("")
         setHasAttacked(true)
+    }
+
+    const registerDamage = () => {
+        if (!result || !chosenMember) return
+
+        setDamageHistory((current) => [
+            ...current,
+            {
+                id: crypto.randomUUID(),
+                characterName: chosenMember.name,
+                damageType: DAMAGE_TYPE_LABELS[damageType],
+                element: attackElement,
+                enemyName: enemy.name || "Enemigo",
+                damageLabel: canCrit ? "Daño esperado" : "Sin crítico",
+                damage: canCrit ? result.total.expected : result.total.nonCritical,
+                registeredAt: Date.now(),
+            },
+        ])
     }
 
     const addHitGroup = () => {
@@ -278,7 +293,7 @@ export default function DamageCalculatorPage() {
 
         setEnemy((current) => ({
             ...current,
-            weakness: nextWeaknesses[0] ?? "FISICO",
+            weakness: nextWeaknesses[0] ?? "physical",
             weaknesses: nextWeaknesses,
             elementalResistance: {
                 ...current.elementalResistance,
@@ -288,6 +303,34 @@ export default function DamageCalculatorPage() {
     }
 
     const canCrit = damageType !== "superBreak"
+
+    if (isLoading) {
+        return (
+            <main className="mx-auto w-full max-w-6xl p-4 md:px-8">
+                <Loader />
+            </main>
+        )
+    }
+
+    if (teamMembers.length === 0) {
+        return (
+            <main className="mx-auto flex min-h-[60vh] w-full max-w-6xl items-center justify-center p-4 md:px-8">
+                <Card className="w-full max-w-lg text-center">
+                    <CardHeader>
+                        <CardTitle className="text-xl">No hay personajes en tu equipo</CardTitle>
+                        <CardDescription>
+                            Agrega personajes a un equipo para usar la calculadora de daño.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Button asChild>
+                            <Link to="/teams">Ir a equipos</Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+            </main>
+        )
+    }
 
     return (
         <main className="mx-auto flex w-full max-w-6xl flex-col gap-5 p-4 md:px-8">
@@ -365,7 +408,7 @@ export default function DamageCalculatorPage() {
                                 <SelectContent>
                                     {attackTarget.map((target) => (
                                         <SelectItem key={target} value={target}>
-                                            {ATTACK_TARGET_LABELS[target]}
+                                            {target}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -386,14 +429,14 @@ export default function DamageCalculatorPage() {
                                 <Select value={attackStat} onValueChange={(value) => setAttackStat(value as AttackStat)}>
                                     <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                                     <SelectContent>
-                                        {(["atq", "hp", "def"] as AttackStat[]).map((stat) => (
+                                        {(["atk", "hp", "def"] as AttackStat[]).map((stat) => (
                                             <SelectItem key={stat} value={stat}>{STAT_LABELS[stat]}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
                             </Field>
                         )}
-                        {attackTargetType !== "REBOTE" && (
+                        {attackTargetType !== "bounce" && (
                             <Field label={damageType === "superBreak" ? "Multiplicador de UltraRuptura (%)" : "Multiplicador de habilidad (%)"}>
                                 <Input
                                     type="number"
@@ -407,7 +450,7 @@ export default function DamageCalculatorPage() {
                         )}
                     </div>
 
-                    {attackTargetType === "REBOTE" && (
+                    {attackTargetType === "bounce" && (
                         <div className="mt-4 rounded-lg border p-4">
                             <h3 className="font-medium">Grupos de impactos del rebote</h3>
                             <p className="mt-1 text-sm text-muted-foreground">
@@ -513,7 +556,7 @@ export default function DamageCalculatorPage() {
                     {/* Campos específicos de Super Break */}
                     {damageType === "superBreak" && (
                         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                            {attackTargetType !== "REBOTE" && (
+                            {attackTargetType !== "bounce" && (
                                 <Field label="Reducción de firmeza del ataque">
                                     <Input
                                         type="number"
@@ -546,12 +589,6 @@ export default function DamageCalculatorPage() {
                                 />
                             ))}
                         </div>
-                    )}
-                    {teams.length === 0 && !isLoading && (
-                        <p className="mt-4 text-sm text-muted-foreground">
-                            Aún no tienes equipos guardados.{" "}
-                            <Link className="text-primary underline underline-offset-4" to="/teams">Crea uno en la página de equipos</Link>.
-                        </p>
                     )}
                 </section>
 
@@ -654,7 +691,7 @@ export default function DamageCalculatorPage() {
                             </p>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                            {attackTargetType === "REBOTE" ? "Daño total del ataque" : "Daño estimado por impacto"}
+                            {attackTargetType === "bounce" ? "Daño total del ataque" : "Daño estimado por impacto"}
                         </p>
                     </div>
                     <div className={`grid gap-3 ${canCrit ? "sm:grid-cols-3" : "sm:grid-cols-1 max-w-sm"}`}>
@@ -666,7 +703,11 @@ export default function DamageCalculatorPage() {
                             </>
                         )}
                     </div>
-                    {attackTargetType === "REBOTE" && (
+                    <Button type="button" className="mt-4" onClick={registerDamage}>
+                        <PlusIcon size={18} />
+                        Registrar daño
+                    </Button>
+                    {attackTargetType === "bounce" && (
                         <div className="mt-4 rounded-lg border bg-background/60 p-4">
                             <h3 className="font-medium">Desglose de impactos</h3>
                             <p className="mt-1 text-xs text-muted-foreground">
@@ -718,6 +759,11 @@ export default function DamageCalculatorPage() {
                     </p>
                 </section>
             )}
+            <DamageHistory
+                entries={damageHistory}
+                onRemove={(id) => setDamageHistory((current) => current.filter((entry) => entry.id !== id))}
+                onClear={() => setDamageHistory([])}
+            />
             {/* Modal para seleccionar equipo */}
             <LoadTeamModal
                 open={isLoadTeamOpen}

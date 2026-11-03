@@ -1,19 +1,18 @@
-export type Element = "FISICO" | "HIELO" | "FUEGO" | "VIENTO" | "RAYO" | "CUANTICO" | "IMAGINARIO"
+export type Element = "fire" | "ice" | "imaginary" | "physical" | "quantum" | "lightning" | "wind" | "none"
 
 export type BreakDamage = Record<Element, number>
 
 export type PlayablePath =
-    "CONSERVACION" |
-    "DESTRUCCION" |
-    "ABUNDANCIA" |
-    "ERUDICION" |
-    "CAZERIA" |
-    "ARMONIA" |
-    "NIHILIDAD" |
-    "REMINISCENCIA" |
-    "EXULTACION"
+    "preservation" |
+    "erudition" |
+    "abundance" |
+    "hunt" |
+    "harmony" |
+    "nihility" |
+    "destruction" |
+    "remembrance" |
+    "elation"
 
-export type AttackType = "Basic" | "Skill" | "Ultimate" | "Follow-Up"
+export type AttackType = "basic" | "skill" | "ultimate" | "followUp"
 
-export type AttackTarget = "UNICO" | "RAFAGA" | "TODOS" | "REBOTE"
-
+export type AttackTarget = "single" | "blast" | "aoe" | "bounce"
