@@ -19,6 +19,8 @@ Nota:
 
 For Elation DMG:
 
+Elation DMG is not affected by DMG Boost.
+
 Elation DMG = Base DMG [Attacker]
 * Original Elation DMG Multiplier [Attacker]
 * CRIT Multiplier [Attacker]
@@ -37,11 +39,10 @@ Elation Multiplier = (1 + Elation Stat)
 Punchline Multiplier (if has certified banger) = 1 + ((Certified Banger * 5) / (Certified Banger +240))
 Punchline Multiplier (if not has certified banger) = 1 + ((punchline * 5)/(Punchline + 240))
 
-Elation DMG is not affected by DMG Boost.
-
 Nota:
 - Level Multiplier es un valor de una lista. ejm: Nivel 80 = 7535.1070. Hay una constante con la lista completa 
 - El sistema pide el ablity multiplier en la calculadora de daño
+- El daño de Exultacion casi siempre es un daño adicional.
 
 ---
 
@@ -65,7 +66,7 @@ Effective Toughness Reduction = Toughness Reduction * (1 + Toughness Efficiency)
 
 Nota: 
 - Level Multiplier es un valor de una lista diferente a la exultacion. Hay una constante con la lista completa 
-
+- El daño de Ultra Ruptura (Super Break) casi siempre es un daño adicional.
 
 --- 
 
@@ -75,7 +76,7 @@ When enemy targets' Toughness is reduced to 0, they will enter the Weakness Brea
 Break DMG increases with higher Break Effect, higher target max Toughness, and higher character levels.
 Break DMG cannot CRIT Hit and is not affected by DMG Boost effects.
 
-Break DMG = Break Base DMG 
+Break DMG = Break Base DMG * Ability Multiplier
 * (1 + Break Effect) 
 * (1 + Break DMG Increase) 
 * DEF Multiplier [Target]
@@ -86,9 +87,12 @@ Break DMG = Break Base DMG
 
 Max Toughness Multiplier = 0.5 + (Max Toughness [Target] / 40)
 Break Base Damage = Element Multiplier * Level Multiplier[Attaker] * Max Toughness Multiplier[Target]
+Ability Multiplier = 1 | Ability Multiplier
+If specified or if not specified
 
 Nota:
 - Element Multiplier es una valor de una lista.
+- El daño de ruptura puede ocurrir como daño adicional al ataque por romber la firmeza o como el tipo de daño de un ataque
 
 ---
 
@@ -102,6 +106,7 @@ DEF Multiplier = 100% - [DEF / (DEF + 200 + 10 * Attacker Level)]
 Nota: No usar esta formula, usar la simplificada
 
 (Enemy) Base DEF = 200 + 10 * Level
+Nota: Casi todos los enemigos usan esa formula con una excepcion (los chanchitos)
 
 Nota: Como el 99% de los casos la DEF enemiga se calcula igual. Se usa la siguiente formula.
 
@@ -109,7 +114,7 @@ DEF Multiplier (Simplified) = (level [Attaker] + 20) / (level [Target]) * (1 - D
 
 Enemies' Base DEF will reach the cap at Level 100. Therefore, Level 120 enemies have the same Base DEF as Level 100 stat.
 
-RES Multiplier = 1 - (RES [Target] - RES PEN [Attaker])
+RES Multiplier = 1 - RES [Target] - RES PEN [Attaker]
 RES ranges between -100% and 90%.
 
 Vulnerability Multiplier = (1 + Vulnerability)

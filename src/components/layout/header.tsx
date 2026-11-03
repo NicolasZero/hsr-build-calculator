@@ -1,10 +1,11 @@
 import { ModeToggle } from "@/components/layout/mode-toggle";
 import { useState, useEffect, useRef } from "react";
 import { NavLink } from "react-router";
-import { ListIcon, XIcon } from "@phosphor-icons/react";
+import { ListIcon, XIcon, GearIcon } from "@phosphor-icons/react";
 import LanguageSelector from "@/components/layout/lenguageSelector";
 import { useTranslation } from 'react-i18next';
 import logo from '@/assets/ibuki_doro.png'
+import { Button } from "../ui/button";
 
 export default function Header() {
     const [isOpen, setIsOpen] = useState(false);
@@ -44,6 +45,7 @@ export default function Header() {
         { name: t("header.teams"), path: "/teams" },
         { name: t("header.dmg"), path: "/dmg-calc" },
         { name: t("header.speed"), path: "/speed-calc" },
+        // { name: t("header.settings"), path: "/settings" },
     ];
 
     return (
@@ -80,6 +82,12 @@ export default function Header() {
                     ))}
                 </ul>
 
+                <NavLink to="/settings">
+                    <Button variant="outline" size="icon" type="button">
+                        <GearIcon size={24} />
+                    </Button>
+                </NavLink>
+                {/* Para el desarrollo, luego se puede comentar o borrar */}
                 <LanguageSelector />
                 <ModeToggle />
             </nav>

@@ -261,7 +261,7 @@ export const obtenerPersonajePorId = async (
 
 
 // Elimina el personaje y, en la misma transacción, lo quita de los equipos
- // guardados para no dejar referencias huérfanas.
+// guardados para no dejar referencias huérfanas.
 export const eliminarPersonaje = async (id: number): Promise<void> => {
     const tx = await openTransaction([CHARACTERS_STORE, TEAMS_STORE], "readwrite")
     const done = transactionDone(tx)
@@ -329,4 +329,120 @@ export const eliminarEquipo = async (id: number): Promise<void> => {
     return withStore(TEAMS_STORE, "readwrite", async (store) => {
         await requestToPromise(store.delete(id))
     })
+}
+
+
+// ===== Operaciones Globales (Limpiar, Exportar, Importar) ===== //
+
+export interface DatabaseExportData {
+    version: number;
+    exportedAt: string;
+    type: "full" | "character";
+    characters: StoredCharacterBuild[];
+    teams?: StoredTeam[];
+}
+
+/**
+ * Limpia todos los registros de personajes y equipos en la base de datos.
+ */
+export const limpiarBaseDeDatos = async (): Promise<void> => {
+    const tx = await openTransaction([CHARACTERS_STORE, TEAMS_STORE], "readwrite")
+    const done = transactionDone(tx)
+    tx.objectStore(CHARACTERS_STORE).clear()
+    tx.objectStore(TEAMS_STORE).clear()
+    await done
+}
+
+/**
+ * Exporta toda la base de datos (personajes y equipos).
+ */
+export const exportarBaseDeDatosCompleta = async (): Promise<DatabaseExportData> => {
+    const characters = await obtenerPersonajes()
+    const teams = await obtenerEquipos()
+    return {
+        version: DB_VERSION,
+        exportedAt: new Date().toISOString(),
+        type: "full",
+        characters,
+        teams,
+    }
+}
+
+/**
+ * Exporta un personaje individual por su id.
+ */
+export const exportarPersonajePorId = async (id: number): Promise<DatabaseExportData | null> => {
+    const character = await obtenerPersonajePorId(id)
+    if (!character) return null
+    return {
+        version: DB_VERSION,
+        exportedAt: new Date().toISOString(),
+        type: "character",
+        characters: [character],
+    }
+}
+
+export interface ImportResult {
+    importedCharacters: number;
+    importedTeams: number;
+}
+
+/**
+ * Importa datos a la base de datos (personajes y opcionalmente equipos).
+ * Puede operar en modo 'merge' (añadir) o 'replace' (limpia antes).
+ */
+export const importarDatos = async (
+    data: DatabaseExportData,
+    mode: "merge" | "replace" = "merge"
+): Promise<ImportResult> => {
+    if (!data || !Array.isArray(data.characters)) {
+        throw new Error("El archivo no tiene un formato válido de exportación")
+    }
+
+    if (mode === "replace") {
+        await limpiarBaseDeDatos()
+    }
+
+    let importedCharacters = 0
+    let importedTeams = 0
+
+    // Si reemplaza o fusiona, mapeamos ids de personajes para reasignar ids a los equipos
+    const characterIdMap = new Map<number, number>()
+
+    for (const charBuild of data.characters) {
+        const oldId = charBuild.id
+        const toSave: SavedCharacterBuild = {
+            ...charBuild,
+            ...(mode === "replace" ? { id: charBuild.id } : {}),
+        }
+        if (mode === "merge") {
+            delete toSave.id
+        }
+        const saved = await guardarPersonaje(toSave)
+        if (typeof oldId === "number") {
+            characterIdMap.set(oldId, saved.id)
+        }
+        importedCharacters++
+    }
+
+    if (Array.isArray(data.teams) && data.teams.length > 0) {
+        for (const team of data.teams) {
+            const mappedCharacters = (team.characters ?? []).map((cid) =>
+                characterIdMap.has(cid) ? characterIdMap.get(cid)! : cid
+            )
+
+            const teamToSave: SavedTeam = {
+                name: team.name,
+                characters: mappedCharacters,
+                ...(mode === "replace" && typeof team.id === "number" ? { id: team.id } : {}),
+            }
+            await guardarEquipo(teamToSave)
+            importedTeams++
+        }
+    }
+
+    return {
+        importedCharacters,
+        importedTeams,
+    }
 }
