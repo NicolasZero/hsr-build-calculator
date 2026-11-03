@@ -9,6 +9,7 @@ const CharacterBuilderPage = lazy(() => import('@/pages/createCharacterPage'))
 const TeamPage = lazy(() => import('@/pages/teamPage'))
 const SavedCharactersPage = lazy(() => import('@/pages/savedCharactersPage'))
 const DamageCalculatorPage = lazy(() => import('@/pages/damageCalculatorPage'))
+const SettingsPage = lazy(() => import('@/pages/settingsPage'))
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
             <Route path='dmg-calc' element={<DamageCalculatorPage />} />
             <Route path='speed-calc' element={<MaintenancePage />} />
             <Route path='teams' element={<TeamPage />} />
+            <Route path='settings' element={<SettingsPage />} />
             <Route path='*' element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
