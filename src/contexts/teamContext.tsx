@@ -3,7 +3,7 @@ import type { Dispatch, SetStateAction } from "react"
 import type { Character } from "@/schema/character"
 import type { BuffData } from "@/schema/buffData"
 import type { RelicData } from "@/schema/relicData"
-import type { TotalStatsValues } from "@/utils/calculateTotalStats"
+import type { TotalStatsValues } from "@/schema/buffData"
 import type { StoredCharacterBuild, StoredTeam } from "@/lib/indexedDB"
 
 export type TeamCharacterIds = Array<number | null>

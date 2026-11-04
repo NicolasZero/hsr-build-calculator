@@ -22,35 +22,31 @@ export default function TeamCharacterCard({
 }: Props) {
 
     return (
-        <article className="flex max-h-48 items-center gap-3 rounded-xl border bg-background p-3">
-            <CharacterPortrait build={selectedBuild} onClick={() => openCharacterModal(id)} />
+        <article className="flex items-center gap-3 rounded-xl border bg-background p-3">
+            <CharacterPortrait className="w-[35%] h-37.5" build={selectedBuild} onClick={() => openCharacterModal(id)} />
 
-            <div className="flex-1 h-full flex flex-col justify-between">
+            <section className="flex-1 h-full flex flex-col justify-between">
+                {isEditing && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary w-fit">
+                        <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                        En edición
+                    </span>
+                )}
                 <div className="mb-2 flex items-center gap-2">
                     <p className="truncate text-xl font-medium">
                         {characterName ? `${characterName.length > 15 ? characterName.slice(0, 15) + "..." : characterName}` : "Personaje"}
                     </p>
-                    {isEditing && (
-                        <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary dark:bg-cyan-500/15 dark:text-cyan-400">
-                            En edición
-                        </span>
-                    )}
                 </div>
                 {selectedBuild && (
-                    <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-sm text-muted-foreground">
-                            ATQ: {selectedBuild.character.atq || "—"}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            DEF: {selectedBuild.character.def || "—"}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            HP: {selectedBuild.character.hp || "—"}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            VEL: {selectedBuild.character.vel || "—"}
-                        </p>
-                    </div>
+                    <>
+                        <p className="font-medium text-sm text-muted-foreground">Stats Bases:</p>
+                        <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                            <p>HP: {selectedBuild.character.hp || "—"}</p>
+                            <p>ATQ: {selectedBuild.character.atk || "—"}</p>
+                            <p>DEF: {selectedBuild.character.def || "—"}</p>
+                            <p>VEL: {selectedBuild.character.spd || "—"}</p>
+                        </div>
+                    </>
                 )}
 
                 <div className="flex gap-2 mt-1">
@@ -72,9 +68,7 @@ export default function TeamCharacterCard({
                         </Button>
                     )}
                 </div>
-            </div>
-
-
+            </section>
         </article>
     )
 }

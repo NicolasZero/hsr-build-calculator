@@ -42,7 +42,7 @@ import {
 import { toast } from "sonner"
 
 export default function SettingsPage() {
-    const { t, i18n } = useTranslation()
+    const { i18n } = useTranslation()
     const { theme, setTheme } = useTheme()
     const { refreshSavedCharacters, resetCharacter } = useCharacter()
     const { refreshTeams } = useTeam()
@@ -198,7 +198,7 @@ export default function SettingsPage() {
 
     return (
         <main className="container mx-auto px-4 py-8 max-w-4xl space-y-8 min-h-[calc(100vh-140px)]">
-            <div className="flex items-center gap-3 border-b pb-4">
+            <header className="flex items-center gap-3 p-4 bg-muted/40 border">
                 <div className="p-2 bg-primary/10 text-primary rounded-lg">
                     <GearIcon size={32} weight="duotone" />
                 </div>
@@ -208,7 +208,7 @@ export default function SettingsPage() {
                         Administra la apariencia, idioma y copias de seguridad de la aplicación
                     </p>
                 </div>
-            </div>
+            </header>
 
             <div className="grid gap-6 md:grid-cols-2">
                 {/* APARIENCIA / TEMA */}

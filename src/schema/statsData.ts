@@ -1,5 +1,4 @@
-export type Element = "fire" | "ice" | "imaginary" | "physical" | "quantum" | "lightning" | "wind" | "none"
-
+export type Element = "fire" | "ice" | "imaginary" | "physical" | "quantum" | "lightning" | "wind"
 export type BreakDamage = Record<Element, number>
 
 export type PlayablePath =

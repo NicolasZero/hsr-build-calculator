@@ -5,10 +5,10 @@
             "defFlat": "DEF",
             "hpFlat": "HP",
             "spdFlat": "VEL",
-            "atkPercent": "ATQ %",
-            "defPercent": "DEF %",
-            "hpPercent": "HP %",
-            "spdPercent": "VEL %",
+            "atkPercent": "ATQ%",
+            "defPercent": "DEF%",
+            "hpPercent": "HP%",
+            "spdPercent": "VEL%",
             "propCrit": "Prop.Crit",
             "dmgCrit": "Dñ.Crit",
             "dmg": "Daño",
@@ -23,6 +23,30 @@
             "originalDmg": "Dñ.Original",
             "merrymake": "Dñ.Exultación",
             "energyRegeneration": "Rec.Energía"
+        },
+        "fullName": {
+            "atkFlat": "Ataque",
+            "defFlat": "Defensa",
+            "hpFlat": "Vida",
+            "spdFlat": "Velocidad",
+            "atkPercent": "Ataque %",
+            "defPercent": "Defensa %",
+            "hpPercent": "Vida %",
+            "spdPercent": "Velocidad %",
+            "propCrit": "Probabilidad Critica",
+            "dmgCrit": "Daño Critico",
+            "dmg": "Daño",
+            "breakEffect": "Efecto Ruptura",
+            "breakDamage": "Daño Ruptura",
+            "superBreakDamage": "Daño UltraRuptura",
+            "elation": "Exultación",
+            "redDef": "Ignorar Defensa",
+            "vul": "Vulnerabilidad",
+            "penRes": "Penetración de Resistencia",
+            "redRes": "Reducción de Resistencia",
+            "originalDmg": "Daño Original",
+            "merrymake": "Daño Exultación",
+            "energyRegeneration": "Recuperación de Energía"
         },
         "origins": {
             "basic": "Básico",
@@ -59,7 +83,7 @@
         "fire": "Fuego",
         "ice": "Hielo",
         "imaginary": "Imaginario",
-        "physical": "Física",
+        "physical": "Físico",
         "quantum": "Cuántico",
         "lightning": "Rayo",
         "wind": "Viento"
@@ -82,7 +106,7 @@
             "ultimate": "Definitica",
             "followUp": "Ataque de Seguimiento"
         },
-        "AttackTarget": {
+        "attackTarget": {
             "single": "Unico",
             "blast": "Rafaga",
             "aoe": "Area",

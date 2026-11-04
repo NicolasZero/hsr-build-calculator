@@ -19,12 +19,13 @@
     "buttons": {
         "new": "Nuevo",
         "newCharacter": "Nuevo Personaje",
-        "load": "Cargar Personaje",
-        "save": "Guardar Personaje",
+        "load": "Cargar",
+        "save": "Guardar",
+        "registered": "Registrados",
         "saveNew": "Guardar Como Nuevo",
         "saveLoading": "Guardando...",
         "loadLoading": "Cargando...",
-        "update": "Actualizar Personaje",
+        "update": "Actualizar",
         "addBuff": "Agregar Buff"
     },
     "placeholders": {

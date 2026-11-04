@@ -5,25 +5,16 @@
 - Agregar la exultación    
     - [] Agregar easter eggs y detalles sobre la exultacion
 
-- Agregar modulo de configuracion general
-    - [x] Elegir el idioma
-    - [x] Agregar opcion de resetear todos los datos
-    - [x] Exportar BD
-    - [x] Importar BD
-    - [x] Elegir entre modo claro y oscuro
+- Cambios en la lista de personajes
+    - [] Agregar cambio de visualizacion
+    - [] Agregar Filtros
+    - [] Agregar favoritos
 
-- Agregar modulo de calculo de daño
-    - [x] Selector de team
-    - [x] Selector de personaje
-    - [x] Selector de habilidad
-    - [x] Selector de enemigos
-    - [x] Calcular :v
-    - [x] Interfaz
-    - [x] Agregar mas detalles
-    - [x] Agregar en el modal de buffos el buff "Aumento de daño Original"
-    - [x] Implementar en el calculo de daño el buff "Aumento de daño Original"
-    - [x] Implementar el especificar daño adicional, detalles y calcular daño
-    - [x] Agregar historial de daño
+- Cambios en el calculo de daño
+    - [] Mejorar la interfaz para que sea mas agradable, facil de usar y entender
+        - [] Auto selecion del primer personaje
+        - [] Selecionar pj con click en la imagen
+        - [] decidir si guardar el registro o no
 
 - Agregar la reminicencia
     - [] Evaluar que cambios necesita el builder para agregar la reminicencia

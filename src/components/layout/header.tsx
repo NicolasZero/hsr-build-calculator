@@ -72,7 +72,7 @@ export default function Header() {
                         <li key={link.path} className="rounded-md overflow-hidden">
                             <NavLink
                                 className={({ isActive }) =>
-                                    `px-4 py-2 block transition-colors duration-200 hover:bg-black/20 ${isActive ? "text-primary dark:text-cyan-500 font-bold" : ""}`
+                                    `px-4 py-2 block transition-colors duration-200 hover:bg-black/20 ${isActive ? "text-primary font-bold" : ""}`
                                 }
                                 to={link.path}
                             >
@@ -82,14 +82,16 @@ export default function Header() {
                     ))}
                 </ul>
 
-                <NavLink to="/settings">
-                    <Button variant="outline" size="icon" type="button">
-                        <GearIcon size={24} />
-                    </Button>
-                </NavLink>
-                {/* Para el desarrollo, luego se puede comentar o borrar */}
-                <LanguageSelector />
-                <ModeToggle />
+                <div className="flex gap-1">
+                    <NavLink to="/settings" className={({ isActive }) => isActive ? "text-primary" : ""}>
+                        <Button variant="outline" size="icon" type="button">
+                            <GearIcon size={24} />
+                        </Button>
+                    </NavLink>
+                    {/* Para el desarrollo, luego se puede comentar o borrar */}
+                    <LanguageSelector />
+                    <ModeToggle />
+                </div>
             </nav>
 
             {/* Mobile Menu Dropdown */}
@@ -100,7 +102,7 @@ export default function Header() {
                             <li key={link.path} className="px-3">
                                 <NavLink
                                     className={({ isActive }) =>
-                                        `px-6 py-4 block transition-colors duration-200 hover:bg-black/20 rounded-xl ${isActive ? "text-primary dark:text-cyan-500 font-bold" : ""}`
+                                        `px-6 py-4 block transition-colors duration-200 hover:bg-black/20 rounded-xl ${isActive ? "text-primary font-bold" : ""}`
                                     }
                                     to={link.path}
                                     onClick={() => setIsOpen(false)}

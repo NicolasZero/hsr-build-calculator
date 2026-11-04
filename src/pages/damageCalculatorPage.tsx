@@ -22,6 +22,7 @@ import {
     type DamageType
 } from "@/utils/calculateDamage"
 import { ELEMENTS } from "@/const/element"
+import { useTranslation } from 'react-i18next';
 
 type AttackStat = "atk" | "hp" | "def"
 
@@ -77,6 +78,7 @@ function Field({
 }
 
 export default function DamageCalculatorPage() {
+    const { t } = useTranslation('stats');
     const { activeTeam, teamMembers, teamStats, isLoading } = useTeam()
     const [isLoadTeamOpen, setIsLoadTeamOpen] = useState(false)
     const [selectedMemberId, setSelectedMemberId] = useState("")
@@ -408,7 +410,7 @@ export default function DamageCalculatorPage() {
                                 <SelectContent>
                                     {attackTarget.map((target) => (
                                         <SelectItem key={target} value={target}>
-                                            {target}
+                                            {t(`battle.attackTarget.${target}`)}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -419,7 +421,7 @@ export default function DamageCalculatorPage() {
                                 <SelectTrigger className="w-full"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     {ELEMENTS.map((element) => (
-                                        <SelectItem key={element} value={element}>{element}</SelectItem>
+                                        <SelectItem key={element} value={element}>{t(`elements.${element}`)}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -616,7 +618,7 @@ export default function DamageCalculatorPage() {
                                                     checked={selected}
                                                     onCheckedChange={() => toggleWeakness(element)}
                                                 />
-                                                <span>{element}</span>
+                                                <span>{t(`elements.${element}`)}</span>
                                             </label>
                                         )
                                     })}
@@ -640,7 +642,7 @@ export default function DamageCalculatorPage() {
                         <summary className="cursor-pointer font-medium">Opciones avanzadas del enemigo</summary>
                         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {ELEMENTS.map((element) => (
-                                <Field key={element} label={`RES ${element} (%)`}>
+                                <Field key={element} label={`RES ${t(`elements.${element}`)} (%)`}>
                                     <Input
                                         type="number"
                                         step="any"

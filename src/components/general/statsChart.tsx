@@ -26,7 +26,7 @@ function StatsChart({ data = chartData }: { data?: ChartData[] }) {
     }
 
     return (
-        <div className='overflow-auto'>
+        <>
             <div
                 role="group"
                 aria-label="Filtrar estadísticas de la gráfica"
@@ -50,7 +50,7 @@ function StatsChart({ data = chartData }: { data?: ChartData[] }) {
                     )
                 })}
             </div>
-            <ChartContainer config={chartConfig} className="min-h-75 min-w-125 w-full">
+            <ChartContainer config={chartConfig} className="min-h-75 min-w-125">
                 <BarChart accessibilityLayer data={visibleData}>
                     <CartesianGrid vertical={false} />
                     <XAxis
@@ -66,7 +66,7 @@ function StatsChart({ data = chartData }: { data?: ChartData[] }) {
                     <Bar dataKey="valor" fill="var(--color-primary)" radius={4} />
                 </BarChart>
             </ChartContainer>
-        </div>
+        </>
     )
 }
 

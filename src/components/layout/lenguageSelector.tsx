@@ -11,7 +11,7 @@ export default function LanguageSelector() {
     };
 
     return (
-        <div className="flex items-center gap-2 mx-1">
+        <div className="flex items-center gap-2">
             {/* <GlobeIcon size={24} className="text-muted-foreground" /> */}
             <Select name="language" defaultValue={i18n.language.split('-')[0]} onValueChange={handleChange}>
                 <SelectTrigger className="w-full">

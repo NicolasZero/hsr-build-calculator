@@ -28,7 +28,7 @@ function isDuplicate(existing: BuffData, candidate: BuffData) {
     )
 }
 
-export default function BuffsSelector() {
+export default function BuffsSelector({ className }: { className?: string }) {
     const { buffs, setBuffs } = useCharacter()
     const [openConfirmModal, setConfirmModal] = useState(false)
     const [buffToDeleteId, setBuffToDeleteId] = useState("")
@@ -158,7 +158,7 @@ export default function BuffsSelector() {
     }
 
     return (
-        <section className="w-full mx-auto">
+        <section className={`w-full mx-auto ${className}`}>
             <header className="flex justify-between flex-col md:flex-row md:items-center mb-4 gap-2">
                 <h1 className="text-xl font-semibold text-primary dark:text-cyan-500">Buffs del personaje</h1>
                 <NewBuffModal

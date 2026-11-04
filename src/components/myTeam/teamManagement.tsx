@@ -1,6 +1,5 @@
 import { useMemo, useState, type SubmitEvent } from "react"
 import {
-    // BroomIcon,
     FloppyDiskIcon,
     FolderOpenIcon,
 } from "@phosphor-icons/react"
@@ -24,12 +23,10 @@ export default function TeamManagement() {
         teams,
         activeTeam,
         saveTeam,
-        // clearTeam,
     } = useTeam()
     const [teamName, setTeamName] = useState("")
     const [isSaveOpen, setIsSaveOpen] = useState(false)
     const [isLoadOpen, setIsLoadOpen] = useState(false)
-    // const [isClearOpen, setIsClearOpen] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
 
     const selectedCharacterIds = useMemo(

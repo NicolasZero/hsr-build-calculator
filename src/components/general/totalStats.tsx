@@ -3,10 +3,11 @@ import type { Character } from "@/schema/character"
 import type { BuffType, TotalStatsValues } from "@/schema/buffData"
 import { useTranslation } from "react-i18next"
 import { useState } from "react"
-import { Button } from "../ui/button"
+import { Button } from "@/components/ui/button"
+import { MoreInfo } from "@/components/general/moreInfo"
 
 interface StatItemConfig {
-    buff: BuffType
+    buff: keyof TotalStatsValues
     hasBaseKey?: 'hp' | 'atk' | 'def' | 'spd'
 }
 
@@ -58,11 +59,11 @@ export default function TotalStats({ total, character }: TotalStatsProps) {
             <Button onClick={() => setVisibleStats(!visibleStats)}>
                 {visibleStats ? "Ocultar estadisticas" : "Mostrar estadisticas"}
             </Button>
-            <section className={`flex flex-col md:flex-row gap-4`}>
+            <section className={'flex flex-col md:flex-row gap-4'}>
 
-                <ul className={`flex flex-col justify-around gap-3 rounded-lg bg-muted/50 p-4 text-nowrap md:w-fit ${visibleStats ? "" : "hidden"}`}>
+                <ul className={`shrink-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 justify-around gap-3 bg-muted/50 p-4 text-nowrap ${visibleStats ? "" : "hidden"}`}>
                     {STATS_ITEMS.map((item) => {
-                        const bonusVal = total[item.buff] ?? 0
+                        const bonusVal: number = total[item.buff] ?? 0
 
                         if (item.hasBaseKey && character !== undefined && character) {
                             const baseVal = Number(character[item.hasBaseKey]) || 0
@@ -75,6 +76,8 @@ export default function TotalStats({ total, character }: TotalStatsProps) {
                                     <span className="text-xs text-primary">
                                         ({bonusVal.toFixed(1)}%)
                                     </span>
+                                    <MoreInfo title={t(`buffs.types.${item.buff}`)} description={t(`buffs.fullName.${item.buff}`)}
+                                    />
                                 </li>
                                 // </TooltipComponent>
                             )
@@ -82,14 +85,17 @@ export default function TotalStats({ total, character }: TotalStatsProps) {
 
                         return (
                             // <TooltipComponent key={item.buff} content={item.tooltip}>
-                            <li key={item.buff}>{t(`buffs.types.${item.buff}`)}: {bonusVal}%</li>
+                            <li key={item.buff}>{t(`buffs.types.${item.buff}`)}: {bonusVal}%
+                                <MoreInfo title={t(`buffs.types.${item.buff}`)} description={t(`buffs.fullName.${item.buff}`)}
+                                />
+                            </li>
                             // </TooltipComponent>
                         )
                     })}
                 </ul>
 
 
-                <div className="w-full max-w-[90vw] rounded-md border md:w-full">
+                <div className="w-full overflow-auto border">
                     <StatsChart data={chartData} />
                 </div>
             </section>

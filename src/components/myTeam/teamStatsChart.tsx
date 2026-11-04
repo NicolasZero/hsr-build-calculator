@@ -19,7 +19,7 @@ interface TeamStatsChartProps {
     contributions: Record<number, TotalStatsValues>
 }
 
-const STATS: BuffType[] = [
+const STATS: (keyof TotalStatsValues)[] = [
     "hpPercent",
     "atkPercent",
     "defPercent",
@@ -160,6 +160,7 @@ export default function TeamStatsChart({ teamMembers, contributions }: TeamStats
                     <CartesianGrid vertical={false} />
                     <XAxis
                         dataKey="buff"
+                        tickFormatter={(value: string) => t(`buffs.types.${value as BuffType}`)}
                         tickLine={false}
                         tickMargin={10}
                         axisLine={false}

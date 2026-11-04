@@ -18,13 +18,14 @@
     },
     "buttons": {
         "new": "New",
-        "newCharacter": "New Character",
-        "load": "Load Character",
-        "save": "Save Character",
+        "load": "Load",
+        "save": "Save",
+        "registered": "Registered",
         "saveNew": "Save as New",
+        "newCharacter": "New Character",
         "saveLoading": "Saving...",
         "loadLoading": "Loading...",
-        "update": "Update Character",
+        "update": "Update",
         "addBuff": "Add buff"
     },
     "placeholders": {

@@ -265,10 +265,17 @@ export function calculateDamage(input: DamageCalculationInput): DamageCalculatio
     }
 }
 
+const statToTotalKey: Record<"atk" | "hp" | "def", keyof TotalStatsValues> = {
+    atk: "atkPercent",
+    hp: "hpPercent",
+    def: "defPercent",
+}
+
 export function getStatValue(
     stat: "atk" | "hp" | "def",
     character: { atk: number | string; hp: number | string; def: number | string },
     total: TotalStatsValues
 ): number {
-    return (Number(character[stat]) || 0) * (1 + (total[stat] || 0) * 0.01)
+    const percentKey = statToTotalKey[stat]
+    return (Number(character[stat]) || 0) * (1 + (total[percentKey] || 0) * 0.01)
 }

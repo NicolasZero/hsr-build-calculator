@@ -82,7 +82,7 @@
             "ultimate": "Ultimate",
             "followUp": "Follow Up"
         },
-        "AttackTarget": {
+        "attackTarget": {
             "single": "Single",
             "blast": "Blast",
             "aoe": "AoE",

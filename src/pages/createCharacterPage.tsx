@@ -26,9 +26,9 @@ export default function TeamBuilderPage() {
     } = useCharacter()
     const { savedCharacters } = useTeam()
 
-    type SaveType = 'update' | 'saved_new' | 'create'
+    type SaveType = 'Updated' | 'SavedNew' | 'Saved'
 
-    const handleSave = async (saveType: SaveType = 'update') => {
+    const handleSave = async (saveType: SaveType = 'Updated') => {
         const { isValid, errors } = validation(character, t)
 
         if (!isValid) {
@@ -41,11 +41,10 @@ export default function TeamBuilderPage() {
         setIsSaving(true)
 
         try {
-            const res = await saveCharacter(saveType === 'saved_new')
+            const res = await saveCharacter(saveType === 'SavedNew')
             if (res.success) {
-                const actionKey = saveType === 'update' ? 'Updated' : saveType === 'saved_new' ? 'SavedNew' : 'Saved'
                 toast.success(
-                    t(`alerts.character${actionKey}`, { name: character.name })
+                    t(`alerts.character${saveType}`, { name: character.name })
                 )
             } else {
                 toast.error(t('alerts.characterError'))
@@ -65,32 +64,32 @@ export default function TeamBuilderPage() {
     return (
         <main className='flex flex-col gap-6 mt-4 px-4 md:px-8 max-w-7xl mx-auto w-full'>
             {/* Barra superior de gestión y carga de personajes */}
-            <header className='flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-muted/40 border'>
-                <section>
-                    <div className="flex items-center gap-2 mb-1 text-2xl">
+            <header className='flex flex-col sm:flex-row justify-between gap-4 p-4 bg-muted/40 border'>
+                <div>
+                    {isDirty && (
+                        <span className="inline-flex text-nowrap items-center gap-1.5 px-2.5 py-0.5 rounded-full w-fit text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 animate-in fade-in duration-200">
+                            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                            {t('builder.unsavedChanges')}
+                        </span>
+                    )}
+                    <div className="flex items-center gap-2 text-2xl" role='titulo'>
                         <PencilIcon className="text-primary" />
                         <h2 className=" font-semibold">{t('builder.title')}</h2>
-                        {isDirty && (
-                            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 animate-in fade-in duration-200">
-                                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                                {t('builder.unsavedChanges')}
-                            </span>
-                        )}
                     </div>
-                    <p className='text-xs sm:text-sm text-muted-foreground'>
+                    <p className='text-sm text-muted-foreground' role='descripcion'>
                         {t('builder.description')}
                     </p>
-                </section>
+                </div>
 
-                <div className='flex items-center gap-2.5 flex-wrap'>
+                <div className='flex justify-end items-center gap-2.5 flex-wrap' role='gestion-characters'>
                     <Button
                         type='button'
                         variant='outline'
                         onClick={() => navigate("/characters")}
-                        className='flex items-center gap-2 relative shadow-xs'
+                        className='shadow-xs'
                     >
                         <FolderOpenIcon size={18} />
-                        <span>{t('buttons.load')}</span>
+                        <span>{t('buttons.registered')}</span>
                         {savedCharacters.length > 0 && (
                             <span className='ml-1 px-1.5 py-0.2 rounded-full text-[11px] font-semibold dark:bg-cyan-950 bg-purple-100 text-primary '>
                                 {savedCharacters.length}
@@ -102,7 +101,7 @@ export default function TeamBuilderPage() {
                         type='button'
                         variant='ghost'
                         onClick={handleNewCharacter}
-                        className='flex items-center gap-1.5 text-muted-foreground hover:text-foreground'
+                        className='text-muted-foreground hover:text-foreground'
                     >
                         <PlusIcon size={16} />
                         <span>{t('buttons.newCharacter')}</span>
@@ -113,13 +112,10 @@ export default function TeamBuilderPage() {
             {/* Formulario principal */}
             <BaseData />
 
-            <section className='bg-muted/40 px-4 py-2 border'>
-                <RelicSelector />
-            </section>
+            <RelicSelector className='bg-muted/40 px-4 py-2 border' />
 
-            <section className='bg-muted/40 px-4 py-2 border'>
-                <BuffsSelector />
-            </section>
+            <BuffsSelector className='bg-muted/40 px-4 py-2 border' />
+
 
             <TotalStats className="bg-muted/40 px-4 py-2 border" />
 
@@ -131,7 +127,7 @@ export default function TeamBuilderPage() {
                             type='button'
                             variant='outline'
                             disabled={isSaving}
-                            onClick={() => handleSave('saved_new')}
+                            onClick={() => handleSave('SavedNew')}
                             className='px-5'
                         >
                             <PlusIcon size={18} />
@@ -141,7 +137,7 @@ export default function TeamBuilderPage() {
                         <Button
                             type='button'
                             disabled={isSaving}
-                            onClick={() => handleSave('update')}
+                            onClick={() => handleSave('Updated')}
                             className={`px-6 font-semibold shadow-md transition-all ${isDirty ? 'ring-2 ring-primary ring-offset-2' : ''}`}
                         >
                             <FloppyDiskIcon size={18} />
@@ -152,7 +148,7 @@ export default function TeamBuilderPage() {
                     <Button
                         type='button'
                         disabled={isSaving}
-                        onClick={() => handleSave('create')}
+                        onClick={() => handleSave('Saved')}
                         className={`px-6 font-semibold shadow-md transition-all ${isDirty ? 'ring-2 ring-primary ring-offset-2' : ''}`}
                     >
                         <FloppyDiskIcon size={18} />

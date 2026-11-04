@@ -9,7 +9,7 @@ import { useCharacter } from "@/contexts/teamContext"
 import { useTranslation } from "react-i18next"
 import { toast } from "sonner"
 
-export default function RelicSelector() {
+export default function RelicSelector({ className }: { className?: string }) {
     const { relics, setRelics } = useCharacter()
     const { t } = useTranslation(['builder', 'stats']);
 
@@ -70,7 +70,7 @@ export default function RelicSelector() {
     }
 
     return (
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
+        <section className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${className}`}>
             <header className="col-span-full">
                 <h2 className="text-xl font-semibold text-primary">{t('relics.title')}</h2>
                 <p className="text-sm text-muted-foreground">{t('relics.description')}</p>
@@ -84,7 +84,7 @@ export default function RelicSelector() {
             {/*Main stats*/}
             <div>
                 <h3 className="text-lg font-semibold">{t('relics.mainStats')}</h3>
-                <form onSubmit={handleAddRelic} className="flex gap-4 items-end mb-4">
+                <form onSubmit={handleAddRelic} className="flex flex-col sm:flex-row md:items-center gap-2 md:gap-4 mb-4">
                     {/* Piece selection */}
                     <Select name="piece" value={relicOpt} onValueChange={(v) => {
                         setRelicOpt(v)
@@ -132,7 +132,7 @@ export default function RelicSelector() {
             {/*Sub Stats*/}
             <div>
                 <h3 className="text-lg font-semibold">{t('relics.subStats')}</h3>
-                <form onSubmit={handleAddSubStat} className="flex gap-4 mb-4" >
+                <form onSubmit={handleAddSubStat} className="flex flex-col sm:flex-row md:items-center gap-2 md:gap-4 mb-4" >
                     <Select name="stat">
                         <SelectTrigger className="w-full">
                             <SelectValue placeholder={t('placeholders.stat')} />

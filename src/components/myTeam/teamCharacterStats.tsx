@@ -50,10 +50,12 @@ export default function TeamCharacterStats() {
                 </p>
             ) : (
                 <div className="flex flex-col gap-6">
-                    <TotalStats
-                        total={stats.total}
-                        character={selectedMember.build?.character}
-                    />
+                    <div>
+                        <TotalStats
+                            total={stats.total}
+                            character={selectedMember.build?.character}
+                        />
+                    </div>
                     <section className="rounded-xl border bg-background/60 p-3 md:p-4">
                         <div className="mb-3">
                             <h3 className="font-semibold">Aporte de buffs por integrante</h3>

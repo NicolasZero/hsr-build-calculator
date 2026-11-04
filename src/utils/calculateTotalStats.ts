@@ -1,5 +1,5 @@
 import { valueByMainStat } from "@/const/relicStats"
-import type { BuffData, BuffType, StatBuffDependent, TotalStatsValues } from "@/schema/buffData"
+import type { BuffData, StatBuffDependent, TotalStatsValues } from "@/schema/buffData"
 import type { Character } from "@/schema/character"
 import type { RelicData } from "@/schema/relicData"
 
@@ -29,28 +29,28 @@ export interface Stats {
     merrymake: number
 }
 
-const statsMap: BuffType[] = [
-    "atkPercent",
-    "defPercent",
-    "hpPercent",
-    "spdPercent",
-    "atkFlat",
-    "defFlat",
-    "hpFlat",
-    "spdFlat",
-    "propCrit",
-    "dmgCrit",
-    "dmg",
-    "breakEffect",
-    "breakDamage",
-    "superBreakDamage",
-    "elation",
-    "redDef",
-    "vul",
-    "penRes",
-    "originalDmg",
-    "merrymake"
-]
+const statsMap: Partial<Record<string, keyof Stats>> = {
+    atkPercent: "atkPercent",
+    defPercent: "defPercent",
+    hpPercent: "hpPercent",
+    spdPercent: "spdPercent",
+    atkFlat: "atkFlat",
+    defFlat: "defFlat",
+    hpFlat: "hpFlat",
+    spdFlat: "spdFlat",
+    propCrit: "propCrit",
+    dmgCrit: "dmgCrit",
+    dmg: "dmg",
+    breakEffect: "breakEffect",
+    breakDamage: "breakDamage",
+    superBreakDamage: "superBreakDamage",
+    elation: "elation",
+    redDef: "redDef",
+    vul: "vul",
+    penRes: "penRes",
+    originalDmg: "originalDmg",
+    merrymake: "merrymake"
+}
 
 // Crea un objeto con todas las estadísticas inicializadas en cero.
 // Se utiliza una función para generar un objeto nuevo cada vez,

@@ -7,14 +7,15 @@ import { useBlobUrl } from "@/hooks/useBlobUrl"
 interface Props {
     build: SavedCharacterBuild | null
     onClick?: () => void
+    className?: string
 }
 
-export default function CharacterPortrait({ build, onClick }: Props) {
+export default function CharacterPortrait({ build, onClick, className }: Props) {
     const [open, setOpen] = useState(false)
     const imageUrl = useBlobUrl(build?.character?.image)
 
     return (
-        <div className="w-24 min-h-24 md:min-h-32 h-full md:w-48 shrink-0 overflow-hidden rounded-xl border bg-muted">
+        <div className={`${className} overflow-hidden border bg-muted`}>
             <PreviewImage
                 open={open}
                 onOpenChange={setOpen}
