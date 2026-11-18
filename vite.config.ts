@@ -16,7 +16,7 @@ export default defineConfig({
   server: {
     watch: {
       ignored: [
-        '**/*.md'
+        '/docs/**'
       ]
     }
   },

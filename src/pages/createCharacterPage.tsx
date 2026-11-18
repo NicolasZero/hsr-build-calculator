@@ -1,4 +1,4 @@
-import { useState, lazy } from 'react'
+import { useState } from 'react'
 import { useCharacter, useTeam } from '@/contexts/teamContext'
 import { validation } from '@/utils/validation'
 import { FolderOpenIcon, PlusIcon, FloppyDiskIcon, PencilIcon } from '@phosphor-icons/react'
@@ -6,11 +6,10 @@ import { Button } from '@/components/ui/button'
 import { useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next';
 import { toast } from "sonner"
-
-const BaseData = lazy(() => import('@/components/characterBuilder/baseData'))
-const RelicSelector = lazy(() => import('@/components/characterBuilder/relicSelector'))
-const TotalStats = lazy(() => import('@/components/characterBuilder/characterStats'))
-const BuffsSelector = lazy(() => import('@/components/characterBuilder/buffsSelector'))
+import BaseData from '@/components/characterBuilder/baseData'
+import RelicSelector from '@/components/characterBuilder/relicSelector'
+import TotalStats from '@/components/characterBuilder/characterStats'
+import BuffsSelector from '@/components/characterBuilder/buffsSelector'
 
 export default function TeamBuilderPage() {
     const navigate = useNavigate()
